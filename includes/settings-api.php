@@ -205,7 +205,7 @@ function cp_hybridauth_options_field_config_data_callback(){
 					<label for="odnoklassniki-key_id">ID App</label>
 				</div>
 				<div>
-					<input id="odnoklassniki-key_id" type="text" size="55" name="<?php echo $setting_name . '[providers][Odnoklassniki][keys][key]'; ?>" value="<?php echo $setting_value['providers']['Odnoklassniki']['keys']['key']; ?>" />
+					<input id="odnoklassniki-key_id" type="text" size="55" name="<?php echo $setting_name . '[providers][Odnoklassniki][keys][id]'; ?>" value="<?php echo $setting_value['providers']['Odnoklassniki']['keys']['id']; ?>" />
 				</div>
 			</div>
 			<div class="key_secret">
@@ -221,7 +221,7 @@ function cp_hybridauth_options_field_config_data_callback(){
 					<label for="odnoklassniki-key_public">Public Key App</label>
 				</div>
 				<div>
-					<input id="odnoklassniki-key_public" type="text" size="55" name="<?php echo $setting_name . '[providers][Odnoklassniki][keys][key_public]'; ?>" value="<?php echo $setting_value['providers']['Odnoklassniki']['keys']['key_public']; ?>" />
+					<input id="odnoklassniki-key_public" type="text" size="55" name="<?php echo $setting_name . '[providers][Odnoklassniki][keys][key]'; ?>" value="<?php echo $setting_value['providers']['Odnoklassniki']['keys']['key']; ?>" />
 				</div>
 			</div>		
 		</fieldset>

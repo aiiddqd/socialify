@@ -51,16 +51,6 @@ function cp_btn_hybridauth($atts, $content=""){
 	<div class="cp-btn-hybridauth <?php echo apply_filters('cp_hybridauth_btn_class', $class_html) ?>">
 		<a href="<?php echo $url ?>"><?php echo $text ?></a>
 	</div>
-	<script>
-		(function($) {
-			  $('div.<?php echo strtolower( $provider_id ); ?> a').click(function(){
-				event.preventDefault();
-				url = "<?php echo $url ?>"
-				ha_popup=window.open(url,'name','height=300,width=400');
-				if (window.focus) {ha_popup.focus()}
-			  });
-		})(jQuery);
-	</script>
 	<?php
 	$data = ob_get_contents();
 	ob_end_clean();
@@ -79,7 +69,7 @@ function cp_ha_delete_profile() {
 	//Проверяем есть ли удаляемый профайл. Если нет, то возвращаем URL уведомления отсутствия профиля. Иначе удаляем профиль.
 	$profile = get_user_meta(get_current_user_id(), $meta_key = 'cp_hybridauth_' . strtolower( $provider_id ) . '_identifier', true);
 	if(empty($profile)) {
-		wp_redirect(add_query_arg(array('result' => 'not_found_proifile')));
+		wp_redirect(add_query_arg(array('result' => 'not_found_profile')));
 		exit;
 	} else {
 		delete_user_meta(
@@ -90,7 +80,6 @@ function cp_ha_delete_profile() {
 		wp_redirect(add_query_arg(array('cp_result_delete_profile' => 'success'), home_url( $wp->request )));
 		exit;
 	}
-
 }
 
 
@@ -107,8 +96,6 @@ function start_session_hybrydauth(){
 	require_once (plugin_dir_path( __FILE__ ) . '/hybridauth/Hybrid/Auth.php');
 
 	$config = get_option('cp_hybridauth_config_data'); //get_config_hybridauth();
-
-	//error_log('ttt' . print_r($config, true));
 	
 	//получаем текущий URL для дальнейшей работы
 	global $wp;
@@ -130,20 +117,15 @@ function start_session_hybrydauth(){
 		// get the user profile 
 		$user_profile = $provider->getUserProfile();
 
+		error_log('vk - ' . print_r($user_profile, true));
+		
 		//проводим авторизацию и аутентификацию. если пользователь получается то возвращаем ID
 		$user_id = cp_login_authenticate_wp_user($user_profile, $provider->id);
 
+		//Если функция авторизации вернула ложь, то добавить в URL параметр ошибки
+		if($user_id== false) $redirect_url = add_query_arg(array('h-auth' => 'fail'), $redirect_url);
 
-		?>
-		<div>Поздравляем с успешной авторизацией!</div>
-		<script language="javascript">
- 
-			window.onload = function(){
-				window.opener.location.href="<?php echo $current_url; ?>";
-				self.close();
-			};
-		</script>
-		<?php
+		wp_redirect($redirect_url);
 		exit; 
 
 	}
@@ -164,10 +146,10 @@ function start_session_hybrydauth(){
 				   break;
 			case 6 : echo "User profile request failed. Most likely the user is not connected "
 					  . "to the provider and he should to authenticate again."; 
-				   $twitter->logout();
+				   $provider->logout();
 				   break;
 			case 7 : echo "User not connected to the provider."; 
-				   $twitter->logout();
+				   $provider->logout();
 				   break;
 			case 8 : echo "Provider does not support this feature."; break;
 		} 
@@ -202,6 +184,7 @@ function cp_login_authenticate_wp_user($profile, $provider_id){
 	$provider_id = strtolower( $provider_id );
 	$email = $profile->email;
 	$displayName = $profile->displayName;
+	if(empty($displayName)) $displayName = $profile->lastName . ' ' . $profile->firstName;
 	$identifier = $profile->identifier;
 
 /*
@@ -219,21 +202,22 @@ function cp_login_authenticate_wp_user($profile, $provider_id){
 		$users = $user_query->get_results();
 		$user_id = $users[0]->ID;
 		wp_set_auth_cookie($user_id, 1);
-		//error_log('Если запрос вернул одного пользователя, то ставим куку и авторизуем');
-		
+		error_log('Если запрос вернул одного пользователя, то ставим куку и авторизуем');
 		return $user_id;
 		
 	} elseif($user_query->total_users > 1) {
 		//Если запрос вернул более одного пользователя, то сбрасываем меты. Это маловероятно, но лучше удалить авторизацию.
+		error_log('Если запрос вернул много пользователей, то удаляем профиль на всякий случай у всех');
 		$users = $user_query->get_results();
 		foreach( $users as $user ):
 			
 			$user_id = $user->ID;
 			
 			delete_user_meta(
-			$user_id, 
-			$meta_key = 'cp_hybridauth_' . $provider_id . '_identifier', 
-			$meta_value = $identifier);
+				$user_id, 
+				$meta_key = 'cp_hybridauth_' . $provider_id . '_identifier', 
+				$meta_value = $identifier
+			);
 		endforeach;
 		return false;
 	}
@@ -247,10 +231,10 @@ function cp_login_authenticate_wp_user($profile, $provider_id){
 	if(! empty($email)) $user = get_user_by('email', $email );
 	
 	//Если не нашли пользователя по email то вернется false и нужно это учесть
-	if(! empty($user_id)) {
+	if(! empty($user)) {
 		$user_id = $user->ID;
 		if($user_id > 0) {
-			error_log('Пробуем найти пользователя по эл.почте.');
+			error_log('Нашли пользователя по эл.почте.');
 			update_user_meta(
 				$user_id, 
 				$meta_key = 'cp_hybridauth_' . $provider_id . '_identifier', 
@@ -267,7 +251,7 @@ function cp_login_authenticate_wp_user($profile, $provider_id){
 */
 	if ( is_user_logged_in() ) {
 		$user_id = get_current_user_id();
-		error_log('user id'.$user_id);
+		error_log('Если пользователь авторизован, то подключить к нему профиль - '.$user_id);
 		update_user_meta(
 			$user_id, 
 			$meta_key = 'cp_hybridauth_' . $provider_id . '_identifier', 
@@ -280,17 +264,32 @@ function cp_login_authenticate_wp_user($profile, $provider_id){
 */
 	$random_password = wp_generate_password( $length=12, $include_standard_special_chars=false );
 	//берем реальную почту из профиля или генерируем на лету
-	$user_email = empty($email) ? ($identifier . '@' . $provider_id . '.tmp') : $email;
+	if(! is_email($email)) $user_email = $identifier . '@' . $provider_id . '.tmp';
+	
+	error_log('sdf - ' . $displayName . ', ' . $user_email);
 	
 	//создаем пользователя
 	$user_id = wp_create_user( $user_name = $displayName, $random_password, $user_email );
 	
-	update_user_meta(
-		$user_id, 
-		$meta_key = 'cp_hybridauth_' . $provider_id . '_identifier', 
-		$meta_value = $identifier);
-	wp_set_auth_cookie($user_id, 1);
-	return $user_id;
+	error_log('wp error - ' . print_r($user_id, true));
+	
+	if(! is_wp_error($user_id)) {
+		update_user_meta(
+			$user_id, 
+			$meta_key = 'cp_hybridauth_' . $provider_id . '_identifier', 
+			$meta_value = $identifier
+		);
+			
+		error_log('Создаем пользователя - ' . $user_id);
+		
+		wp_set_auth_cookie($user_id, 1);
+		return $user_id;	
+	}
+	
+/*
+Если дошли до сюда, то ни одна из схем не сработала. Возвращаем false
+*/
+return false;
 }
 
 
