@@ -83,6 +83,9 @@ function cp_settings_pages_section_callback(){
 }
 
 
+/*
+Генерируем поля настройки для ключей внешних веб приложений
+*/
 function cp_hybridauth_options_field_config_data_callback(){
 	$setting_name = 'cp_hybridauth_config_data';
 	$setting_value = get_option( $setting_name );

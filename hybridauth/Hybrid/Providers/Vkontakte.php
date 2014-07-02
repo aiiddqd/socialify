@@ -53,11 +53,15 @@ class Hybrid_Providers_Vkontakte extends Hybrid_Provider_Model_OAuth2
 			throw new Exception( "Authentification failed! {$this->providerId} returned an invalid access token.", 5 );
 		}
 
+		error_log("Смотрим что покажет возврат ответа от соц сети...");
+		error_log(print_r($response, true));
+		
 		// store tokens
 		$this->token( "access_token" , $this->api->access_token  );
 		$this->token( "refresh_token", $this->api->refresh_token );
 		$this->token( "expires_in"   , $this->api->access_token_expires_in );
 		$this->token( "expires_at"   , $this->api->access_token_expires_at );
+		
 
 		// store user id. it is required for api access to Vkontakte
 		Hybrid_Auth::storage()->set( "hauth_session.{$this->providerId}.user_id", $response->user_id );

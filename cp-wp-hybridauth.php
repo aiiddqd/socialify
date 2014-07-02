@@ -13,14 +13,16 @@ Domain Path: languages
 //Определяем константу и помещаем в нее путь до папки с плагином. Чтобы затем использовать ее.
 define ("CP_HYBRIDAUTH_PLUGIN_DIR_URL", plugin_dir_url(__FILE__));
 
-//Connect config for hybridauth
-//require_once('config-hybridauth.php');
 //Connect settings page
 require_once('includes/settings-api.php');
 
 //Добавляем шорткод для вывода кнопки
 add_shortcode('btn-hybridauth', 'cp_btn_hybridauth');
 function cp_btn_hybridauth($atts, $content=""){
+	
+	/*
+	Если ничего не указано в шорткоде, то генерируем параметры с рассчетом на Фейсбук
+	*/
 	extract(shortcode_atts( array(
 		'provider_id' => 'Facebook',
 		'img' => 'default baz',
@@ -117,7 +119,9 @@ function start_session_hybrydauth(){
 		// get the user profile 
 		$user_profile = $provider->getUserProfile();
 
-		error_log('vk - ' . print_r($user_profile, true));
+		//проверяем что нам вернулас соц сеть
+		//$test = (array)$user_profile;
+		//error_log('vk - ' . print_r($test, true));
 		
 		//проводим авторизацию и аутентификацию. если пользователь получается то возвращаем ID
 		$user_id = cp_login_authenticate_wp_user($user_profile, $provider->id);
@@ -125,6 +129,14 @@ function start_session_hybrydauth(){
 		//Если функция авторизации вернула ложь, то добавить в URL параметр ошибки
 		if($user_id== false) $redirect_url = add_query_arg(array('h-auth' => 'fail'), $redirect_url);
 
+		//проверка на временный email
+		$user = get_userdata( $user_id );
+		error_log('substr - ' . substr($user->user_email, -3));
+		if(substr($user->user_email, -3) == 'tmp') {
+			wp_redirect(add_query_arg(array('get_email' => '1'), $redirect_url));
+			exit;
+		}
+		
 		wp_redirect($redirect_url);
 		exit; 
 
@@ -183,6 +195,7 @@ function cp_login_authenticate_wp_user($profile, $provider_id){
 */
 	$provider_id = strtolower( $provider_id );
 	$email = $profile->email;
+	$username = $profile->displayName;
 	$displayName = $profile->displayName;
 	if(empty($displayName)) $displayName = $profile->lastName . ' ' . $profile->firstName;
 	$identifier = $profile->identifier;
@@ -264,16 +277,22 @@ function cp_login_authenticate_wp_user($profile, $provider_id){
 */
 	$random_password = wp_generate_password( $length=12, $include_standard_special_chars=false );
 	//берем реальную почту из профиля или генерируем на лету
-	if(! is_email($email)) $user_email = $identifier . '@' . $provider_id . '.tmp';
+	if(! is_email($email)) $email = $identifier . '@' . $provider_id . '.tmp';
 	
-	error_log('sdf - ' . $displayName . ', ' . $user_email);
+	if(!validate_username($username) || empty($username)) $username = str_replace(array(' ', '@', '.'), '-', $email);
+	
+	//проверяем имя пользователя и мыло
+	error_log('имя пользователя и мыло - ' . $username . ', ' . $email);
 	
 	//создаем пользователя
-	$user_id = wp_create_user( $user_name = $displayName, $random_password, $user_email );
+	$user_id = wp_create_user( $username, $random_password, $email );
+	
+	
 	
 	error_log('wp error - ' . print_r($user_id, true));
 	
 	if(! is_wp_error($user_id)) {
+		if(!is_wp_error($user_id)) wp_update_user(array ('ID' => $user_id, 'display_name' => $displayName, 'first_name' => $profile->firstName,'last_name' => $profile->lastName));
 		update_user_meta(
 			$user_id, 
 			$meta_key = 'cp_hybridauth_' . $provider_id . '_identifier', 
@@ -298,12 +317,78 @@ return false;
 */
 add_action('template_redirect', 'cp_hybridauth_add_email');
 function cp_hybridauth_add_email(){
-if(! isset($_REQUEST['add_email'])) return;
+if(!isset($_REQUEST['get_email'])) return;
+
+if(isset($_REQUEST['get_email'])) {
+$email = $_REQUEST['get_email'];
+if(is_email($email)){
+	
+	$current_user = wp_get_current_user();
+
+	if ( $current_user->user_email != $email) {
+
+		$hash = md5( $email . time() . mt_rand() );
+		$new_user_email = array(
+				'hash' => $hash,
+				'newemail' => $email
+				);
+		update_option( $current_user->ID . '_new_email', $new_user_email );
+
+		$content = apply_filters( 'get_user_email_content', __( "Дорогой пользователь,
+
+Для подтверждения адреса электронной почты, пожалуйста, перейдите по ссылке:
+###ADMIN_URL###
+
+Если вы не хотите уточнять адрес электронной почты, то просто проигнорируйте это письмо.
+
+Это письмо было отправлно на адрес ###EMAIL###
+
+С наилучшими пожеланиями,
+Команда сайта ###SITENAME###" ), $new_user_email );
+
+		$content = str_replace( '###ADMIN_URL###', esc_url( admin_url( 'profile.php?newuseremail='.$hash ) ), $content );
+		$content = str_replace( '###EMAIL###', $email, $content);
+		$content = str_replace( '###SITENAME###', get_site_option( 'site_name' ), $content );
+
+		wp_mail( $email, sprintf( __( '[%s] New Email Address' ), get_option( 'blogname' ) ), $content );
+		$_POST['get_email'] = $current_user->user_email;
+	}
+}	
+	
+	
+}
+
 ?>
-<div id="add_email">
-<form>
-<input type="text" />
-</form>
-</div>
+<!DOCTYPE html>
+	<!--[if IE 8]>
+		<html xmlns="http://www.w3.org/1999/xhtml" class="ie8" <?php language_attributes(); ?>>
+	<![endif]-->
+	<!--[if !(IE 8) ]><!-->
+		<html xmlns="http://www.w3.org/1999/xhtml" <?php language_attributes(); ?>>
+	<!--<![endif]-->
+	<head>
+	<meta http-equiv="Content-Type" content="<?php bloginfo('html_type'); ?>; charset=<?php bloginfo('charset'); ?>" />
+	<title>Уточнение учетных данных</title>
+	<?php
+
+	wp_admin_css( 'login', true );
+
+	?>
+	</head>
+	<body class="login wp-core-ui">
+	<div id="login">
+		<div id="add_email">
+		<p class="message">	Регистрация почти завершена.<br/>Нужно уточнить Ваш email<br></p>
+		<form>
+			<label for="user_email">Электронный адрес<br>
+				<input type="text" name="get_email" id="user_email" class="input" value="" size="20">
+			</label>
+			<p class="submit">
+				<input type="submit" name="wp-submit" id="wp-submit" class="button button-primary button-large" value="Сохранить">
+			</p>
+		</form>
+		</div>
+	</div>
 <?php
+exit;
 }
