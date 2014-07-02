@@ -9,6 +9,8 @@
 //	HybridAuth End Point
 // ------------------------------------------------------------------------
 
+session_save_path('/sites/vkruge.info/public');
+
 require_once( "Hybrid/Auth.php" );
 require_once( "Hybrid/Endpoint.php" ); 
 

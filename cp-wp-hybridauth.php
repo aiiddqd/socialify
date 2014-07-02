@@ -101,27 +101,21 @@ function start_session_hybrydauth(){
 	
 	//получаем текущий URL для дальнейшей работы
 	global $wp;
-	$current_url = home_url( $wp->request );
+
 	$redirect_url = home_url($wp->request);
 	
 	try{
-		// hybridauth EP
+
 		$hybridauth = new Hybrid_Auth( $config );
 
 		// automatically try to login with Twitter
 		$provider = $hybridauth->authenticate( $provider_name );
 
-		
-		
 		// return TRUE or False <= generally will be used to check if the user is connected to twitter before getting user profile, posting stuffs, etc..
 		$is_user_logged_in = $provider->isUserConnected();
 
 		// get the user profile 
 		$user_profile = $provider->getUserProfile();
-
-		//проверяем что нам вернулас соц сеть
-		//$test = (array)$user_profile;
-		//error_log('vk - ' . print_r($test, true));
 		
 		//проводим авторизацию и аутентификацию. если пользователь получается то возвращаем ID
 		$user_id = cp_login_authenticate_wp_user($user_profile, $provider->id);
@@ -169,10 +163,10 @@ function start_session_hybrydauth(){
 		// well, basically your should not display this to the end user, just give him a hint and move on..
 		echo "<br /><br /><b>Original error message:</b> " . $e->getMessage();
 
-		echo "<hr /><h3>Trace</h3> <pre>" . $e->getTraceAsString() . "</pre>"; 
+		echo "<hr /><h3>Trace</h3> <pre>" . $e->getTraceAsString() . "</pre>";
 
 		/*
-			// If you want to get the previous exception - PHP 5.3.0+ 
+			// If you want to get the previous exception - PHP 5.3.0+
 			// http://www.php.net/manual/en/language.exceptions.extending.php
 			if ( $e->getPrevious() ) {
 				echo "<h4>Previous exception</h4> " . $e->getPrevious()->getMessage() . "<pre>" . $e->getPrevious()->getTraceAsString() . "</pre>";

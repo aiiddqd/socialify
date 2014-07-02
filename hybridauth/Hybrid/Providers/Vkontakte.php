@@ -24,8 +24,8 @@ class Hybrid_Providers_Vkontakte extends Hybrid_Provider_Model_OAuth2
 		parent::initialize();
 
 		// Provider api end-points
-		$this->api->authorize_url  = "http://api.vk.com/oauth/authorize";
-		$this->api->token_url      = "https://api.vk.com/oauth/token";
+		$this->api->authorize_url  = "https://oauth.vk.com/authorize";
+		$this->api->token_url      = "https://oauth.vk.com/access_token";
 		//$this->api->token_info_url
 	}
 
@@ -53,18 +53,18 @@ class Hybrid_Providers_Vkontakte extends Hybrid_Provider_Model_OAuth2
 			throw new Exception( "Authentification failed! {$this->providerId} returned an invalid access token.", 5 );
 		}
 
-		error_log("Смотрим что покажет возврат ответа от соц сети...");
-		error_log(print_r($response, true));
-		
 		// store tokens
 		$this->token( "access_token" , $this->api->access_token  );
 		$this->token( "refresh_token", $this->api->refresh_token );
 		$this->token( "expires_in"   , $this->api->access_token_expires_in );
 		$this->token( "expires_at"   , $this->api->access_token_expires_at );
-		
+
 
 		// store user id. it is required for api access to Vkontakte
 		Hybrid_Auth::storage()->set( "hauth_session.{$this->providerId}.user_id", $response->user_id );
+
+        if(isset($response->email))
+		    Hybrid_Auth::storage()->set( "hauth_session.{$this->providerId}.email", $response->email );
 
 		// set user connected locally
 		$this->setUserConnected();
@@ -80,7 +80,7 @@ class Hybrid_Providers_Vkontakte extends Hybrid_Provider_Model_OAuth2
 
 		// Vkontakte requires user id, not just token for api access
 		$params['uid'] = Hybrid_Auth::storage()->get( "hauth_session.{$this->providerId}.user_id" );
-		$params['fields'] = 'first_name,last_name,nickname,screen_name,sex,bdate,timezone,photo_rec,photo_big,email';
+		$params['fields'] = 'first_name,last_name,nickname,screen_name,sex,bdate,timezone,photo_rec,photo_big';
 		// ask vkontakte api for user infos
 		$response = $this->api->api( "https://api.vk.com/method/getProfiles" , 'GET', $params);
 		
@@ -88,12 +88,14 @@ class Hybrid_Providers_Vkontakte extends Hybrid_Provider_Model_OAuth2
 			throw new Exception( "User profile request failed! {$this->providerId} returned an invalide response.", 6 );
 		}
 
+        $email = Hybrid_Auth::storage()->get( "hauth_session.{$this->providerId}.email" );
+
 		$response = $response->response[0];
 		$this->user->profile->identifier    = (property_exists($response,'uid'))?$response->uid:"";
 		$this->user->profile->firstName     = (property_exists($response,'first_name'))?$response->first_name:"";
 		$this->user->profile->lastName      = (property_exists($response,'last_name'))?$response->last_name:"";
 		$this->user->profile->displayName   = (property_exists($response,'nickname'))?$response->nickname:"";
-		$this->user->profile->email         = (property_exists($response,'email'))?$response->email:"";
+		$this->user->profile->email         = is_null($email) ? '' : $email;
 		$this->user->profile->photoURL      = (property_exists($response,'photo_big'))?$response->photo_big:"";
 		$this->user->profile->profileURL    = (property_exists($response,'screen_name'))?"http://vk.com/" . $response->screen_name:"";
 

@@ -1,6 +1,5 @@
 <?php
 
-
 /*
 Добавляем страницу настроек WordPress
 */
@@ -44,7 +43,7 @@ function cp_hybridauth_init_options(){
 	add_settings_section( 
 		$id = 'cp_hybridauth_settings_sections', 
 		$title = '', 
-		$callback = 'cp_settings_pages_section_callback', 
+		$callback = 'cp_hybridauth_settings_pages_section_callback',
 		$page = 'cp_hybridauth_settings_page'
 	);
 
@@ -61,7 +60,7 @@ function cp_hybridauth_init_options(){
 
 }
 
-function cp_settings_pages_section_callback(){
+function cp_hybridauth_settings_pages_section_callback(){
 ?>
 <p>Данные ключей и приложений следует брать на соответствующей странице сети</p>
 <p>Для добавления кнопки авторизации через социальную сеть, следует использовать шорткод вида [btn-hybridauth provider_id="Twitter" text="Twitter"]</p>
@@ -69,13 +68,15 @@ function cp_settings_pages_section_callback(){
 <p>Пример использования шорткодов в комплексе:<br/>
 Кнопки без подключения, только для авторизации. Если пользователь уже авторизован, то эти кнопки не видны.<br/>
 [btn-hybridauth provider_id="Twitter" text="Twitter"]<br/>
-[btn-hybridauth provider_id="Facebook text="Фейсбук"]<br/>
+[btn-hybridauth provider_id="Facebook" text="Фейсбук"]<br/>
+[btn-hybridauth provider_id="Google" text="Google"]<br/>
 [btn-hybridauth provider_id="Vkontakte" text="ВКонтакте"]<br/>
 [btn-hybridauth provider_id="Odnoklassniki" text="Одноклассники"]<br/>
 <br/>
 Кнопки с подключением и отключения соц сетей<br/>
 [btn-hybridauth connect=true provider_id="Twitter" text="Twitter"]<br/>
-[btn-hybridauth connect=true provider_id="Facebook text="Фейсбук"]<br/>
+[btn-hybridauth connect=true provider_id="Google" text="Google"]<br/>
+[btn-hybridauth connect=true provider_id="Facebook" text="Фейсбук"]<br/>
 [btn-hybridauth connect=true provider_id="Vkontakte" text="ВКонтакте"]<br/>
 [btn-hybridauth connect=true provider_id="Odnoklassniki" text="Одноклассники"]<br/>
 </p>
@@ -124,6 +125,35 @@ function cp_hybridauth_options_field_config_data_callback(){
 				</div>
 			</div>
 			<input type="hidden" name="<?php echo $setting_name . '[providers][Facebook][trustForwarded]'; ?>" value=false>
+		</fieldset>
+		<fieldset id="google">
+			<legend><h1>Google+</h1></legend>
+			<div class="enabled">
+				<div><small>Укажите, чтобы использование данного провайдера</small></div>
+				<div>
+					<?php
+					$checked = $setting_value['providers']['Google']['enabled'];
+					?>
+					<input id="google-enabled" type="checkbox" name="<?php echo $setting_name . '[providers][Google][enabled]'; ?>" value=true <?php checked( $checked, "true", true ); ?> />
+					<label for="google-enabled">Включить</label>
+				</div>
+			</div>
+			<div class="key_id">
+				<div>
+					<label for="google_key_id">ID App</label>
+				</div>
+				<div>
+					<input id="google_key_id" type="text" size="55" name="<?php echo $setting_name . '[providers][Google][keys][id]'; ?>" value="<?php echo $setting_value['providers']['Google']['keys']['id']; ?>" />
+				</div>
+			</div>
+			<div class="key_secret">
+				<div>
+					<label for="google_key_secret">Secret App</label>
+				</div>
+				<div>
+					<input id="google_key_secret" type="text" size="55" name="<?php echo $setting_name . '[providers][Google][keys][secret]'; ?>" value="<?php echo $setting_value['providers']['Google']['keys']['secret']; ?>" />
+				</div>
+			</div>
 		</fieldset>
 		<fieldset id="twitter">
 			<legend><h1>Twitter</h1></legend>
