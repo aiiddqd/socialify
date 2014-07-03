@@ -1,0 +1,30 @@
+/* SOCIAL BUTTONS STYLES */
+
+.cp-btn-hybridauth {
+    float: left;
+    margin-right: 5px;
+}
+
+.cp-btn-hybridauth a {
+    display: block;
+    width: 40px;
+    height: 40px;
+    text-indent: -9999px;
+    background: url(socials.png);
+}
+
+.cp-btn-hybridauth a:active {
+    opacity: 0.7;
+}
+
+.cp-btn-hybridauth.facebook a {
+    background-position: 0 0;
+}
+
+.cp-btn-hybridauth.google a {
+    background-position: -252px 0;
+}
+
+.cp-btn-hybridauth.vkontakte a {
+    background-position: -168px 0;
+}
