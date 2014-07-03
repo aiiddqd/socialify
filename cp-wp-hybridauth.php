@@ -99,6 +99,13 @@ function cp_ha_delete_profile()
 /*
 На хуке редирект шаблона ловим ключ авторизации и если он есть, то выполняем авторизацию в соц сетях
 */
+add_action('init', 'start_session_hybridauth_login_page');
+function start_session_hybridauth_login_page()
+{
+    if(in_array($GLOBALS['pagenow'], array( 'wp-login.php')))
+        start_session_hybrydauth();
+}
+
 add_action('template_redirect', 'start_session_hybrydauth');
 function start_session_hybrydauth()
 {
