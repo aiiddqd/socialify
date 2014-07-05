@@ -28,3 +28,11 @@
 .cp-btn-hybridauth.vkontakte a {
     background-position: -168px 0;
 }
+
+.cp-btn-hybridauth.odnoklassniki a {
+    background-position: -126px 0;
+}
+
+.cp-btn-hybridauth.twitter a {
+    background-position: -42px 0;
+}

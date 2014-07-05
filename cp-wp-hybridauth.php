@@ -144,13 +144,13 @@ function start_session_hybrydauth()
 		if($user_id== false) $redirect_url = add_query_arg(array('h-auth' => 'fail'), $redirect_url);
 
 		//проверка на временный email
-		$user = get_userdata( $user_id );
+		/*$user = get_userdata( $user_id );
 		error_log('substr - ' . substr($user->user_email, -3));
 		if(substr($user->user_email, -3) == 'tmp')
         {
 			wp_redirect(add_query_arg(array('get_email' => '1'), $redirect_url));
 			exit;
-		}
+		}*/
 		
 		wp_redirect($redirect_url);
 		exit; 
@@ -158,7 +158,7 @@ function start_session_hybrydauth()
 	}
 	catch( Exception $e )
     {
-		// In case we have errors 6 or 7, then we have to use Hybrid_Provider_Adapter::logout() to 
+		/*// In case we have errors 6 or 7, then we have to use Hybrid_Provider_Adapter::logout() to
 		// let hybridauth forget all about the user so we can try to authenticate again.
 
 		// Display the received error,
@@ -184,9 +184,9 @@ function start_session_hybrydauth()
 		} 
 
 		// well, basically your should not display this to the end user, just give him a hint and move on..
-		echo "<br /><br /><b>Original error message:</b> " . $e->getMessage();
+		//echo "<br /><br /><b>Original error message:</b> " . $e->getMessage();
 
-		echo "<hr /><h3>Trace</h3> <pre>" . $e->getTraceAsString() . "</pre>";
+		//echo "<hr /><h3>Trace</h3> <pre>" . $e->getTraceAsString() . "</pre>";
 
 		/*
 			// If you want to get the previous exception - PHP 5.3.0+
@@ -313,12 +313,25 @@ function cp_login_authenticate_wp_user($profile, $provider_id)
 	error_log('wp error - ' . print_r($user_id, true));
 	
 	if(! is_wp_error($user_id)) {
-		if(!is_wp_error($user_id)) wp_update_user(array ('ID' => $user_id, 'display_name' => $displayName, 'first_name' => $profile->firstName,'last_name' => $profile->lastName));
-		update_user_meta(
-			$user_id, 
-			$meta_key = 'cp_hybridauth_' . $provider_id . '_identifier', 
-			$meta_value = $identifier
-		);
+		if(!is_wp_error($user_id))
+        {
+            wp_update_user(array(
+                'ID' => $user_id,
+                'display_name' => $displayName,
+                'first_name' => $profile->firstName,
+                'last_name' => $profile->lastName
+            ));
+            update_user_meta(
+                $user_id,
+                $meta_key = 'cp_hybridauth_' . $provider_id . '_identifier',
+                $meta_value = $identifier
+            );
+            update_user_meta(
+                $user_id,
+                $meta_key = 'cp_hybridauth_email_confirmed',
+                $meta_value = 0
+            );
+        }
 			
 		error_log('Создаем пользователя - ' . $user_id);
 		
