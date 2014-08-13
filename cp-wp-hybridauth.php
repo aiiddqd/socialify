@@ -56,7 +56,7 @@ function cp_btn_hybridauth($atts, $content="")
 	ob_start();
 ?>
 	<div class="cp-btn-hybridauth <?php echo apply_filters('cp_hybridauth_btn_class', $class_html) ?>">
-		<a href="<?php echo $url ?>" title="<?php echo $text ?>"></a>
+		<a href="<?php echo $url ?>"><?php echo $text ?></a>
 	</div>
 <?php
 	$data = ob_get_contents();
