@@ -13,7 +13,9 @@ class HAWP_Endpoint_Callback {
 
   }
 
-
+  /*
+  * Small hack for check and reset rewrite rules 
+  */
   function flush_rewrite_rules_hack(){
     $rules = get_option( 'rewrite_rules' );
 
@@ -22,11 +24,16 @@ class HAWP_Endpoint_Callback {
     }
   }
 
+  /*
+  * Add endpoint /hawp/ for app
+  */
   function add_endpoint() {
-      add_rewrite_endpoint( 'hawp', EP_ROOT );
+    add_rewrite_endpoint( 'hawp', EP_ROOT );
   }
 
-
+  /*
+  * Call endpoint - start HA process
+  */
   function endpoint_call(){
 
     $check = get_query_var('hawp', false);
@@ -34,8 +41,8 @@ class HAWP_Endpoint_Callback {
       return;
     }
 
-    require_once (plugin_dir_path( __FILE__ ) . '/inc/hybridauth/Hybrid/Auth.php');
-    require_once (plugin_dir_path( __FILE__ ) . '/inc/hybridauth/Hybrid/Endpoint.php');
+    require_once (plugin_dir_path( __FILE__ ) . 'hybridauth/Hybrid/Auth.php');
+    require_once (plugin_dir_path( __FILE__ ) . 'hybridauth/Hybrid/Endpoint.php');
 
     Hybrid_Endpoint::process();
 
