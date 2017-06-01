@@ -2,7 +2,7 @@
 /*
 Plugin Name: HAWP - HybridAuth for WordPress
 Description: Позволяет авторизовываться в соц сетях и через различные сторонние сайты посредством протокола OAuth2, OAuth1 & OpenID
-Version: 0.4
+Version: 0.5
 Author: AY
 Author URI: https://github.com/yumashev
 License: MIT License
@@ -17,6 +17,9 @@ require_once 'inc/class-settings-api.php';
 require_once 'inc/class-white-list.php';
 
 
+// @todo - do the right thing
+// require_once 'inc/class-profile-ui.php';
+
 
 
 class HAWP_Base {
@@ -25,7 +28,7 @@ class HAWP_Base {
 
 	function __construct(){
 		$this->options = $this->get_options();
-		add_shortcode('btn-hybridauth', array($this, 'shortcode_display'));
+		// add_shortcode('btn-hybridauth', array($this, 'shortcode_display'));
 		add_action('init', array($this, 'add_endpoint'));
 		add_action('template_redirect', array($this, 'start_session_hybrydauth'));
 		add_action('wp_enqueue_scripts', array($this, 'load_style') );
@@ -35,12 +38,17 @@ class HAWP_Base {
 	}
 
 	/*
-	* Add endpoint HAWP as exception
+	* Add endpoints HAWP as exception
 	* Use apply_filters( 'restricted_site_access_is_restricted', $is_restricted, $wp
 	*/
 	function support_rsa($is_restricted, $wp){
 
 		$check = stristr($wp->request, 'ha-sign' );
+		if($check !== false){
+			$is_restricted = false;
+		}
+
+		$check = stristr($wp->request, 'hawp' );
 		if($check !== false){
 			$is_restricted = false;
 		}
@@ -110,6 +118,8 @@ class HAWP_Base {
 
 			$provider = $hybridauth->authenticate( $provider_name );
 
+			$provider_id = strtolower($provider->id);
+
 			// return TRUE or False <= generally will be used to check if the user is connected to twitter before getting user profile, posting stuffs, etc..
 			$is_user_logged_in = $provider->isUserConnected();
 
@@ -119,9 +129,10 @@ class HAWP_Base {
 			$user_id = $this->hawp_get_user($user_profile, $provider->id);
 			$user_id = (int)$user_id;
 
+
+
 			if( ! empty($user_id)){
 				if( apply_filters('hawp_set_auth_cookie', true) ){
-					update_user_meta( $user_id, $meta_key = 'cp_hybridauth_' . $provider_id . '_identifier', $meta_value = $identifier);
 					wp_set_auth_cookie($user_id, 1);
 				}
 			}
@@ -160,8 +171,10 @@ class HAWP_Base {
 		$provider_id = strtolower( $provider_id );
 		$email = $profile->email;
 		$username = $profile->displayName;
-		$displayName = $profile->displayName;
-		if(empty($displayName)) $displayName = $profile->lastName . ' ' . $profile->firstName;
+		// $displayName = $profile->displayName;
+
+		$displayName = $profile->lastName . ' ' . $profile->firstName;
+
 		$identifier = $profile->identifier;
 
 
@@ -188,6 +201,18 @@ class HAWP_Base {
 		if(empty($user_id)){
 			throw new Exception('User ID not found');
 		}
+
+		$user_id = wp_update_user( array(
+			'ID' => $user_id,
+			'display_name' => $displayName,
+			'last_name' => $profile->lastName,
+			'first_name' => $profile->firstName
+		));
+
+
+		// var_dump($user_id); exit;
+
+		update_user_meta( $user_id, $meta_key = 'cp_hybridauth_' . $provider_id . '_identifier', $meta_value = $identifier);
 
 		return $user_id;
 
@@ -244,39 +269,6 @@ class HAWP_Base {
     wp_enqueue_style( 'cp_hybridauth_style_frontend', plugins_url( 'inc/style.css', __FILE__ ) );
 	}
 
-	/*
-	* Display Shortcode
-	*/
-	function shortcode_display($atts, $content="") {
-
-		extract(shortcode_atts( array(
-			'provider_id' => 'Facebook',
-			'img' => 'default baz',
-			'connect' => false,
-			'text' => 'Facebook'
-			), $atts, 'btn-hybridauth' ));
-
-		//если пользователи авторизован, то вернуть пустоту
-		if(is_user_logged_in() && $connect == false)
-	        return;
-
-		//Если у шорткода есть контент, то текст ссылки заполняется контентом.
-		if(! empty($content))
-	        $text = $content;
-
-		//Проверяем наличие профиля у текущего пользователя и меняем слегка URL
-		$profile = get_user_meta(get_current_user_id(), $meta_key = 'cp_hybridauth_' . strtolower( $provider_id ) . '_identifier', true);
-
-    $url = add_query_arg(array('cp-aa' => $provider_id));
-    $class_html = strtolower( $provider_id );
-
-		//Выводим HTML код кнопки
-		ob_start(); ?>
-			<div class="cp-btn-hybridauth <?php echo apply_filters('cp_hybridauth_btn_class', $class_html) ?>">
-				<a href="<?php echo $url ?>"><?php echo $text ?></a>
-			</div>
-	  <?php return ob_get_clean();
-	}
 
 	/*
 	* Get config for HybridAuth

@@ -1,4 +1,4 @@
-hybridauth-cp
+hybridauth
 =============
 
 HybridAuth for WordPress by CasePress
