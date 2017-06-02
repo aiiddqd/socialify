@@ -2,7 +2,7 @@
 /*
 Plugin Name: HAWP - HybridAuth for WordPress
 Description: Позволяет авторизовываться в соц сетях и через различные сторонние сайты посредством протокола OAuth2, OAuth1 & OpenID
-Version: 0.5
+Version: 0.6
 Author: AY
 Author URI: https://github.com/yumashev
 License: MIT License

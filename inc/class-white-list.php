@@ -20,6 +20,15 @@ class HAWP_White_List{
    */
   public function add_user_for_domain($user_id, $profile, $provider_id){
 
+    //Если уже есть user id, то нет смысла делать новый
+    if( ! empty($user_id)){
+      return $user_id;
+    }
+
+    //Проверка включена или нет регистрация по белому списку
+    if( empty( get_option('domains_white_list_enabled') ) ){
+      return $user_id;
+    }
 
     if(empty($profile->email)){
       throw new Exception("Empty email (White List)");

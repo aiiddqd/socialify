@@ -18,10 +18,12 @@ class HAWP_Login_Form_Ext {
   //	do_action( 'login_form' );
   function add_actions_to_form(){
 
-    $url = site_url('/ha-sign/Google');
+    $url_google = site_url('/ha-sign/Google');
+    $url_yandex = site_url('/ha-sign/Yandex');
 
     if(isset($_GET['redirect_url'])){
-      $url = add_query_arg('redirect_url', $_GET['redirect_url'], $url);
+      $url_google = add_query_arg('redirect_url', $_GET['redirect_url'], $url);
+      $url_yandex = add_query_arg('redirect_url', $_GET['redirect_url'], $url);
     }
     //Добавляем кнопки
     ?>
@@ -31,7 +33,9 @@ class HAWP_Login_Form_Ext {
             margin: 0px 0px 15px;
           }
         </style>
-        <?php printf('<a href="%s" class="button btn-hawp">Быстрый вход через Google</a>', $url); ?>
+        <p><strong>Быстрый вход без пароля:</strong></p>
+        <?php printf('<a href="%s" class="button btn-hawp">Google</a>', $url_google); ?>
+        <?php printf('<a href="%s" class="button btn-hawp">Яндекс</a>', $url_yandex); ?>
       </div>
     <?php
   }
