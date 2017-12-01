@@ -13,13 +13,12 @@ Domain Path: languages
 
 
 
-// require_once 'inc/class-ha-ep-callback.php';
 require_once 'inc/class-login-form-act.php';
 require_once 'inc/class-settings-api.php';
 require_once 'inc/class-white-list.php';
 
 
-// @todo - do the right thing
+// @TODO: create profile UI
 // require_once 'inc/class-profile-ui.php';
 
 
