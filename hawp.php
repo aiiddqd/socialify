@@ -2,16 +2,18 @@
 /*
 Plugin Name: HAWP - HybridAuth for WordPress
 Description: Позволяет авторизовываться в соц сетях и через различные сторонние сайты посредством протокола OAuth2, OAuth1 & OpenID
-Version: 0.6
+Version: 0.7
 Author: AY
-Author URI: https://github.com/yumashev
+Author URI: https://github.com/uptimizt
 License: MIT License
 Text Domain: hawp
 Domain Path: languages
 */
 
 
-require_once 'inc/class-ha-ep-callback.php';
+
+
+// require_once 'inc/class-ha-ep-callback.php';
 require_once 'inc/class-login-form-act.php';
 require_once 'inc/class-settings-api.php';
 require_once 'inc/class-white-list.php';
@@ -30,65 +32,88 @@ class HAWP_Base {
 		$this->options = $this->get_options();
 		// add_shortcode('btn-hybridauth', array($this, 'shortcode_display'));
 		add_action('init', array($this, 'add_endpoint'));
-		add_action('template_redirect', array($this, 'start_session_hybrydauth'));
 		add_action('wp_enqueue_scripts', array($this, 'load_style') );
 		add_action('login_enqueue_scripts', array($this, 'load_style') );
 		add_action('wp_loaded', array($this, 'flush_rewrite_rules_hack') );
 		add_filter('restricted_site_access_is_restricted', array($this, 'support_rsa'), 10 ,2);
+
+		add_action('template_redirect', array($this, 'hybrydauth_start'));
+		add_action('template_redirect', array($this, 'hybrydauth_callback'));
 	}
 
-	/*
-	* Add endpoints HAWP as exception
-	* Use apply_filters( 'restricted_site_access_is_restricted', $is_restricted, $wp
-	*/
-	function support_rsa($is_restricted, $wp){
 
-		$check = stristr($wp->request, 'ha-sign' );
-		if($check !== false){
-			$is_restricted = false;
-		}
+	function hybridauth_process($provider_name = '')
+	{
+			$config =  array(
+				'callback' => site_url('/ha-callback/'),
+				"providers" => array(
+						"Google" => array(
+								"enabled" => false,
+								"keys" => array(
+									"id" => "",
+									"secret" => ""
+								),
+						),
+						"OpenID" => array(
+								"enabled" => false
+						),
+						"Facebook" => array(
+								"enabled" => false,
+								"keys" => array("id" => "", "secret" => ""),
+								"trustForwarded" => false,
+						)
+				),
+				// If you want to enable logging, set 'debug_mode' to true.
+				// You can also set it to
+				// - "error" To log only error messages. Useful in production
+				// - "info" To log info and error messages (ignore debug messages)
+				"debug_mode" => false,
+				// Path to file writable by the web server. Required if 'debug_mode' is not false
+				"debug_file" => "",
+			);
 
-		$check = stristr($wp->request, 'hawp' );
-		if($check !== false){
-			$is_restricted = false;
-		}
+			$config = apply_filters('hawp_config', $config);
 
-		return $is_restricted;
+			include plugin_dir_path( __FILE__ ) . 'inc/ha2/autoload.php';
+			$hybridauth = new Hybridauth\Hybridauth( $config );
+
+			$provider = $hybridauth->authenticate( $provider_name );
+
+			//Returns a boolean of whether the user is connected with Twitter
+	    $isConnected = $provider->isConnected();
+
+			$user_profile = $provider->getUserProfile();
+
+			// get the user profile
+			$user_id = $this->hawp_get_user($user_profile, $provider->id);
+			$user_id = (int)$user_id;
+
+			if( ! empty($user_id)){
+				if( apply_filters('hawp_set_auth_cookie', true) ){
+					wp_set_auth_cookie($user_id, 1);
+				}
+			}
+
+			//Если функция авторизации вернула ложь, то добавить в URL параметр ошибки
+			if( empty($user_id) ) {
+				$redirect_url = wp_login_url();
+			} else {
+				if( empty($_GET['redirect_to'])){
+					$redirect_url = site_url('/');
+				} else {
+					$redirect_url = sanitize_url($_GET['redirect_to']);
+				}
+			}
+
+			wp_redirect($redirect_url);
+			exit;
+
 	}
-
-	/*
-	* Small hack for check and reset rewrite rules
-	*/
-	function flush_rewrite_rules_hack(){
-		$rules = get_option( 'rewrite_rules' );
-
-		if ( ! isset( $rules['ha-sign(/(.*))?/?$'] ) ) {
-				flush_rewrite_rules( $hard = false );
-		}
-	}
-
-	/*
-  * Add endpoint /ha-sign/ for app
-  */
-  function add_endpoint() {
-    add_rewrite_endpoint( 'ha-sign', EP_ROOT );
-  }
-
-
-	function get_options(){
-		$data = array(
-			'disable_registration' => true,
-			'domains_check' => false,
-			'domains_white_list' => array()
-		);
-		return apply_filters('hawp_options', $data);
-	}
-
 
 	/*
   * Start OAuth2
 	*/
-	function start_session_hybrydauth() {
+	function hybrydauth_start() {
 
 		$call = get_query_var('ha-sign', false);
 
@@ -103,60 +128,40 @@ class HAWP_Base {
 				 throw new Exception('Empty provider\'s name.');
 			}
 
+			$provider_name = $call;
+
+
 			if ( is_user_logged_in() ){
 				throw new Exception('User logged in. Not allow sign in via OAuth2');
 			}
 
+			$this->hybridauth_process($provider_name);
 
-			$provider_name = $call;
-
-			require_once (plugin_dir_path( __FILE__ ) . 'inc/hybridauth/Hybrid/Auth.php');
-
-			$config = $this->get_config_hybridauth();
-
-			$hybridauth = new Hybrid_Auth( $config );
-
-			$provider = $hybridauth->authenticate( $provider_name );
-
-			$provider_id = strtolower($provider->id);
-
-			// return TRUE or False <= generally will be used to check if the user is connected to twitter before getting user profile, posting stuffs, etc..
-			$is_user_logged_in = $provider->isUserConnected();
-
-			// get the user profile
-			$user_profile = $provider->getUserProfile();
-
-			$user_id = $this->hawp_get_user($user_profile, $provider->id);
-			$user_id = (int)$user_id;
-
-
-
-			if( ! empty($user_id)){
-				if( apply_filters('hawp_set_auth_cookie', true) ){
-					wp_set_auth_cookie($user_id, 1);
-				}
-			}
-
-			//Если функция авторизации вернула ложь, то добавить в URL параметр ошибки
-			if( empty($user_id) ) {
-				$redirect_url = wp_login_url();
-			} else {
-				if( empty($_GET['redirect_url'])){
-					$redirect_url = site_url('/');
-				} else {
-					$redirect_url = sanitize_url($_GET['redirect_url']);
-				}
-			}
-
-			wp_redirect($redirect_url);
+		} catch (Exception $e) {
+			$msg = $e->getMessage();
+			do_action('u7logger', ['hybridauth-wordpress/hawp.php - err1', $msg]);
 			exit;
+		}
+	}
 
+
+
+	function hybrydauth_callback()
+	{
+		$call = get_query_var('ha-callback', false);
+		if( $call === false ){
+			return;
+		}
+
+		try {
+			$this->hybridauth_process();
 		} catch( Exception $e ) {
-			wp_send_json_error($e->getMessage(), 400);
+			$msg = $e->getMessage();
+			do_action('u7logger', ['hybridauth-wordpress/hawp.php - err2', $msg]);
+			exit;
 		}
 
 	}
-
 
 
 	/*
@@ -270,52 +275,57 @@ class HAWP_Base {
 	}
 
 
+
+
 	/*
-	* Get config for HybridAuth
+	* Add endpoints HAWP as exception
+	* Use apply_filters( 'restricted_site_access_is_restricted', $is_restricted, $wp
 	*/
-	function get_config_hybridauth(){
+	function support_rsa($is_restricted, $wp){
 
-		$data =  array(
+		$check = stristr($wp->request, 'ha-sign' );
+		if($check !== false){
+			$is_restricted = false;
+		}
 
-			'base_url' => site_url('/hawp/'),
+		$check = stristr($wp->request, 'hawp' );
+		if($check !== false){
+			$is_restricted = false;
+		}
 
-	    "providers" => array(
-					"Google" => array(
-	            "enabled" => false,
-	            "keys" => array(
-								"id" => "",
-								"secret" => ""
-							),
-	        ),
-	        "OpenID" => array(
-	            "enabled" => false,
-	        ),
-	        "Yahoo" => array(
-	            "enabled" => false,
-	            "keys" => array("id" => "", "secret" => ""),
-	        ),
-	        "Facebook" => array(
-	            "enabled" => false,
-	            "keys" => array("id" => "", "secret" => ""),
-	            "trustForwarded" => false,
-	        ),
-	        "Twitter" => array(
-	            "enabled" => false,
-	            "keys" => array("key" => "", "secret" => ""),
-	            "includeEmail" => false,
-	        ),
-	    ),
-	    // If you want to enable logging, set 'debug_mode' to true.
-	    // You can also set it to
-	    // - "error" To log only error messages. Useful in production
-	    // - "info" To log info and error messages (ignore debug messages)
-	    "debug_mode" => false,
-	    // Path to file writable by the web server. Required if 'debug_mode' is not false
-	    "debug_file" => "",
-		);
-
-		return apply_filters('hawp_config', $data);
+		return $is_restricted;
 	}
 
+	/*
+	* Small hack for check and reset rewrite rules
+	*/
+	function flush_rewrite_rules_hack(){
+		$rules = get_option( 'rewrite_rules' );
+
+		if ( ! isset( $rules['ha-sign(/(.*))?/?$'] ) ) {
+				flush_rewrite_rules( $hard = false );
+		}
+		if ( ! isset( $rules['ha-callback(/(.*))?/?$'] ) ) {
+				flush_rewrite_rules( $hard = false );
+		}
+	}
+
+	/*
+	* Add endpoint /ha-sign/ for app
+	*/
+	function add_endpoint() {
+		add_rewrite_endpoint( 'ha-sign', EP_ROOT );
+		add_rewrite_endpoint( 'ha-callback', EP_ROOT );
+	}
+
+
+	function get_options(){
+		$data = array(
+			'disable_registration' => true,
+			'domains_check' => false,
+			'domains_white_list' => array()
+		);
+		return apply_filters('hawp_options', $data);
+	}
 }
 new HAWP_Base;

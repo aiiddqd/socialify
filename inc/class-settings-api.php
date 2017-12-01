@@ -60,8 +60,6 @@ class HAWP_Settings {
 			$section = 'hawp_settings_section_main'
 		);
 
-
-
 	}
 
 	/**

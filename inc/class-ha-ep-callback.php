@@ -1,5 +1,6 @@
 <?php
 
+
 /**
  * Add Endpoint for URL Callback OAuth2
  * /hawp/
@@ -14,7 +15,7 @@ class HAWP_Endpoint_Callback {
   }
 
   /*
-  * Small hack for check and reset rewrite rules 
+  * Small hack for check and reset rewrite rules
   */
   function flush_rewrite_rules_hack(){
     $rules = get_option( 'rewrite_rules' );
@@ -41,8 +42,13 @@ class HAWP_Endpoint_Callback {
       return;
     }
 
-    require_once (plugin_dir_path( __FILE__ ) . 'hybridauth/Hybrid/Auth.php');
-    require_once (plugin_dir_path( __FILE__ ) . 'hybridauth/Hybrid/Endpoint.php');
+    // @TODO remove logger
+    do_action("u7logger", ['test2', $_REQUEST]);
+
+
+    // require_once (plugin_dir_path( __FILE__ ) . 'hybridauth/Hybrid/Auth.php');
+    // require_once (plugin_dir_path( __FILE__ ) . 'hybridauth/Hybrid/Endpoint.php');
+    include plugin_dir_path( __FILE__ ) . 'ha2/autoload.php';
 
     Hybrid_Endpoint::process();
 

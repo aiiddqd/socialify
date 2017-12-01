@@ -21,9 +21,9 @@ class HAWP_Login_Form_Ext {
     $url_google = site_url('/ha-sign/Google');
     $url_yandex = site_url('/ha-sign/Yandex');
 
-    if(isset($_GET['redirect_url'])){
-      $url_google = add_query_arg('redirect_url', $_GET['redirect_url'], $url);
-      $url_yandex = add_query_arg('redirect_url', $_GET['redirect_url'], $url);
+    if(isset($_GET['redirect_to'])){
+      $url_google = add_query_arg('redirect_url', $_GET['redirect_to'], $url_google);
+      $url_yandex = add_query_arg('redirect_url', $_GET['redirect_to'], $url_yandex);
     }
     //Добавляем кнопки
     ?>
