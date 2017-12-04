@@ -44,7 +44,7 @@ class HAWP_Base {
 	function hybridauth_process($provider_name = '')
 	{
 			$config =  array(
-				'callback' => site_url('/ha-callback/'),
+				'callback' => site_url('/ha-callback/' . $provider_name),
 				"providers" => array(
 						"Google" => array(
 								"enabled" => false,
@@ -71,41 +71,58 @@ class HAWP_Base {
 				"debug_file" => "",
 			);
 
-			$config = apply_filters('hawp_config', $config);
+			try {
+				$config = apply_filters('hawp_config', $config);
 
-			include plugin_dir_path( __FILE__ ) . 'inc/ha2/autoload.php';
-			$hybridauth = new Hybridauth\Hybridauth( $config );
+				do_action('logger_u7', ['hybridauth-wordpress/hawp.php - $config', $config]);
 
-			$provider = $hybridauth->authenticate( $provider_name );
 
-			//Returns a boolean of whether the user is connected with Twitter
-	    $isConnected = $provider->isConnected();
+				include plugin_dir_path( __FILE__ ) . 'inc/ha2/autoload.php';
+				$hybridauth = new Hybridauth\Hybridauth( $config );
 
-			$user_profile = $provider->getUserProfile();
+				$provider = $hybridauth->authenticate( $provider_name );
 
-			// get the user profile
-			$user_id = $this->hawp_get_user($user_profile, $provider->id);
-			$user_id = (int)$user_id;
+				//Returns a boolean of whether the user is connected
+				$isConnected = $provider->isConnected();
 
-			if( ! empty($user_id)){
-				if( apply_filters('hawp_set_auth_cookie', true) ){
-					wp_set_auth_cookie($user_id, 1);
+				$user_profile = $provider->getUserProfile();
+
+				// $tokens = $provider->getAccessToken();
+
+				do_action('logger_u7', ['hybridauth-wordpress/hawp.php - $tokens', $tokens]);
+
+				// get the user profile
+				$user_id = $this->hawp_get_user($user_profile, $provider->id);
+				$user_id = (int)$user_id;
+
+				if( ! empty($user_id)){
+					if( apply_filters('hawp_set_auth_cookie', true) ){
+						wp_set_auth_cookie($user_id, 1);
+					}
 				}
-			}
 
-			//Если функция авторизации вернула ложь, то добавить в URL параметр ошибки
-			if( empty($user_id) ) {
-				$redirect_url = wp_login_url();
-			} else {
-				if( empty($_GET['redirect_to'])){
-					$redirect_url = site_url('/');
+				//Если функция авторизации вернула ложь, то добавить в URL параметр ошибки
+				if( empty($user_id) ) {
+					$redirect_url = wp_login_url();
 				} else {
-					$redirect_url = sanitize_url($_GET['redirect_to']);
+					if( empty($_GET['redirect_to'])){
+						$redirect_url = site_url('/');
+					} else {
+						$redirect_url = sanitize_url($_GET['redirect_to']);
+					}
 				}
+
+				$provider->disconnect();
+
+				wp_redirect($redirect_url);
+				exit;
+
+			} catch (Exception $e) {
+				$msg = $e->getMessage();
+				do_action('logger_u7', ['hybridauth-wordpress/hawp.php - err3', $msg]);
+				exit;
 			}
 
-			wp_redirect($redirect_url);
-			exit;
 
 	}
 
@@ -121,6 +138,8 @@ class HAWP_Base {
 			return;
 		}
 
+		do_action('logger_u7', ['hybridauth-wordpress/hawp.php - err4', $_GET]);
+
 		try {
 
 			if(empty($call)){
@@ -134,11 +153,12 @@ class HAWP_Base {
 				throw new Exception('User logged in. Not allow sign in via OAuth2');
 			}
 
+
 			$this->hybridauth_process($provider_name);
 
 		} catch (Exception $e) {
 			$msg = $e->getMessage();
-			do_action('u7logger', ['hybridauth-wordpress/hawp.php - err1', $msg]);
+			do_action('logger_u7', ['hybridauth-wordpress/hawp.php - err1', $msg]);
 			exit;
 		}
 	}
@@ -152,11 +172,17 @@ class HAWP_Base {
 			return;
 		}
 
+		do_action('logger_u7', ['hybridauth-wordpress/hawp.php - err5', $_GET]);
+
 		try {
-			$this->hybridauth_process();
+
+			$provider_name = $call;
+
+			$this->hybridauth_process($provider_name);
+
 		} catch( Exception $e ) {
 			$msg = $e->getMessage();
-			do_action('u7logger', ['hybridauth-wordpress/hawp.php - err2', $msg]);
+			do_action('logger_u7', ['hybridauth-wordpress/hawp.php - err2', $msg]);
 			exit;
 		}
 
@@ -287,7 +313,7 @@ class HAWP_Base {
 			$is_restricted = false;
 		}
 
-		$check = stristr($wp->request, 'hawp' );
+		$check = stristr($wp->request, 'ha-callback' );
 		if($check !== false){
 			$is_restricted = false;
 		}
