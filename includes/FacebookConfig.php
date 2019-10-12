@@ -6,6 +6,7 @@ class FacebookConfig
 {
     public static $option_name = General::$slug . '_config_facebook';
     public static $section_settings_key = '';
+    
 
     public static function init()
     {
