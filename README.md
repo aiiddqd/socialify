@@ -1,4 +1,3 @@
-hybridauth
+Socialify for WordPress - Social Login, OAuth2, HybridAuth
 =============
 
-HybridAuth for WordPress by CasePress
