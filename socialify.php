@@ -2,11 +2,14 @@
 /**
  * Plugin Name:  Socialify
  * Description:  Social Login for WordPress based the OAuth2 and HybridAuth
- * Version:      0.4
+ * Plugin URI:   https://github.com/uptimizt/socialify
+ * Version:      0.5
  * Author:       uptimizt
  * Author URI:   https://github.com/uptimizt
  * Text Domain:  socialify
  * Domain Path:  /languages/
+ * GitHub Plugin URI: https://github.com/uptimizt/socialify
+
  * Requires PHP: 5.6
  *
  * This program is free software; you can redistribute it and/or modify
@@ -61,7 +64,6 @@ final class General
         require_once __DIR__ . '/includes/FacebookLogin.php';
         require_once __DIR__ . '/includes/GoogleLogin.php';
         require_once __DIR__ . '/includes/YandexLogin.php';
-        require_once __DIR__ . '/includes/VkontakteLogin.php';
 
         add_action('wp', [__CLASS__, 'start_auth']);
 

@@ -90,11 +90,10 @@ final class GoogleLogin
 
     public static function render_settings_instructions(){
         ?>
-
         <ol>
             <li>
                 <span><?= __('Получить реквизиты для доступа можно по ссылке: ', 'socialify') ?></span>
-                <a href="https://console.developers.google.com/apis/credentials/" target="_blank">Google Dev Console https://console.developers.google.com/apis/credentials</a>
+                <a href="https://console.developers.google.com/apis/credentials/" target="_blank">https://console.developers.google.com/apis/credentials</a>
             </li>
             <li>В поле Callback URI запишите: <code><?= self::$endpoint ?></code></li>
             <li>Ссылка на сайт: <code><?= site_url() ?></code></li>
