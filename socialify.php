@@ -47,6 +47,9 @@ final class General
      * @var string
      */
     public static $plugin_basename = '';
+    public static $plugin_file_path = '';
+    public static $plugin_dir_path = '';
+    public static $plugin_dir_url = '';
 
     /**
      * @var string - for grouping all settings (by Settings API)
@@ -59,10 +62,15 @@ final class General
     public static function init()
     {
         self::$plugin_basename = plugin_basename( __FILE__ );
+        self::$plugin_file_path = __FILE__;
+        self::$plugin_dir_path = plugin_dir_path(__FILE__);
+        self::$plugin_dir_url = plugin_dir_url( __FILE__ );
+
 
         require_once __DIR__ . '/vendor/autoload.php';
         require_once __DIR__ . '/includes/FacebookLogin.php';
         require_once __DIR__ . '/includes/GoogleLogin.php';
+        require_once __DIR__ . '/includes/ShortcodeLogin.php';
 
         add_action('wp', [__CLASS__, 'start_auth']);
 

@@ -19,6 +19,17 @@ final class GoogleLogin
         self::$endpoint = site_url(self::$endpoint);
         add_action('admin_init', [__CLASS__, 'add_settings']);
         add_filter('socialify_user_profile', [__CLASS__, 'auth_handler'], 11, 2);
+        add_filter('socialify_shortcode_data', [__CLASS__, 'add_btn_for_shortcode']);
+
+    }
+
+    public static function add_btn_for_shortcode($data)
+    {
+        $data['login_items']['google'] = [
+            'url' => self::$endpoint,
+            'ico_url' => General::$plugin_dir_url . 'assets/svg/google.svg',
+        ];
+        return $data;
     }
 
     public static function auth_handler($userProfile, $endpoint)
