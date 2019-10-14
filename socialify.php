@@ -63,7 +63,6 @@ final class General
         require_once __DIR__ . '/vendor/autoload.php';
         require_once __DIR__ . '/includes/FacebookLogin.php';
         require_once __DIR__ . '/includes/GoogleLogin.php';
-        require_once __DIR__ . '/includes/YandexLogin.php';
 
         add_action('wp', [__CLASS__, 'start_auth']);
 
