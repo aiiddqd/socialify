@@ -2,14 +2,23 @@
 namespace Socialify;
 defined('ABSPATH') || die();
 
-class FacebookConfig
+final class FacebookLogin
 {
-    public static $option_name = General::$slug . '_config_facebook';
-    public static $section_settings_key = '';
-    
+    public static $data = [
+        'settings_section_title' => 'Facebook Login',
+        'settings_section_key' => 'socialify_config_facebook_section',
+        'setting_title_id' => 'Facebook ID',
+        'setting_title_secret' => 'Facebook Secret',
+    ];
+
+    public static $option_name = 'socialify_config_facebook';
+
+    public static $endpoint = '/socialify/Facebook/';
 
     public static function init()
     {
+        self::$endpoint = site_url(self::$endpoint);
+
         add_action('admin_init', [__CLASS__, 'add_settings']);
         add_filter('socialify_user_profile', [__CLASS__, 'auth_handler'], 11, 2);
     }
@@ -27,10 +36,7 @@ class FacebookConfig
         }
 
         $config = [
-            //Location where to redirect users once they authenticate with Facebook
-            //For this example we choose to come back to this same script
-            'callback' => site_url('/socialify/Facebook/'),
-
+            'callback' => self::$endpoint,
             //Facebook application credentials
             'keys'     => [
                 'id'     => $config_data['id'], //Required: your Facebook application id
@@ -58,35 +64,47 @@ class FacebookConfig
      */
     public static function add_settings()
     {
-        self::$section_settings_key = self::$option_name . '_section';
-        $instrunction = __('Получить реквизиты для доступа на странице Facebook', 'socialify');
         add_settings_section(
-            self::$section_settings_key,
-            $header = 'Facebook',
-            function () { ?>
-                <div>
-                    <p>
-                        <a href="https://developers.facebook.com/apps/" target="_blank"><?= $instrunction ?></a>
-                    </p>
-                </div>
-                <?php
-            },
+            $section_id = self::$data['settings_section_key'],
+            $header = self::$data['settings_section_title'],
+            $callback = [__CLASS__, 'render_settings_instructions'],
             General::$settings_group
         );
+
         register_setting(General::$settings_group, self::$option_name);
 
         self::add_setting_id();
         self::add_setting_secret();
     }
 
+    /**
+     * render_settings_instructions
+     */
+    public static function render_settings_instructions(){
+        ?>
 
-    public static function add_setting_facebook_id()
+        <ol>
+            <li>
+                <span><?= __('Получить реквизиты для доступа можно по ссылке: ', 'socialify') ?></span>
+                '<a href="https://developers.facebook.com/apps/" target="_blank">https://developers.facebook.com/apps/</a>'
+            </li>
+            <li>В поле Callback URI запишите: <code><?= self::$endpoint ?></code></li>
+            <li>Ссылка на сайт: <code><?= site_url() ?></code></li>
+            <li>Домен если потребуется: <code><?= $_SERVER['SERVER_NAME'] ?></code></li>
+        </ol>
+        <?php
+    }
+
+    /**
+     * add_setting_id
+     *
+     * input name: socialify_config_facebook[id]
+     */
+    public static function add_setting_id()
     {
-        $setting_title = 'Facebook ID';
-        $setting_id    = General::$slug . '_facebook_id';
         add_settings_field(
-            $setting_id,
-            $setting_title,
+            $setting_id = self::$option_name . '_id',
+            $setting_title = self::$data['setting_title_id'],
             $callback = function ($args) {
                 printf(
                     '<input type="text" name="%s" value="%s" >',
@@ -94,7 +112,7 @@ class FacebookConfig
                 );
             },
             $page = General::$settings_group,
-            self::$section_settings_key,
+            $section_id = self::$data['settings_section_key'],
             $args = [
                 'name'  => self::$option_name . '[id]',
                 'value' => @get_option(self::$option_name)['id'],
@@ -102,6 +120,11 @@ class FacebookConfig
         );
     }
 
+    /**
+     * add_setting_secret
+     *
+     * input name: socialify_config_facebook[secret]
+     */
     public static function add_setting_secret()
     {
         $setting_title = 'Facebook Secret';
@@ -116,7 +139,7 @@ class FacebookConfig
                 );
             },
             $page = General::$settings_group,
-            self::$section_settings_key,
+            $section_id = self::$data['settings_section_key'],
             $args = [
                 'name'  => self::$option_name . '[secret]',
                 'value' => @get_option(self::$option_name)['secret'],
@@ -125,4 +148,4 @@ class FacebookConfig
     }
 }
 
-FacebookConfig::init();
+FacebookLogin::init();

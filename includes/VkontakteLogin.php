@@ -2,30 +2,28 @@
 namespace Socialify;
 defined('ABSPATH') || die();
 
-/**
- * Google Config
- */
-class GoogleConfig
+final class VkontakteLogin
 {
-    public static $option_name = General::$slug . '_config_google';
-
-    public static $endpoint = site_url('/socialify/Google/');
+    public static $option_name = 'socialify_config_vkontakte';
+    public static $endpoint = '/socialify/Vkontakte/';
 
     public static $data = [
-        'settings_section_insstruction' => __('Получить реквизиты для доступа можно по ссылке: ', 'socialify'),
-        'settings_section_title' => 'Google',
-        'setting_title_id' => 'Google ID',
-        'setting_title_secret' => 'Google Secret',
+        'settings_section_title' => 'Vkontakte Login',
+        'setting_title_id' => 'Vkontakte ID',
+        'setting_title_secret' => 'Vkontakte Secret',
     ];
 
-    public static function init(){
+    public static function init()
+    {
+        self::$endpoint = site_url(self::$endpoint);
+
         add_action('admin_init', [__CLASS__, 'add_settings']);
         add_filter('socialify_user_profile', [__CLASS__, 'auth_handler'], 11, 2);
     }
 
     public static function auth_handler($userProfile, $endpoint)
     {
-        if('Google' != $endpoint){
+        if('Vkontakte' != $endpoint){
             return $userProfile;
         }
 
@@ -33,7 +31,7 @@ class GoogleConfig
             return $userProfile;
         }
 
-        $adapter = new \Hybridauth\Provider\Google($config);
+        $adapter = new \Hybridauth\Provider\Vkontakte($config);
 
         //Attempt to authenticate the user with Facebook
         if($accessToken = $adapter->getAccessToken()){
@@ -51,8 +49,8 @@ class GoogleConfig
         return $userProfile;
     }
 
-    public static function get_config()
-    {
+    public static function get_config(){
+
         $config_data = get_option(self::$option_name);
         if(empty($config_data['id']) || empty($config_data['secret'])){
             return false;
@@ -61,13 +59,7 @@ class GoogleConfig
         $config = [
             'callback' => self::$endpoint,
             'keys' => [ 'id' => $config_data['id'], 'secret' => $config_data['secret'] ],
-//            'scope'    => 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
-            'authorize_url_parameters' => [
-                'approval_prompt' => 'force', // to pass only when you need to acquire a new refresh token.
-                'access_type'     => 'offline',
-            ],
-//            'debug_mode' => 'debug',
-//            'debug_file' => __FILE__ . '.log',
+
         ];
 
         return $config;
@@ -76,31 +68,44 @@ class GoogleConfig
     /**
      * Add settings
      */
-    public static function add_settings()
-    {
+    public static function add_settings(){
         add_settings_section(
             $section_id = self::$option_name,
             $section_title = self::$data['settings_section_title'],
-            function(){ 
-                ?>
-                <div>
-                    <span><?= self::$data['settings_section_insstruction'] ?></span>
-                    <a href="https://console.developers.google.com/apis/credentials/" target="_blank">Google Dev Console https://console.developers.google.com/apis/credentials</a>
-                </div>
-                <?php
-            },
+            $callback = [__CLASS__, 'render_settings_instructions'],
             General::$settings_group
         );
         register_setting(General::$settings_group, self::$option_name);
 
-        self::add_setting_id();
-        self::add_setting_secret();
+        self::add_id_setting();
+        self::add_secret_setting();
+
     }
 
+    public static function render_settings_instructions()
+    {
+        ?>
+        <ol>
+            <li>
+                <span><?= __('Получить реквизиты для доступа можно по ссылке: ', 'socialify') ?></span>
+                <a href="https://vk.com/apps?act=manage/" target="_blank">https://vk.com/apps?act=manage</a>
+            </li>
+            <li><?= __('В поле Callback URI запишите: ', 'socialify') ?><code><?= self::$endpoint ?></code></li>
+            <li>Ссылка на сайт: <code><?= site_url() ?></code></li>
+            <li>Домен если потребуется: <code><?= $_SERVER['SERVER_NAME'] ?></code></li>
+        </ol>
+        <?php
+    }
 
-    public static function add_setting_id(){
+    /**
+     * add_id_setting
+     *
+     * input name: socialify_config_vkontakte[id]
+     */
+    public static function add_id_setting(){
         $setting_title = self::$data['setting_title_id'];
-        $setting_id = General::$slug . '_google_id';
+        $setting_id = self::$option_name . '_id';
+
         add_settings_field(
             $setting_id,
             $setting_title,
@@ -119,12 +124,17 @@ class GoogleConfig
         );
     }
 
-    public static function add_setting_secret(){
-        $setting_title = self::$data['setting_title_secret'];
-        $setting_id = General::$slug . '_google_secret';
+    /**
+     * add_secret_setting
+     *
+     * input name: socialify_config_vkontakte[secret]
+     */
+    public static function add_secret_setting()
+    {
+        $setting_id = self::$option_name . '_secret';
         add_settings_field(
             $setting_id,
-            $setting_title,
+            $setting_title = self::$data['setting_title_secret'],
             $callback = function($args){
                 printf(
                     '<input type="text" name="%s" value="%s" size="77">',
@@ -141,4 +151,4 @@ class GoogleConfig
     }
 }
 
-GoogleConfig::init();
+VkontakteLogin::init();

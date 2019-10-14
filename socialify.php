@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name:  Socialify (Social Login, OAuth, HybridAuth)
- * Description:  Social Login for WordPress based on OAuth2 and HybridAuth
- * Version:      0.3
+ * Plugin Name:  Socialify
+ * Description:  Social Login for WordPress based the OAuth2 and HybridAuth
+ * Version:      0.4
  * Author:       uptimizt
  * Author URI:   https://github.com/uptimizt
  * Text Domain:  socialify
@@ -21,51 +21,73 @@
  */
 
 namespace Socialify;
-
 defined('ABSPATH') || die();
 
 final class General
 {
-
-    public static $slug = 'socialify';
+    /**
+     * Name of product
+     *
+     * @var string
+     */
     public static $name = 'Socialify';
+
+    /**
+     * Slug of the product for make a hungarian notations
+     * @var string
+     */
+    public static $slug = 'socialify';
+
+    /**
+     * Save the $plugin_basename value for various frequent tasks
+     *
+     * @var string
+     */
+    public static $plugin_basename = '';
 
     /**
      * @var string - for grouping all settings (by Settings API)
      */
     public static $settings_group = 'socialify_login_settings';
 
+    /**
+     * The init
+     */
     public static function init()
     {
-        add_action('init', function(){
-            if( ! isset($_GET['dd']) ){
-                return;
-            }
-
-            echo '<pre>';
-            var_dump(1);
-            exit;
-        });
+        self::$plugin_basename = plugin_basename( __FILE__ );
 
         require_once __DIR__ . '/vendor/autoload.php';
-        require_once __DIR__ . '/includes/FacebookConfig.php';
-        require_once __DIR__ . '/includes/GoogleConfig.php';
-        require_once __DIR__ . '/includes/YandexConfig.php';
-        require_once __DIR__ . '/includes/VKConfig.php';
+        require_once __DIR__ . '/includes/FacebookLogin.php';
+        require_once __DIR__ . '/includes/GoogleLogin.php';
+        require_once __DIR__ . '/includes/YandexLogin.php';
+        require_once __DIR__ . '/includes/VkontakteLogin.php';
 
         add_action('wp', [__CLASS__, 'start_auth']);
 
         add_action('init', [__CLASS__, 'add_endpoint']);
 
+        add_filter( "plugin_action_links_" . self::$plugin_basename, [__CLASS__, 'add_settings_url_to_plugins_list'] );
+
         add_action('admin_menu', function(){
             add_options_page(
                 $page_title = 'Socialify Settings',
-                $menu_title = 'Socialify',
+                $menu_title = self::$name,
                 $capability = 'administrator',
                 $menu_slug = self::$slug . '-settings',
                 $callback = [__CLASS__, 'render_settings']
             );
         });
+    }
+
+
+    /**
+     * Add Settings link in pligins list
+     */
+    public static function add_settings_url_to_plugins_list( $links ) {
+        $settings_link = sprintf( '<a href="%s">%s</a>', admin_url('admin.php?page=socialify-settings'), __('Settings', self::$slug) );
+        array_unshift($links, $settings_link);
+        return $links;
     }
 
 
