@@ -25,10 +25,11 @@ final class FacebookLogin
         add_filter('socialify_shortcode_data', [__CLASS__, 'add_btn_for_shortcode']);
     }
 
-    public static function add_btn_for_shortcode($data){
-
+    public static function add_btn_for_shortcode($data)
+    {
+        $url = add_query_arg('redirect_to', urlencode( General::get_current_url() ), self::$endpoint);
         $data['login_items']['fb'] = [
-            'url' => self::$endpoint,
+            'url' => $url,
             'ico_url' => General::$plugin_dir_url . 'assets/svg/facebook.svg',
         ];
         return $data;

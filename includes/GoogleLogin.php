@@ -25,8 +25,10 @@ final class GoogleLogin
 
     public static function add_btn_for_shortcode($data)
     {
+//        $url = self::$endpoint;
+        $url = add_query_arg('redirect_to', urlencode( General::get_current_url() ), self::$endpoint);
         $data['login_items']['google'] = [
-            'url' => self::$endpoint,
+            'url' => $url,
             'ico_url' => General::$plugin_dir_url . 'assets/svg/google.svg',
         ];
         return $data;
@@ -44,6 +46,11 @@ final class GoogleLogin
 
         $adapter = new \Hybridauth\Provider\Google($config);
 
+        if(!empty($_GET['redirect_to'])){
+            $redirect_to = $_GET['redirect_to'];
+            $adapter->getStorage()->set('socialify_redirect_to', $redirect_to);
+        }
+
         //Attempt to authenticate the user with Facebook
         if($accessToken = $adapter->getAccessToken()){
             $adapter->setAccessToken($accessToken);
@@ -54,7 +61,9 @@ final class GoogleLogin
         //Retrieve the user's profile
         $userProfile = $adapter->getUserProfile();
 
-        //Disconnect the adapter
+        General::$redirect_to = $adapter->getStorage()->get('socialify_redirect_to');
+
+        //Disconnect the adapter & destroy session
         $adapter->disconnect();
 
         return $userProfile;

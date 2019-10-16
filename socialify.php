@@ -50,6 +50,7 @@ final class General
     public static $plugin_file_path = '';
     public static $plugin_dir_path = '';
     public static $plugin_dir_url = '';
+    public static $redirect_to = '';
 
     /**
      * @var string - for grouping all settings (by Settings API)
@@ -99,6 +100,18 @@ final class General
         return $links;
     }
 
+    /**
+     * helper get_current_url
+     *
+     * @link https://wordpress.stackexchange.com/questions/274569/how-to-get-url-of-current-page-displayed
+     *
+     * @return string|void
+     */
+    public static function get_current_url(){
+        global $wp;
+        return home_url( $wp->request );
+    }
+
 
     public static function start_auth()
     {
@@ -116,17 +129,32 @@ final class General
             $userProfile = '';
             $userProfile = apply_filters('socialify_user_profile', $userProfile, $endpoint);
 
-            if(is_wp_error($userProfile)){
+            $auth_process_data = [
+                    'user_data' => $userProfile,
+                    'redirect_to' => '',
+            ];
+
+            $auth_process_data = apply_filters('socialify_auth_process', $auth_process_data);
+
+            if(is_wp_error($auth_process_data['user_data'])){
                 throw new \Exception('$userProfile is WP Error.');
             }
 
-            if(empty($userProfile)){
+            if(empty($auth_process_data['user_data'])){
                 throw new \Exception('$userProfile is empty.');
             }
 
-            self::user_handler($userProfile);
+            self::user_handler($auth_process_data['user_data']);
 
-            wp_redirect(site_url());
+            if(empty(self::$redirect_to)){
+                self::$redirect_to = $auth_process_data['redirect_to'];
+            }
+
+            if(empty(self::$redirect_to)){
+                wp_redirect(site_url());
+            } else {
+                wp_redirect(self::$redirect_to);
+            }
             exit;
         }
 
