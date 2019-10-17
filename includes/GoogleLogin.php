@@ -25,10 +25,8 @@ final class GoogleLogin
 
     public static function add_btn_for_shortcode($data)
     {
-//        $url = self::$endpoint;
-        $url = add_query_arg('redirect_to', urlencode( General::get_current_url() ), self::$endpoint);
         $data['login_items']['google'] = [
-            'url' => $url,
+            'url' => self::$endpoint,
             'ico_url' => General::$plugin_dir_url . 'assets/svg/google.svg',
         ];
         return $data;

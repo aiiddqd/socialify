@@ -3,7 +3,7 @@
  * Plugin Name:  Socialify
  * Description:  Social Login for WordPress based the OAuth2 and HybridAuth
  * Plugin URI:   https://github.com/uptimizt/socialify
- * Version:      0.5
+ * Version:      0.6
  * Author:       uptimizt
  * Author URI:   https://github.com/uptimizt
  * Text Domain:  socialify
