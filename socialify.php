@@ -3,7 +3,7 @@
  * Plugin Name:  Socialify
  * Description:  Social Login for WordPress based the OAuth2 and HybridAuth
  * Plugin URI:   https://github.com/uptimizt/socialify
- * Version:      0.6
+ * Version:      0.7
  * Author:       uptimizt
  * Author URI:   https://github.com/uptimizt
  * Text Domain:  socialify
@@ -25,6 +25,16 @@
 
 namespace Socialify;
 defined('ABSPATH') || die();
+
+add_action('init', function (){
+    if(!isset($_GET['dd'])){
+        return;
+    }
+
+    echo  '<pre>';
+    $r = get_user_meta(3);
+    var_dump($r); exit;
+});
 
 final class General
 {
@@ -66,7 +76,6 @@ final class General
         self::$plugin_file_path = __FILE__;
         self::$plugin_dir_path = plugin_dir_path(__FILE__);
         self::$plugin_dir_url = plugin_dir_url( __FILE__ );
-
 
         require_once __DIR__ . '/vendor/autoload.php';
         require_once __DIR__ . '/includes/FacebookLogin.php';
@@ -134,7 +143,7 @@ final class General
                     'redirect_to' => '',
             ];
 
-            $auth_process_data = apply_filters('socialify_auth_process', $auth_process_data);
+            $auth_process_data = apply_filters('socialify_auth_process', $auth_process_data, $endpoint);
 
             if(is_wp_error($auth_process_data['user_data'])){
                 throw new \Exception('$userProfile is WP Error.');
@@ -144,7 +153,7 @@ final class General
                 throw new \Exception('$userProfile is empty.');
             }
 
-            self::user_handler($auth_process_data['user_data']);
+            self::user_handler($auth_process_data);
 
             if(empty(self::$redirect_to)){
                 self::$redirect_to = $auth_process_data['redirect_to'];
@@ -172,23 +181,58 @@ final class General
      *
      * @return bool
      */
-    public static function user_handler($userProfile){
-
-        if(empty($userProfile->email)){
+    public static function user_handler($process_data)
+    {
+        if(empty($process_data['user_data']) || empty($process_data['provider'])){
             return false;
         }
 
-        if($user = get_user_by('email', $userProfile->email)){
-            self::auth_user($user);
-        } else {
-            if($user = self::add_user($userProfile)){
-                self::auth_user($user);
-            } else {
-                return false;
-            }
+        $user_data = $process_data['user_data'];
+
+        $user = get_user_by('id', get_current_user_id());
+
+        if(empty($user)){
+            $user = self::get_connected_user($user_data->identifier, $process_data['provider']);
         }
 
+        if(empty($user) && !empty($user_data->email)){
+            $user = get_user_by('email', $user_data->email);
+        }
+
+        if(empty($user)){
+            $user = self::add_user($user_data);
+        }
+
+        if(empty($user)){
+            return false;
+        }
+
+        $auth_id_meta_key = 'socialify_' . $process_data['provider'] . '_id_' . $user_data->identifier;
+        update_user_meta($user->ID, $auth_id_meta_key, $user_data->identifier);
+
+        self::auth_user($user);
         return true;
+
+    }
+
+    public static function get_connected_user($identifier = '', $provider = ''){
+
+        $auth_id_meta_key = 'socialify_' . $provider . '_id_' . $identifier;
+        $users = get_users(array(
+            'meta_key' => $auth_id_meta_key,
+            'meta_value' => $identifier,
+            'count_total' => false
+        ));
+
+        if(empty($users[0]->ID)){
+            return false;
+        }
+
+        if(count($users) > 1){
+            return false;
+        }
+
+        return get_user_by('id', $users[0]->ID);
     }
 
     public static function add_user($userProfile){
@@ -217,8 +261,6 @@ final class General
         if( ! $user_id = wp_insert_user($user_data) ){
             return false;
         }
-
-        $userProfileArray = (array) $userProfile;
 
         if(!$user = get_user_by('id', $user_id)){
             return false;

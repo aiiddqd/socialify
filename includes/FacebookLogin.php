@@ -19,10 +19,59 @@ final class FacebookLogin
     {
         self::$endpoint = site_url(self::$endpoint);
 
-        add_action('admin_init', [__CLASS__, 'add_settings']);
-        add_filter('socialify_user_profile', [__CLASS__, 'auth_handler'], 11, 2);
+        add_action('plugins_loaded', function (){
 
-        add_filter('socialify_shortcode_data', [__CLASS__, 'add_btn_for_shortcode']);
+            add_filter('socialify_auth_process', [__CLASS__, 'auth_process'], 11, 2);
+
+            add_filter('socialify_shortcode_data', [__CLASS__, 'add_btn_for_shortcode']);
+
+            add_action('admin_init', [__CLASS__, 'add_settings']);
+        });
+
+    }
+
+    /**
+     * apply_filters('socialify_auth_process', $auth_process_data);
+     */
+    public static function auth_process($auth_process_data, $endpoint)
+    {
+        if ('Facebook' != $endpoint) {
+            return $auth_process_data;
+        }
+
+        $config_data = get_option(self::$option_name);
+        if (empty($config_data['id']) || empty($config_data['secret'])) {
+            return $auth_process_data;
+        }
+
+        $config = [
+            'callback' => self::$endpoint,
+            //Facebook application credentials
+            'keys'     => [
+                'id'     => $config_data['id'], //Required: your Facebook application id
+                'secret' => $config_data['secret']  //Required: your Facebook application secret
+            ]
+        ];
+
+        //Instantiate Facebook's adapter directly
+        $adapter = new \Hybridauth\Provider\Facebook($config);
+
+        if(!empty($_GET['redirect_to'])){
+            $redirect_to = $_GET['redirect_to'];
+            $adapter->getStorage()->set('socialify_redirect_to', $redirect_to);
+        }
+
+        //Attempt to authenticate the user with Facebook
+        $adapter->authenticate();
+
+        $auth_process_data['user_data'] = $adapter->getUserProfile();
+        $auth_process_data['redirect_to'] = $adapter->getStorage()->get('socialify_redirect_to');
+        $auth_process_data['provider'] = 'facebook';
+
+        //Disconnect the adapter
+        $adapter->disconnect();
+
+        return $auth_process_data;
     }
 
     public static function add_btn_for_shortcode($data)

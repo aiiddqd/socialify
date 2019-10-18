@@ -2,6 +2,9 @@
 namespace Socialify;
 defined('ABSPATH') || die();
 
+/**
+ * Login via Google OAuth2
+ */
 final class GoogleLogin
 {
     public static $data = [
@@ -14,23 +17,59 @@ final class GoogleLogin
 
     public static $endpoint = '/socialify/Google/';
 
-    public static function init(){
-
-        self::$endpoint = site_url(self::$endpoint);
-        add_action('admin_init', [__CLASS__, 'add_settings']);
-        add_filter('socialify_user_profile', [__CLASS__, 'auth_handler'], 11, 2);
-        add_filter('socialify_shortcode_data', [__CLASS__, 'add_btn_for_shortcode']);
-
-    }
-
-    public static function add_btn_for_shortcode($data)
+    public static function init()
     {
-        $data['login_items']['google'] = [
-            'url' => self::$endpoint,
-            'ico_url' => General::$plugin_dir_url . 'assets/svg/google.svg',
-        ];
-        return $data;
+        self::$endpoint = site_url(self::$endpoint);
+
+        add_action('plugins_loaded', function (){
+
+            add_filter('socialify_auth_process', [__CLASS__, 'auth_process'], 11, 2);
+
+            add_action('admin_init', [__CLASS__, 'add_settings']);
+//            add_filter('socialify_user_profile', [__CLASS__, 'auth_handler'], 11, 2);
+            add_filter('socialify_shortcode_data', [__CLASS__, 'add_btn_for_shortcode']);
+        });
     }
+
+    /**
+     * apply_filters('socialify_auth_process', $auth_process_data);
+     */
+    public static function auth_process($auth_process_data, $endpoint)
+    {
+        if('Google' != $endpoint){
+            return $auth_process_data;
+        }
+
+        if(!$config = self::get_config()){
+            return $auth_process_data;
+        }
+
+        $adapter = new \Hybridauth\Provider\Google($config);
+
+        if(!empty($_GET['redirect_to'])){
+            $redirect_to = $_GET['redirect_to'];
+            $adapter->getStorage()->set('socialify_redirect_to', $redirect_to);
+        }
+
+        //Attempt to authenticate the user with Facebook
+        if($accessToken = $adapter->getAccessToken()){
+            $adapter->setAccessToken($accessToken);
+        }
+
+        $adapter->authenticate();
+
+        //Set process data
+        $auth_process_data['user_data'] = $adapter->getUserProfile();
+        $auth_process_data['redirect_to'] = $adapter->getStorage()->get('socialify_redirect_to');
+        $auth_process_data['provider'] = 'google';
+
+        //Disconnect the adapter & destroy session
+        $adapter->disconnect();
+
+        return $auth_process_data;
+
+    }
+
 
     public static function auth_handler($userProfile, $endpoint)
     {
@@ -87,6 +126,15 @@ final class GoogleLogin
         ];
 
         return $config;
+    }
+
+    public static function add_btn_for_shortcode($data)
+    {
+        $data['login_items']['google'] = [
+            'url' => self::$endpoint,
+            'ico_url' => General::$plugin_dir_url . 'assets/svg/google.svg',
+        ];
+        return $data;
     }
 
     /**
