@@ -76,47 +76,28 @@ final class FacebookLogin
 
     public static function add_btn_for_shortcode($data)
     {
+        if(!self::is_active()){
+          return $data;
+        }
+
         $data['login_items']['fb'] = [
             'url' => self::$endpoint,
             'ico_url' => General::$plugin_dir_url . 'assets/svg/facebook.svg',
         ];
+
         return $data;
     }
 
-    public static function auth_handler($userProfile, $endpoint)
-    {
+    /**
+     * Check is active
+     */
+    public static function is_active(){
+      $config_data = get_option(self::$option_name);
+      if(empty($config_data['id']) || empty($config_data['secret'])){
+        return false;
+      }
 
-        if ('Facebook' != $endpoint) {
-            return $userProfile;
-        }
-
-        $config_data = get_option(self::$option_name);
-        if (empty($config_data['id']) || empty($config_data['secret'])) {
-            return $userProfile;
-        }
-
-        $config = [
-            'callback' => self::$endpoint,
-            //Facebook application credentials
-            'keys'     => [
-                'id'     => $config_data['id'], //Required: your Facebook application id
-                'secret' => $config_data['secret']  //Required: your Facebook application secret
-            ]
-        ];
-
-        //Instantiate Facebook's adapter directly
-        $adapter = new \Hybridauth\Provider\Facebook($config);
-
-        //Attempt to authenticate the user with Facebook
-        $adapter->authenticate();
-
-        //Retrieve the user's profile
-        $userProfile = $adapter->getUserProfile();
-
-        //Disconnect the adapter
-        $adapter->disconnect();
-
-        return $userProfile;
+      return true;
     }
 
     /**
@@ -146,7 +127,7 @@ final class FacebookLogin
         <ol>
             <li>
                 <span><?= __('Получить реквизиты для доступа можно по ссылке: ', 'socialify') ?></span>
-                '<a href="https://developers.facebook.com/apps/" target="_blank">https://developers.facebook.com/apps/</a>'
+                <a href="https://developers.facebook.com/apps/" target="_blank">https://developers.facebook.com/apps/</a>
             </li>
             <li>В поле Callback URI запишите: <code><?= self::$endpoint ?></code></li>
             <li>Ссылка на сайт: <code><?= site_url() ?></code></li>
@@ -167,7 +148,7 @@ final class FacebookLogin
             $setting_title = self::$data['setting_title_id'],
             $callback = function ($args) {
                 printf(
-                    '<input type="text" name="%s" value="%s" >',
+                    '<input type="text" name="%s" value="%s" size="77">',
                     $args['name'], $args['value']
                 );
             },
@@ -194,7 +175,7 @@ final class FacebookLogin
             $setting_title,
             $callback = function ($args) {
                 printf(
-                    '<input type="text" name="%s" value="%s" >',
+                    '<input type="text" name="%s" value="%s" size="77">',
                     $args['name'], $args['value']
                 );
             },

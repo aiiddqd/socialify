@@ -17,19 +17,25 @@ final class ShortcodeLogin
      */
     public static function init()
     {
-        add_shortcode('socialify_login', function (){
-            $data = [];
-            $data['login_items'] = [
-                'email_standard' => [
-                    'url' => wp_login_url( home_url() ),
-                    'ico_url' => General::$plugin_dir_url . 'assets/svg/email.svg',
-                ],
-            ];
+      add_shortcode('socialify_login', function() {
+        $data                = [];
+        $data['login_items'] = [
+          'email_standard' => [
+            'url'     => wp_login_url(home_url()),
+            'ico_url' => General::$plugin_dir_url . 'assets/svg/email.svg',
+          ],
+        ];
 
-            $data = apply_filters('socialify_shortcode_data', $data);
+        foreach ($data['login_items'] as $key => $item) {
+          $data['login_items'][ $key ]['class_array'] = ['socialify_shortcode_login__item', 'socialify_' . $key];
+        }
 
-            return self::render($data);
-        });
+        $data = apply_filters('socialify_shortcode_data', $data);
+
+        ob_start();
+        require_once __DIR__ . '/../templates/shortocde-btns.php';
+        return ob_get_clean();
+      });
 
         add_action('plugins_loaded', function (){
             add_action( 'wp_enqueue_scripts', [__CLASS__, 'assets'] );
@@ -94,23 +100,6 @@ final class ShortcodeLogin
             $dep = array(),
             $ver = filemtime(General::$plugin_dir_path . '/assets/style.css')
         );
-    }
-
-    /**
-     * render
-     */
-    public static function render($data){
-        ob_start(); ?>
-        <div class="socialify_shortcode_login">
-            <?php foreach ($data['login_items'] as $key => $item): ?>
-                <div class="socialify_shortcode_login__item socialify_<?= $key ?>">
-                    <a href="<?= $item['url'] ?>">
-                        <img src="<?= $item['ico_url'] ?>" alt="">
-                    </a>
-                </div>
-            <?php endforeach; ?>
-        </div>
-        <?php return ob_get_clean();
     }
 
     /**

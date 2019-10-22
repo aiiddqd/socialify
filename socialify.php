@@ -26,16 +26,6 @@
 namespace Socialify;
 defined('ABSPATH') || die();
 
-add_action('init', function (){
-    if(!isset($_GET['dd'])){
-        return;
-    }
-
-    echo  '<pre>';
-    $r = get_user_meta(3);
-    var_dump($r); exit;
-});
-
 final class General
 {
     /**

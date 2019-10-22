@@ -22,13 +22,22 @@ final class GoogleLogin
         self::$endpoint = site_url(self::$endpoint);
 
         add_action('plugins_loaded', function (){
-
             add_filter('socialify_auth_process', [__CLASS__, 'auth_process'], 11, 2);
-
             add_action('admin_init', [__CLASS__, 'add_settings']);
-//            add_filter('socialify_user_profile', [__CLASS__, 'auth_handler'], 11, 2);
             add_filter('socialify_shortcode_data', [__CLASS__, 'add_btn_for_shortcode']);
         });
+    }
+
+    /**
+     * Check is active
+     */
+    public static function is_active(){
+      $config_data = get_option(self::$option_name);
+      if(empty($config_data['id']) || empty($config_data['secret'])){
+        return false;
+      }
+
+      return true;
     }
 
     /**
@@ -70,42 +79,6 @@ final class GoogleLogin
 
     }
 
-
-    public static function auth_handler($userProfile, $endpoint)
-    {
-        if('Google' != $endpoint){
-            return $userProfile;
-        }
-
-        if(!$config = self::get_config()){
-            return $userProfile;
-        }
-
-        $adapter = new \Hybridauth\Provider\Google($config);
-
-        if(!empty($_GET['redirect_to'])){
-            $redirect_to = $_GET['redirect_to'];
-            $adapter->getStorage()->set('socialify_redirect_to', $redirect_to);
-        }
-
-        //Attempt to authenticate the user with Facebook
-        if($accessToken = $adapter->getAccessToken()){
-            $adapter->setAccessToken($accessToken);
-        }
-
-        $adapter->authenticate();
-
-        //Retrieve the user's profile
-        $userProfile = $adapter->getUserProfile();
-
-        General::$redirect_to = $adapter->getStorage()->get('socialify_redirect_to');
-
-        //Disconnect the adapter & destroy session
-        $adapter->disconnect();
-
-        return $userProfile;
-    }
-
     public static function get_config()
     {
         $config_data = get_option(self::$option_name);
@@ -130,10 +103,15 @@ final class GoogleLogin
 
     public static function add_btn_for_shortcode($data)
     {
+        if(! self::is_active() ){
+          return $data;
+        }
+
         $data['login_items']['google'] = [
             'url' => self::$endpoint,
             'ico_url' => General::$plugin_dir_url . 'assets/svg/google.svg',
         ];
+
         return $data;
     }
 
