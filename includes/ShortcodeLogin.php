@@ -12,12 +12,18 @@ final class ShortcodeLogin
      */
     public static $is_login_page = false;
 
+    public static $option_name = 'socialify_shortcode';
+
+    public static $show_on_login = false;
+
     /**
      * The init
      */
     public static function init()
     {
         add_action('plugins_loaded', function (){
+
+          self::$show_on_login = @get_option(self::$option_name)['login_page_show'];
 
           add_shortcode('socialify_login', function() {
             $data                = [];
@@ -46,12 +52,44 @@ final class ShortcodeLogin
 
           add_filter('socialify_shortcode_data', [__CLASS__, 'add_redirect_to']);
 
-          if(get_option('socialify_login_page_show', 1)){
+          add_action('admin_init', [__CLASS__, 'add_settings']);
+
+          if(self::$show_on_login){
               add_filter('socialify_shortcode_data', [__CLASS__, 'filter_login_page']);
               add_action('login_form', [__CLASS__, 'add_to_login_page']);
               add_action('login_enqueue_scripts', [__CLASS__, 'assets_login_page']);
           }
         });
+    }
+
+    /**
+     * add_settings
+     */
+    public static function add_settings(){
+      add_settings_section(
+        $section_id = self::$option_name . '_section',
+        $section_title = __('Shortcode'),
+        $callback = '',
+        General::$settings_group
+      );
+      register_setting(General::$settings_group, self::$option_name);
+
+      add_settings_field(
+        $setting_id = self::$option_name . '_login_page_show',
+        $setting_title = 'Показывать шорткод на странице авторизации',
+        $callback = function($args){
+          printf(
+            '<input type="checkbox" name="%s" value="1" %s>',
+            $args['name'], checked( 1, $args['value'], false )
+          );
+        },
+        $page = General::$settings_group,
+        $section = self::$option_name . '_section',
+        $args = [
+          'name' => self::$option_name . '[login_page_show]',
+          'value' => @get_option(self::$option_name)['login_page_show'],
+        ]
+      );
     }
 
     /**
