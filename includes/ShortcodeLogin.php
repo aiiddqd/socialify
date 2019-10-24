@@ -27,12 +27,12 @@ final class ShortcodeLogin
 
           add_shortcode('socialify_login', function() {
             $data                = [];
-            $data['login_items'] = [
-              'email_standard' => [
-                'url'     => wp_login_url(home_url()),
-                'ico_url' => General::$plugin_dir_url . 'assets/svg/email.svg',
-              ],
-            ];
+//             $data['login_items'] = [
+//               'email_standard' => [
+//                 'url'     => wp_login_url(home_url()),
+//                 'ico_url' => General::$plugin_dir_url . 'assets/svg/email.svg',
+//               ],
+//             ];
 
             $data = apply_filters('socialify_shortcode_data', $data);
 
