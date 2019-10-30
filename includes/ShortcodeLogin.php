@@ -25,14 +25,16 @@ final class ShortcodeLogin
 
           self::$show_on_login = @get_option(self::$option_name)['login_page_show'];
 
-          add_shortcode('socialify_login', function() {
-            $data                = [];
-//             $data['login_items'] = [
-//               'email_standard' => [
-//                 'url'     => wp_login_url(home_url()),
-//                 'ico_url' => General::$plugin_dir_url . 'assets/svg/email.svg',
-//               ],
-//             ];
+          add_shortcode('socialify_login', function($args) {
+            $data = [];
+            if( ! empty($args['email']) ){
+              $data['login_items'] = [
+                'email_standard' => [
+                  'url'     => wp_login_url(home_url()),
+                  'ico_url' => General::$plugin_dir_url . 'assets/svg/email.svg',
+                ],
+              ];
+            }
 
             $data = apply_filters('socialify_shortcode_data', $data);
 
@@ -149,12 +151,17 @@ final class ShortcodeLogin
      */
     public static function assets()
     {
-        wp_enqueue_style(
-                'socialify-sc-style',
-                $url = General::$plugin_dir_url . 'assets/style.css',
-                $dep = array(),
-                $ver = filemtime(General::$plugin_dir_path . '/assets/style.css')
-        );
+        /**
+         * hook for enable / disable ccs
+         */
+        if(apply_filters('socialify_shortcode_css_enable', true)){
+          wp_enqueue_style(
+            'socialify-sc-style',
+            $url = General::$plugin_dir_url . 'assets/style.css',
+            $dep = array(),
+            $ver = filemtime(General::$plugin_dir_path . '/assets/style.css')
+          );
+        }
     }
 }
 
