@@ -9,7 +9,7 @@
  * Domain Path:  /languages/
  * GitHub Plugin URI: https://github.com/uptimizt/socialify
  * Requires PHP: 5.6
- * Version:      0.8.3
+ * Version:      0.8.4
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,10 @@
  */
 
 namespace Socialify;
+
+
+
+
 defined('ABSPATH') || die();
 
 final class General
@@ -97,6 +101,8 @@ final class General
         array_unshift($links, $settings_link);
         return $links;
     }
+
+
 
     /**
      * helper get_current_url
@@ -273,7 +279,7 @@ final class General
         }
 
         wp_set_current_user( $user->ID );
-        wp_set_auth_cookie( $user->ID );
+        wp_set_auth_cookie( $user->ID, true );
         do_action( 'wp_login', $user->user_login, $user );
         return true;
     }
