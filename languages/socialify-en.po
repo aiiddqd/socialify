@@ -1,0 +1,71 @@
+msgid ""
+msgstr ""
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Project-Id-Version: Socialify\n"
+"POT-Creation-Date: 2020-09-22 11:48+0200\n"
+"PO-Revision-Date: 2020-09-22 11:51+0200\n"
+"Language-Team: Patrick Groot <info@patrickgroot.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.8\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-WPHeader: socialify.php\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;_n_noop:1,2;_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"Last-Translator: Patrick Groot <info@patrickgroot.com>\n"
+"Language: en\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: *.js\n"
+
+#: includes/FacebookLogin.php:129 includes/GoogleLogin.php:139
+msgid "Получить реквизиты для доступа можно по ссылке: "
+msgstr "You can obtain access and details by clicking on the link: "
+
+#: includes/FacebookLogin.php:132 includes/GoogleLogin.php:142
+msgid "В поле Callback URI запишите:"
+msgstr "Copy/paste Callback URL in your app settings:"
+
+#: includes/FacebookLogin.php:133 includes/GoogleLogin.php:143
+msgid "Ссылка на сайт:"
+msgstr "Link to the website:"
+
+#: includes/FacebookLogin.php:134 includes/GoogleLogin.php:144
+msgid "Домен если потребуется:"
+msgstr "Domain if required:"
+
+#: includes/ShortcodeLogin.php:73
+msgid "Shortcode"
+msgstr "Shortcode"
+
+#: includes/ShortcodeLogin.php:81
+msgid "Показывать шорткод на странице авторизации"
+msgstr "Show shortcode on the login page"
+
+#: socialify.php:102
+msgid "Settings"
+msgstr "Settings"
+
+#: socialify.php:295
+msgid "Socialify Settings"
+msgstr "Socialify Settings"
+
+#. Plugin Name of the plugin/theme
+msgid "Socialify"
+msgstr "Socialify"
+
+#. Plugin URI of the plugin/theme
+msgid "https://github.com/uptimizt/socialify"
+msgstr "https://github.com/uptimizt/socialify"
+
+#. Description of the plugin/theme
+msgid "Social Login for WordPress based the OAuth2 and HybridAuth"
+msgstr "Social Login for WordPress based the OAuth2 and HybridAuth"
+
+#. Author of the plugin/theme
+msgid "uptimizt"
+msgstr "uptimizt"
+
+#. Author URI of the plugin/theme
+msgid "https://github.com/uptimizt"
+msgstr "https://github.com/uptimizt"

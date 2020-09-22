@@ -129,9 +129,9 @@ final class FacebookLogin
                 <span><?= __('Получить реквизиты для доступа можно по ссылке: ', 'socialify') ?></span>
                 <a href="https://developers.facebook.com/apps/" target="_blank">https://developers.facebook.com/apps/</a>
             </li>
-            <li>В поле Callback URI запишите: <code><?= self::$endpoint ?></code></li>
-            <li>Ссылка на сайт: <code><?= site_url() ?></code></li>
-            <li>Домен если потребуется: <code><?= $_SERVER['SERVER_NAME'] ?></code></li>
+            <li><?= __('В поле Callback URI запишите:', 'socialify'); ?> <code><?= self::$endpoint ?></code></li>
+            <li><?= __('Ссылка на сайт:', 'socialify'); ?> <code><?= site_url() ?></code></li>
+            <li><?= __('Домен если потребуется:', 'socialify'); ?> <code><?= $_SERVER['SERVER_NAME'] ?></code></li>
         </ol>
         <?php
     }

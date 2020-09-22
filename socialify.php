@@ -79,6 +79,8 @@ final class General
 
         add_action('init', [__CLASS__, 'add_endpoint']);
 
+		add_action( 'plugins_loaded', [__CLASS__, 'socialify_textdomain']);
+
         add_filter( "plugin_action_links_" . self::$plugin_basename, [__CLASS__, 'add_settings_url_to_plugins_list'] );
 
         add_action('admin_menu', function(){
@@ -318,6 +320,10 @@ final class General
             flush_rewrite_rules($hard = false);
         }
     }
+
+	public static function socialify_textdomain() {
+		load_plugin_textdomain( 'socialify', FALSE, basename( dirname( __FILE__ ) ) . '/languages/' );
+	}
 
 }
 

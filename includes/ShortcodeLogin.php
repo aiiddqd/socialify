@@ -78,7 +78,7 @@ final class ShortcodeLogin
 
       add_settings_field(
         $setting_id = self::$option_name . '_login_page_show',
-        $setting_title = 'Показывать шорткод на странице авторизации',
+        $setting_title = __('Показывать шорткод на странице авторизации', 'socialify'),
         $callback = function($args){
           printf(
             '<input type="checkbox" name="%s" value="1" %s>',
