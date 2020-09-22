@@ -79,6 +79,11 @@ final class General
 
         add_action('init', [__CLASS__, 'add_endpoint']);
 
+		add_action( 'plugins_loaded', [__CLASS__, 'socialify_textdomain']);
+
+		add_action( 'show_user_profile', [__CLASS__, 'socialify_user_profile_settings']);
+		add_action( 'edit_user_profile', [__CLASS__, 'socialify_user_profile_settings']);
+
         add_filter( "plugin_action_links_" . self::$plugin_basename, [__CLASS__, 'add_settings_url_to_plugins_list'] );
 
         add_action('admin_menu', function(){
@@ -318,6 +323,39 @@ final class General
             flush_rewrite_rules($hard = false);
         }
     }
+
+	public static function socialify_textdomain() {
+		load_plugin_textdomain( 'socialify', FALSE, basename( dirname( __FILE__ ) ) . '/languages/' );
+	}
+
+	public static function socialify_user_profile_settings( $user ) {
+		?>
+		<h3><?php esc_html_e( 'Socialify Settings', 'socialify' ); ?></h3>
+
+		<table class="form-table">
+			<tr>
+				<th><label for="facebook_sso"><?php esc_html_e( 'Facebook SSO', 'socialify' ); ?></label></th>
+				<td>
+					<?php if(true) { ?> 
+						<button type="button" name="facebook_sso" id="facebook_sso" class="button hide-if-no-js"><?= __('Connect', 'socialify'); ?></button>
+					<?php } else { ?>
+						<button type="button" name="facebook_sso" id="facebook_sso" class="button hide-if-no-js"><?= __('Disconnect', 'socialify'); ?></button>
+					<?php } ?>
+				</td>
+			</tr>
+			<tr>
+				<th><label for="google_sso"><?php esc_html_e( 'Google SSO', 'socialify' ); ?></label></th>
+				<td>
+					<?php if(true) { ?> 
+						<button type="button" name="google_sso" id="google_sso" class="button hide-if-no-js"><?= __('Connect', 'socialify'); ?></button>
+					<?php } else { ?>
+						<button type="button" name="google_sso" id="google_sso"class="button hide-if-no-js"><?= __('Disconnect', 'socialify'); ?></button>
+					<?php } ?>
+				</td>
+			</tr>
+		</table>
+		<?php
+	}
 
 }
 
