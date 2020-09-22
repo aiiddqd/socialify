@@ -329,13 +329,13 @@ final class General
 	}
 
 	public static function socialify_user_profile_settings( $user ) {
-
-		if ( $facebook || $google == is_active() ) {
+		//var_dump(FacebookLogin::is_active());
+		if ( FacebookLogin::is_active() || GoogleLogin::is_active() == true ) {
 		?>
 		<h3><?php esc_html_e( 'Socialify Settings', 'socialify' ); ?></h3>
 
 		<table class="form-table">
-			<?php if ( $facebook == is_active() ) { ?>
+			<?php if ( FacebookLogin::is_active() == true ) { ?>
 			<tr>
 				<th><label for="facebook_sso"><?php esc_html_e( 'Facebook SSO', 'socialify' ); ?></label></th>
 				<td>
@@ -349,7 +349,7 @@ final class General
 			</tr>
 			<?php }
 
-			if ( $google == is_active() ) { ?>
+			if ( GoogleLogin::is_active() == true ) { ?>
 			<tr>
 				<th><label for="google_sso"><?php esc_html_e( 'Google SSO', 'socialify' ); ?></label></th>
 				<td>
