@@ -336,7 +336,8 @@ final class General
 			<tr>
 				<th><label for="facebook_sso"><?php esc_html_e( 'Facebook SSO', 'socialify' ); ?></label></th>
 				<td>
-					<?php if(true) { ?> 
+					<?php $connected == true; 
+					if( $connected == false ) { ?> 
 						<button type="button" name="facebook_sso" id="facebook_sso" class="button hide-if-no-js"><?= __('Connect', 'socialify'); ?></button>
 					<?php } else { ?>
 						<button type="button" name="facebook_sso" id="facebook_sso" class="button hide-if-no-js"><?= __('Disconnect', 'socialify'); ?></button>
@@ -346,7 +347,8 @@ final class General
 			<tr>
 				<th><label for="google_sso"><?php esc_html_e( 'Google SSO', 'socialify' ); ?></label></th>
 				<td>
-					<?php if(true) { ?> 
+					<?php $connected == true;
+					if( $connected == true ) { ?> 
 						<button type="button" name="google_sso" id="google_sso" class="button hide-if-no-js"><?= __('Connect', 'socialify'); ?></button>
 					<?php } else { ?>
 						<button type="button" name="google_sso" id="google_sso"class="button hide-if-no-js"><?= __('Disconnect', 'socialify'); ?></button>
