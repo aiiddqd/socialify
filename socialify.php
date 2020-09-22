@@ -337,7 +337,7 @@ final class General
 		<table class="form-table">
 			<?php if ( FacebookLogin::is_active() == true ) { ?>
 			<tr>
-				<th><label for="facebook_sso"><?php esc_html_e( 'Facebook SSO', 'socialify' ); ?></label></th>
+				<th><label for="facebook_sso"><?php esc_html_e( 'Facebook', 'socialify' ); ?></label></th>
 				<td>
 					<?php $connected == true; 
 					if( $connected == false ) { ?> 
@@ -351,7 +351,7 @@ final class General
 
 			if ( GoogleLogin::is_active() == true ) { ?>
 			<tr>
-				<th><label for="google_sso"><?php esc_html_e( 'Google SSO', 'socialify' ); ?></label></th>
+				<th><label for="google_sso"><?php esc_html_e( 'Google', 'socialify' ); ?></label></th>
 				<td>
 					<?php $connected == true;
 					if( $connected == true ) { ?> 
