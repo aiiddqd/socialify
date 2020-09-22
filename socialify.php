@@ -332,7 +332,7 @@ final class General
 		//var_dump(FacebookLogin::is_active());
 		if ( FacebookLogin::is_active() || GoogleLogin::is_active() == true ) {
 		?>
-		<h3><?php esc_html_e( 'Socialify Settings', 'socialify' ); ?></h3>
+		<h3><?php esc_html_e( 'Single Sign-On Settings', 'socialify' ); ?></h3>
 
 		<table class="form-table">
 			<?php if ( FacebookLogin::is_active() == true ) { ?>
