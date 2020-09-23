@@ -155,7 +155,7 @@ final class FacebookLogin
             $page = General::$settings_group,
             $section_id = self::$data['settings_section_key'],
             $args = [
-                'name'  => self::$option_name,
+                'name'  => self::$option_name . '[id]',
                 'value' => @get_option(self::$option_name)['id'],
             ]
         );
