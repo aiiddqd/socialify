@@ -207,7 +207,7 @@ final class General
             return false;
         }
 
-        $auth_id_meta_key = 'socialify_' . $process_data['provider'] . '_id_' . $user_data->identifier;
+        $auth_id_meta_key = 'socialify_' . $process_data['provider'] . '_id';
         update_user_meta($user->ID, $auth_id_meta_key, $user_data->identifier);
 
         self::auth_user($user);
@@ -217,7 +217,7 @@ final class General
 
     public static function get_connected_user($identifier = '', $provider = ''){
 
-        $auth_id_meta_key = 'socialify_' . $provider . '_id_' . $identifier;
+        $auth_id_meta_key = 'socialify_' . $provider . '_id';
         $users = get_users(array(
             'meta_key' => $auth_id_meta_key,
             'meta_value' => $identifier,
@@ -329,7 +329,6 @@ final class General
 	}
 
 	public static function socialify_user_profile_settings( $user ) {
-		//var_dump(FacebookLogin::is_active());
 		if ( FacebookLogin::is_active() || GoogleLogin::is_active() == true ) {
 		?>
 		<h3><?php esc_html_e( 'Single Sign-On Settings', 'socialify' ); ?></h3>
@@ -339,11 +338,13 @@ final class General
 			<tr>
 				<th><label for="facebook_sso"><?php esc_html_e( 'Facebook', 'socialify' ); ?></label></th>
 				<td>
-					<?php $connected == true; 
-					if( $connected == false ) { ?> 
-						<button type="button" name="facebook_sso" id="facebook_sso" class="button hide-if-no-js"><?= __('Connect', 'socialify'); ?></button>
-					<?php } else { ?>
+					<?php 
+					$user = get_user_by('id', get_current_user_id());
+					$meta = get_user_meta($user->ID, 'socialify_facebook_id', true);
+					if( is_user_logged_in() && !empty($meta) ) { ?> 
 						<button type="button" name="facebook_sso" id="facebook_sso" class="button hide-if-no-js"><?= __('Disconnect', 'socialify'); ?></button>
+					<?php } else { ?>
+						<button type="button" name="facebook_sso" id="facebook_sso" class="button hide-if-no-js"><?= __('Connect', 'socialify'); ?></button>
 					<?php } ?>
 				</td>
 			</tr>
@@ -353,11 +354,13 @@ final class General
 			<tr>
 				<th><label for="google_sso"><?php esc_html_e( 'Google', 'socialify' ); ?></label></th>
 				<td>
-					<?php $connected == true;
-					if( $connected == true ) { ?> 
-						<button type="button" name="google_sso" id="google_sso" class="button hide-if-no-js"><?= __('Connect', 'socialify'); ?></button>
-					<?php } else { ?>
+					<?php 
+					$user = get_user_by('id', get_current_user_id());
+					$meta = get_user_meta($user->ID, 'socialify_google_id', true);
+					if( is_user_logged_in() && !empty($meta) ) { ?> 
 						<button type="button" name="google_sso" id="google_sso"class="button hide-if-no-js"><?= __('Disconnect', 'socialify'); ?></button>
+					<?php } else { ?>
+						<button type="button" name="google_sso" id="google_sso" class="button hide-if-no-js"><?= __('Connect', 'socialify'); ?></button>
 					<?php } ?>
 				</td>
 			</tr>
