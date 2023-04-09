@@ -10,6 +10,16 @@ Social Login and authentificate by OAuth2
 == Description ==
 Social Login is a professionally developed and free WordPress plugin that allows your visitors to comment, login and register by Social Networks like for example Facebook, Twitter, Google, LinkedIn, PayPal, LiveJournal, Instagram, Вконтакте or Yahoo amongst other.
 
+== Changelog ==
+
+= 0.9.230409 =
+- switch to English
+- code refactoring
+- update HA to 3.9
+
+= 0.8 =
+- experiments with Google, Facebook
+- add API for extend - Yandex, VK etc
 
 
 == Installation ==

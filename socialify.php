@@ -8,7 +8,7 @@
  * Text Domain:  socialify
  * Domain Path:  /languages/
  * GitHub Plugin URI: https://github.com/uptimizt/socialify
- * Requires PHP: 5.6
+ * Requires PHP: 8.0
  * Version:      0.9.230409
  *
  * This program is free software; you can redistribute it and/or modify
@@ -23,9 +23,6 @@
  */
 
 namespace Socialify;
-
-
-
 
 defined('ABSPATH') || die();
 
