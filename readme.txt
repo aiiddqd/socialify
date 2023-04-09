@@ -1,8 +1,8 @@
 === Socialify ===
 Tags: social login, oauth, oauth2, hybridauth
-Requires at least: 3.5
-Tested up to: 5.0
-Requires PHP: 5.6
+Requires at least: 6.0
+Tested up to: 6.1
+Requires PHP: 8.0
 License: MIT
 
 Social Login and authentificate by OAuth2
