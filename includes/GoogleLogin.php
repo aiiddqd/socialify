@@ -1,5 +1,6 @@
 <?php
 namespace Socialify;
+
 defined('ABSPATH') || die();
 
 /**
@@ -21,7 +22,7 @@ final class GoogleLogin
     {
         self::$endpoint = site_url(self::$endpoint);
 
-        add_action('plugins_loaded', function (){
+        add_action('plugins_loaded', function () {
             add_filter('socialify_auth_process', [__CLASS__, 'auth_process'], 11, 2);
             add_action('admin_init', [__CLASS__, 'add_settings']);
             add_filter('socialify_shortcode_data', [__CLASS__, 'add_btn_for_shortcode']);
@@ -31,13 +32,14 @@ final class GoogleLogin
     /**
      * Check is active
      */
-    public static function is_active(){
-      $config_data = get_option(self::$option_name);
-      if(empty($config_data['id']) || empty($config_data['secret'])){
-        return false;
-      }
+    public static function is_active()
+    {
+        $config_data = get_option(self::$option_name);
+        if (empty($config_data['id']) || empty($config_data['secret'])) {
+            return false;
+        }
 
-      return true;
+        return true;
     }
 
     /**
@@ -45,23 +47,23 @@ final class GoogleLogin
      */
     public static function auth_process($auth_process_data, $endpoint)
     {
-        if('Google' != $endpoint){
+        if ('Google' != $endpoint) {
             return $auth_process_data;
         }
 
-        if(!$config = self::get_config()){
+        if (!$config = self::get_config()) {
             return $auth_process_data;
         }
 
         $adapter = new \Hybridauth\Provider\Google($config);
 
-        if(!empty($_GET['redirect_to'])){
+        if (!empty($_GET['redirect_to'])) {
             $redirect_to = $_GET['redirect_to'];
             $adapter->getStorage()->set('socialify_redirect_to', $redirect_to);
         }
 
         //Attempt to authenticate the user with Facebook
-        if($accessToken = $adapter->getAccessToken()){
+        if ($accessToken = $adapter->getAccessToken()) {
             $adapter->setAccessToken($accessToken);
         }
 
@@ -82,19 +84,20 @@ final class GoogleLogin
     public static function get_config()
     {
         $config_data = get_option(self::$option_name);
-        if(empty($config_data['id']) || empty($config_data['secret'])){
+        if (empty($config_data['id']) || empty($config_data['secret'])) {
             return false;
         }
 
         $config = [
             'callback' => self::$endpoint,
-            'keys' => [ 'id' => $config_data['id'], 'secret' => $config_data['secret'] ],
-//            'scope'    => 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
+            'keys' => ['id' => $config_data['id'], 'secret' => $config_data['secret']],
+            //            'scope'    => 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
             'authorize_url_parameters' => [
-                'approval_prompt' => 'force', // to pass only when you need to acquire a new refresh token.
-                'access_type'     => 'offline',
+                'approval_prompt' => 'force',
+                // to pass only when you need to acquire a new refresh token.
+                'access_type' => 'offline',
             ],
-//            'debug_mode' => 'debug',
+            //            'debug_mode' => 'debug',
 //            'debug_file' => __FILE__ . '.log',
         ];
 
@@ -103,8 +106,8 @@ final class GoogleLogin
 
     public static function add_btn_for_shortcode($data)
     {
-        if(! self::is_active() ){
-          return $data;
+        if (!self::is_active()) {
+            return $data;
         }
 
         $data['login_items']['google'] = [
@@ -132,17 +135,24 @@ final class GoogleLogin
         self::add_setting_secret();
     }
 
-    public static function render_settings_instructions(){
+    public static function render_settings_instructions()
+    {
         ?>
-        <ol>
-            <li>
-                <span><?= __('Получить реквизиты для доступа можно по ссылке: ', 'socialify') ?></span>
-                <a href="https://console.developers.google.com/apis/credentials/" target="_blank">https://console.developers.google.com/apis/credentials</a>
-            </li>
-            <li>В поле Callback URI запишите: <code><?= self::$endpoint ?></code></li>
-            <li>Ссылка на сайт: <code><?= site_url() ?></code></li>
-            <li>Домен если потребуется: <code><?= $_SERVER['SERVER_NAME'] ?></code></li>
-        </ol>
+        <details>
+            <summary>Help</summary>
+            <ol>
+                <li>
+                    <span>
+                        <?= __('Get settings for Googla App: ', 'socialify') ?>
+                    </span>
+                    <a href="https://console.developers.google.com/apis/credentials/"
+                        target="_blank">https://console.developers.google.com/apis/credentials</a>
+                </li>
+                <li>Callback URI use this: <code><?= self::$endpoint ?></code></li>
+                <li>URL for site: <code><?= site_url() ?></code></li>
+                <li>Domain: <code><?= $_SERVER['SERVER_NAME'] ?></code></li>
+            </ol>
+        </details>
         <?php
     }
 
@@ -151,13 +161,14 @@ final class GoogleLogin
      *
      * name = socialify_config_google[id]
      */
-    public static function add_setting_id(){
+    public static function add_setting_id()
+    {
         $setting_title = self::$data['setting_title_id'];
         $setting_id = General::$slug . '_google_id';
         add_settings_field(
             $setting_id,
             $setting_title,
-            $callback = function($args){
+            $callback = function ($args) {
                 printf(
                     '<input type="text" name="%s" value="%s" size="77">',
                     $args['name'], $args['value']
@@ -177,13 +188,14 @@ final class GoogleLogin
      *
      * name = socialify_config_google[secret]
      */
-    public static function add_setting_secret(){
+    public static function add_setting_secret()
+    {
         $setting_title = self::$data['setting_title_secret'];
         $setting_id = self::$option_name . '_secret';
         add_settings_field(
             $setting_id,
             $setting_title,
-            $callback = function($args){
+            $callback = function ($args) {
                 printf(
                     '<input type="text" name="%s" value="%s" size="77">',
                     $args['name'], $args['value']

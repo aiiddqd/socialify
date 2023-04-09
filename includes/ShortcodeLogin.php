@@ -23,7 +23,7 @@ final class ShortcodeLogin
     {
         add_action('plugins_loaded', function (){
 
-          self::$show_on_login = @get_option(self::$option_name)['login_page_show'];
+          self::$show_on_login = get_option(self::$option_name)['login_page_show'] ?? null;
 
           add_shortcode('socialify_login', function($args) {
             $data = [];
@@ -89,7 +89,7 @@ final class ShortcodeLogin
         $section = self::$option_name . '_section',
         $args = [
           'name' => self::$option_name . '[login_page_show]',
-          'value' => @get_option(self::$option_name)['login_page_show'],
+          'value' => get_option(self::$option_name)['login_page_show'] ?? null,
         ]
       );
     }
