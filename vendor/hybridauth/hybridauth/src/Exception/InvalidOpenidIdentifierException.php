@@ -10,5 +10,6 @@ namespace Hybridauth\Exception;
 /**
  *
  */
-class InvalidOpenidIdentifierException extends InvalidArgumentException implements ExceptionInterface {
+class InvalidOpenidIdentifierException extends InvalidArgumentException implements ExceptionInterface
+{
 }

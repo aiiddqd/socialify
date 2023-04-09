@@ -8,18 +8,19 @@
 namespace Hybridauth\Provider;
 
 use Hybridauth\Adapter\OAuth2;
-use Hybridauth\Exception\UnexpectedValueException;
+use Hybridauth\Exception\UnexpectedApiResponseException;
 use Hybridauth\Data;
 use Hybridauth\User;
 
 /**
  * Authentiq OAuth2 provider adapter.
  */
-class Authentiq extends OAuth2 {
+class Authentiq extends OAuth2
+{
     /**
      * {@inheritdoc}
      */
-    public $scope = 'aq:name email~rs aq:push openid';
+    protected $scope = 'aq:name email~rs aq:push openid';
 
     /**
      * {@inheritdoc}
@@ -44,7 +45,8 @@ class Authentiq extends OAuth2 {
     /**
      * {@inheritdoc}
      */
-    protected function initialize() {
+    protected function initialize()
+    {
         parent::initialize();
 
         $this->AuthorizeUrlParameters += [
@@ -62,22 +64,15 @@ class Authentiq extends OAuth2 {
 
     /**
      * {@inheritdoc}
-     *
-     * Disable functionality as Authentiq Provider doesn't support this yet
      */
-    public function refreshAccessToken($parameters = []) {
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getUserProfile() {
+    public function getUserProfile()
+    {
         $response = $this->apiRequest('userinfo');
 
         $data = new Data\Collection($response);
 
-        if ( ! $data->exists('sub')) {
-            throw new UnexpectedValueException('Provider API returned an unexpected response.');
+        if (!$data->exists('sub')) {
+            throw new UnexpectedApiResponseException('Provider API returned an unexpected response.');
         }
 
         $userProfile = new User\Profile();
@@ -85,19 +80,17 @@ class Authentiq extends OAuth2 {
         $userProfile->identifier = $data->get('sub');
 
         $userProfile->displayName = $data->get('name');
-        $userProfile->firstName   = $data->get('given_name');
+        $userProfile->firstName = $data->get('given_name');
         // $userProfile->middleName  = $data->get('middle_name'); // not supported
         $userProfile->lastName = $data->get('family_name');
 
-        if ( ! empty($userProfile->displayName)) {
-            $userProfile->displayName = join(' ', [
-                $userProfile->firstName,
+        if (!empty($userProfile->displayName)) {
+            $userProfile->displayName = join(' ', array($userProfile->firstName,
                 // $userProfile->middleName,
-                $userProfile->lastName
-            ]);
+                $userProfile->lastName));
         }
 
-        $userProfile->email         = $data->get('email');
+        $userProfile->email = $data->get('email');
         $userProfile->emailVerified = $data->get('email_verified') ? $userProfile->email : '';
 
         $userProfile->phone = $data->get('phone');
@@ -105,13 +98,13 @@ class Authentiq extends OAuth2 {
 
         $userProfile->profileURL = $data->get('profile');
         $userProfile->webSiteURL = $data->get('website');
-        $userProfile->photoURL   = $data->get('picture');
-        $userProfile->gender     = $data->get('gender');
-        $userProfile->address    = $data->filter('address')->get('street_address');
-        $userProfile->city       = $data->filter('address')->get('locality');
-        $userProfile->country    = $data->filter('address')->get('country');
-        $userProfile->region     = $data->filter('address')->get('region');
-        $userProfile->zip        = $data->filter('address')->get('postal_code');
+        $userProfile->photoURL = $data->get('picture');
+        $userProfile->gender = $data->get('gender');
+        $userProfile->address = $data->filter('address')->get('street_address');
+        $userProfile->city = $data->filter('address')->get('locality');
+        $userProfile->country = $data->filter('address')->get('country');
+        $userProfile->region = $data->filter('address')->get('region');
+        $userProfile->zip = $data->filter('address')->get('postal_code');
 
         return $userProfile;
     }

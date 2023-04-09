@@ -21,7 +21,7 @@ if (version_compare(PHP_VERSION, '5.4.0', '<')) {
  * @return void
  */
 spl_autoload_register(
-    function($class) {
+    function ($class) {
         // project-specific namespace prefix. Will only kicks in for Hybridauth's namespace.
         $prefix = 'Hybridauth\\';
 

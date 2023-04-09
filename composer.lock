@@ -1,75 +1,81 @@
 {
-  "_readme": [
-    "This file locks the dependencies of your project to a known state",
-    "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
-    "This file is @generated automatically"
-  ],
-  "content-hash": "75809fb6fe59a056b86dd09f6a1e366e",
-  "packages": [
-    {
-      "name": "hybridauth/hybridauth",
-      "version": "v3.0.0",
-      "source": {
-        "type": "git",
-        "url": "https://github.com/hybridauth/hybridauth.git",
-        "reference": "be337a4a79bdb3b0587c81e202e674b40b125bcb"
-      },
-      "dist": {
-        "type": "zip",
-        "url": "https://api.github.com/repos/hybridauth/hybridauth/zipball/be337a4a79bdb3b0587c81e202e674b40b125bcb",
-        "reference": "be337a4a79bdb3b0587c81e202e674b40b125bcb",
-        "shasum": ""
-      },
-      "require": {
-        "php": ">=5.4.0"
-      },
-      "require-dev": {
-        "ext-curl": "*",
-        "phpunit/phpunit": "~4.8.35"
-      },
-      "type": "library",
-      "extra": {
-        "branch-alias": {
-          "dev-master": "3.0-dev"
-        }
-      },
-      "autoload": {
-        "psr-4": {
-          "Hybridauth\\": "src/"
-        }
-      },
-      "notification-url": "https://packagist.org/downloads/",
-      "license": [
-        "MIT"
-      ],
-      "authors": [
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "0bdec5c1625dec454aa06cfc381d59e7",
+    "packages": [
         {
-          "name": "Miled",
-          "email": "hybridauth@gmail.com"
+            "name": "hybridauth/hybridauth",
+            "version": "v3.9.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/hybridauth/hybridauth.git",
+                "reference": "a950212d2f52df5b0662cd520b0043c4ee6d0f1b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/hybridauth/hybridauth/zipball/a950212d2f52df5b0662cd520b0043c4ee6d0f1b",
+                "reference": "a950212d2f52df5b0662cd520b0043c4ee6d0f1b",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^5.4 || ^7.0 || ^8.0"
+            },
+            "require-dev": {
+                "ext-curl": "*",
+                "phpunit/phpunit": "^4.8.35 || ^6.5 || ^8.0"
+            },
+            "suggest": {
+                "firebase/php-jwt": "Needed to support Apple provider",
+                "phpseclib/phpseclib": "Needed to support Apple provider"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Hybridauth\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Miled",
+                    "email": "hybridauth@gmail.com"
+                }
+            ],
+            "description": "PHP Social Authentication Library",
+            "homepage": "https://hybridauth.github.io",
+            "keywords": [
+                "Authentication",
+                "OpenId",
+                "api",
+                "apple",
+                "authorization",
+                "facebook",
+                "google",
+                "oauth",
+                "social",
+                "twitter"
+            ],
+            "support": {
+                "gitter": "https://gitter.im/hybridauth/hybridauth",
+                "issues": "https://github.com/hybridauth/hybridauth/issues",
+                "source": "https://github.com/hybridauth/hybridauth/tree/v3.9.0"
+            },
+            "time": "2023-03-12T09:30:26+00:00"
         }
-      ],
-      "description": "PHP Social Authentication Library",
-      "homepage": "https://hybridauth.github.io",
-      "keywords": [
-        "Authentication",
-        "OpenId",
-        "api",
-        "authorization",
-        "facebook",
-        "google",
-        "oauth",
-        "social",
-        "twitter"
-      ],
-      "time": "2019-05-31T15:20:03+00:00"
-    }
-  ],
-  "packages-dev": [],
-  "aliases": [],
-  "minimum-stability": "stable",
-  "stability-flags": [],
-  "prefer-stable": false,
-  "prefer-lowest": false,
-  "platform": [],
-  "platform-dev": []
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": [],
+    "plugin-api-version": "2.3.0"
 }

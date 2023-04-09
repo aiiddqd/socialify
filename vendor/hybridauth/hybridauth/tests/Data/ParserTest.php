@@ -1,10 +1,14 @@
-<?php namespace HybridauthTest\Hybridauth\Data;
+<?php
+
+namespace HybridauthTest\Hybridauth\Data;
 
 use Hybridauth\Data\Parser;
 
-class ParserTest extends \PHPUnit\Framework\TestCase {
-    public function test_instance_of() {
-        $parser = new Parser;
+class ParserTest extends \PHPUnit\Framework\TestCase
+{
+    public function test_instance_of()
+    {
+        $parser = new Parser();
 
         $this->assertInstanceOf('\\Hybridauth\\Data\\Parser', $parser);
     }
@@ -13,11 +17,12 @@ class ParserTest extends \PHPUnit\Framework\TestCase {
      * @covers Parser::parse
      * @covers Parser::parseJson
      */
-    public function test_parser_json() {
-        $parser = new Parser;
+    public function test_parser_json()
+    {
+        $parser = new Parser();
 
-        $object        = new \StdClass();
-        $object->id    = 69;
+        $object = new \StdClass();
+        $object->id = 69;
         $object->slugs = ['Γεια σας', 'Bonjour', '안녕하세요'];
 
         $json = json_encode($object);
@@ -43,11 +48,12 @@ class ParserTest extends \PHPUnit\Framework\TestCase {
      * @covers Parser::parse
      * @covers Parser::parseQueryString
      */
-    public function test_parser_querystring() {
-        $parser = new Parser;
+    public function test_parser_querystring()
+    {
+        $parser = new Parser();
 
-        $object       = new \StdClass();
-        $object->id   = 69;
+        $object = new \StdClass();
+        $object->id = 69;
         $object->slug = 'oauth';
 
         $string = 'id=69&slug=oauth';

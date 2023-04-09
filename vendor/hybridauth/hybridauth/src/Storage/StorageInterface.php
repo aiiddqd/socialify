@@ -8,9 +8,10 @@
 namespace Hybridauth\Storage;
 
 /**
- * HybridAuth storage manager interface
+ * Hybridauth storage manager interface
  */
-interface StorageInterface {
+interface StorageInterface
+{
     /**
      * Retrieve a item from storage
      *

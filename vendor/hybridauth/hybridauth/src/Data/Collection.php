@@ -10,7 +10,8 @@ namespace Hybridauth\Data;
 /**
  * A very basic Data collection.
  */
-final class Collection {
+final class Collection
+{
     /**
      * Data collection
      *
@@ -21,14 +22,9 @@ final class Collection {
     /**
      * @param mixed $data
      */
-    public function __construct($data = null) {
-        $this->collection = new \stdClass();
-
-        if (is_object($data)) {
-            $this->collection = $data;
-        }
-
-        $this->collection = (object) $data;
+    public function __construct($data = null)
+    {
+        $this->collection = (object)$data;
     }
 
     /**
@@ -36,8 +32,9 @@ final class Collection {
      *
      * @return mixed
      */
-    public function toArray() {
-        return (array) $this->collection;
+    public function toArray()
+    {
+        return (array)$this->collection;
     }
 
     /**
@@ -47,7 +44,8 @@ final class Collection {
      *
      * @return mixed
      */
-    public function get($property) {
+    public function get($property)
+    {
         if ($this->exists($property)) {
             return $this->collection->$property;
         }
@@ -58,10 +56,11 @@ final class Collection {
     /**
      * Add or update an item
      *
-     * @param       $property
+     * @param $property
      * @param mixed $value
      */
-    public function set($property, $value) {
+    public function set($property, $value)
+    {
         if ($property) {
             $this->collection->$property = $value;
         }
@@ -74,11 +73,12 @@ final class Collection {
      *
      * @return Collection
      */
-    public function filter($property) {
+    public function filter($property)
+    {
         if ($this->exists($property)) {
             $data = $this->get($property);
 
-            if ( ! is_a($data, 'Collection')) {
+            if (!is_a($data, 'Collection')) {
                 $data = new Collection($data);
             }
 
@@ -95,7 +95,8 @@ final class Collection {
      *
      * @return bool
      */
-    public function exists($property) {
+    public function exists($property)
+    {
         return property_exists($this->collection, $property);
     }
 
@@ -104,8 +105,9 @@ final class Collection {
      *
      * @return bool
      */
-    public function isEmpty() {
-        return ! (bool) $this->count();
+    public function isEmpty()
+    {
+        return !(bool)$this->count();
     }
 
     /**
@@ -113,7 +115,8 @@ final class Collection {
      *
      * @return int
      */
-    public function count() {
+    public function count()
+    {
         return count($this->properties());
     }
 
@@ -122,11 +125,12 @@ final class Collection {
      *
      * @return array
      */
-    public function properties() {
+    public function properties()
+    {
         $properties = [];
 
-        foreach ($this->collection as $property) {
-            $properties[] = $property;
+        foreach ($this->collection as $key => $value) {
+            $properties[] = $key;
         }
 
         return $properties;
@@ -137,11 +141,12 @@ final class Collection {
      *
      * @return array
      */
-    public function values() {
+    public function values()
+    {
         $values = [];
 
-        foreach ($this->collection as $property) {
-            $values[] = $this->get($property);
+        foreach ($this->collection as $value) {
+            $values[] = $value;
         }
 
         return $values;

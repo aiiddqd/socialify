@@ -13,25 +13,26 @@ use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Exception\TransferException;
 
 /**
- * HybridAuth Guzzle Http client
+ * Hybridauth Guzzle Http client
  *
  * Note: This is just a proof of concept. Feel free to improve it.
  *
  * Example:
  *
  * <code>
- *  $guzzle = new Hybridauth\HttpClient\Guzzle( new GuzzleHttp\Client(), [
- *      'verify'  => '/path/to/your/certificate.crt',
- *      'headers' => [ 'User-Agent' => '..' ]
+ *  $guzzle = new Hybridauth\HttpClient\Guzzle(new GuzzleHttp\Client(), [
+ *      'verify' => '/path/to/your/certificate.crt',
+ *      'headers' => ['User-Agent' => '..']
  *      // 'proxy' => ...
  *  ]);
  *
- *  $adapter = new Hybridauth\Provider\Github( $config, $guzzle );
+ *  $adapter = new Hybridauth\Provider\Github($config, $guzzle);
  *
  *  $adapter->authenticate();
  * </code>
  */
-class Guzzle implements HttpClientInterface {
+class Guzzle implements HttpClientInterface
+{
     /**
      * Method request() arguments
      *
@@ -65,7 +66,7 @@ class Guzzle implements HttpClientInterface {
     /**
      * Response HTTP status code
      *
-     * @var integer
+     * @var int
      */
     protected $responseHttpCode = 0;
 
@@ -99,22 +100,26 @@ class Guzzle implements HttpClientInterface {
 
     /**
      * ..
+     * @param null $client
+     * @param array $config
      */
-    public function __construct($client = null, $config = []) {
+    public function __construct($client = null, $config = [])
+    {
         $this->client = $client ? $client : new Client($config);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function request($uri, $method = 'GET', $parameters = [], $headers = []) {
-        $this->requestHeader = array_replace($this->requestHeader, (array) $headers);
+    public function request($uri, $method = 'GET', $parameters = [], $headers = [], $multipart = false)
+    {
+        $this->requestHeader = array_replace($this->requestHeader, (array)$headers);
 
         $this->requestArguments = [
-            'uri'        => $uri,
-            'method'     => $method,
+            'uri' => $uri,
+            'method' => $method,
             'parameters' => $parameters,
-            'headers'    => $this->requestHeader,
+            'headers' => $this->requestHeader,
         ];
 
         $response = null;
@@ -124,23 +129,39 @@ class Guzzle implements HttpClientInterface {
                 case 'GET':
                 case 'DELETE':
                     $response = $this->client->request($method, $uri, [
-                        'query'   => $parameters,
+                        'query' => $parameters,
                         'headers' => $this->requestHeader,
                     ]);
                     break;
                 case 'PUT':
+                case 'PATCH':
                 case 'POST':
-                    $body_content = 'form_params';
+                    $body_type = $multipart ? 'multipart' : 'form_params';
 
                     if (isset($this->requestHeader['Content-Type'])
                         && $this->requestHeader['Content-Type'] === 'application/json'
                     ) {
-                        $body_content = 'json';
+                        $body_type = 'json';
+                    }
+
+                    $body_content = $parameters;
+                    if ($multipart) {
+                        $body_content = [];
+                        foreach ($parameters as $key => $val) {
+                            if ($val instanceof \CURLFile) {
+                                $val = fopen($val->getFilename(), 'r');
+                            }
+
+                            $body_content[] = [
+                                'name' => $key,
+                                'contents' => $val,
+                            ];
+                        }
                     }
 
                     $response = $this->client->request($method, $uri, [
-                        $body_content => $parameters,
-                        'headers'     => $this->requestHeader,
+                        $body_type => $body_content,
+                        'headers' => $this->requestHeader,
                     ]);
                     break;
             }
@@ -150,16 +171,18 @@ class Guzzle implements HttpClientInterface {
             $this->responseClientError = $e->getMessage();
         }
 
-        if ( ! $this->responseClientError) {
-            $this->responseBody     = $response->getBody();
+        if (!$this->responseClientError) {
+            $this->responseBody = $response->getBody();
             $this->responseHttpCode = $response->getStatusCode();
-            $this->responseHeader   = $response->getHeaders();
+            $this->responseHeader = $response->getHeaders();
         }
 
         if ($this->logger) {
+            // phpcs:ignore
             $this->logger->debug(sprintf('%s::request( %s, %s ), response:', get_class($this), $uri, $method), $this->getResponse());
 
             if ($this->responseClientError) {
+                // phpcs:ignore
                 $this->logger->error(sprintf('%s::request( %s, %s ), error:', get_class($this), $uri, $method), [$this->responseClientError]);
             }
         }
@@ -168,20 +191,23 @@ class Guzzle implements HttpClientInterface {
     }
 
     /**
-     * {@inheritdoc}
+     * Get response details
+     *
+     * @return array Map structure of details
      */
-    public function getResponse() {
+    public function getResponse()
+    {
         return [
-            'request'  => $this->getRequestArguments(),
+            'request' => $this->getRequestArguments(),
             'response' => [
-                'code'    => $this->getResponseHttpCode(),
+                'code' => $this->getResponseHttpCode(),
                 'headers' => $this->getResponseHeader(),
-                'body'    => $this->getResponseBody(),
+                'body' => $this->getResponseBody(),
             ],
-            'client'   => [
+            'client' => [
                 'error' => $this->getResponseClientError(),
-                'info'  => $this->getResponseClientInfo(),
-                'opts'  => null,
+                'info' => $this->getResponseClientInfo(),
+                'opts' => null,
             ],
         ];
     }
@@ -191,42 +217,48 @@ class Guzzle implements HttpClientInterface {
      *
      * @param object $logger
      */
-    public function setLogger($logger) {
+    public function setLogger($logger)
+    {
         $this->logger = $logger;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getResponseBody() {
+    public function getResponseBody()
+    {
         return $this->responseBody;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getResponseHeader() {
+    public function getResponseHeader()
+    {
         return $this->responseHeader;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getResponseHttpCode() {
+    public function getResponseHttpCode()
+    {
         return $this->responseHttpCode;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getResponseClientError() {
+    public function getResponseClientError()
+    {
         return $this->responseClientError;
     }
 
     /**
      * @return array
      */
-    protected function getResponseClientInfo() {
+    protected function getResponseClientInfo()
+    {
         return $this->responseClientInfo;
     }
 
@@ -237,7 +269,8 @@ class Guzzle implements HttpClientInterface {
      *
      * @return array
      */
-    protected function getRequestArguments() {
+    protected function getRequestArguments()
+    {
         return $this->requestArguments;
     }
 }

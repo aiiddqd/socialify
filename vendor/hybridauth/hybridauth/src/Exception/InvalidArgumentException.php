@@ -12,5 +12,6 @@ namespace Hybridauth\Exception;
  *
  * Exception thrown if an argument is not of the expected type.
  */
-class InvalidArgumentException extends RuntimeException implements ExceptionInterface {
+class InvalidArgumentException extends RuntimeException implements ExceptionInterface
+{
 }

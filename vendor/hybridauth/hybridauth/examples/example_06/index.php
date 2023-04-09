@@ -9,7 +9,7 @@ include 'config.php';
 use Hybridauth\Hybridauth;
 
 $hybridauth = new Hybridauth($config);
-$adapters   = $hybridauth->getConnectedAdapters();
+$adapters = $hybridauth->getConnectedAdapters();
 ?>
 
 <!DOCTYPE html>
@@ -23,7 +23,7 @@ $adapters   = $hybridauth->getConnectedAdapters();
 
 <ul>
     <?php foreach ($hybridauth->getProviders() as $name) : ?>
-        <?php if ( ! isset($adapters[ $name ])) : ?>
+        <?php if (!isset($adapters[$name])) : ?>
             <li>
                 <a href="<?php print $config['callback'] . "?provider={$name}"; ?>">
                     Sign in with <strong><?php print $name; ?></strong>

@@ -9,7 +9,6 @@ namespace Hybridauth\Adapter;
 
 use Hybridauth\Exception\InvalidOpenidIdentifierException;
 use Hybridauth\Exception\AuthorizationDeniedException;
-use Hybridauth\Exception\InvalidOpenidResponseException;
 use Hybridauth\Exception\UnexpectedApiResponseException;
 use Hybridauth\Data;
 use Hybridauth\HttpClient;
@@ -22,7 +21,8 @@ use Hybridauth\Thirdparty\OpenID\LightOpenID;
  * Subclasses (i.e., providers adapters) can either use the already provided methods or override
  * them when necessary.
  */
-abstract class OpenID extends AbstractAdapter implements AdapterInterface {
+abstract class OpenID extends AbstractAdapter implements AdapterInterface
+{
     /**
      * LightOpenID instance
      *
@@ -38,9 +38,19 @@ abstract class OpenID extends AbstractAdapter implements AdapterInterface {
     protected $openidIdentifier = '';
 
     /**
+     * IPD API Documentation
+     *
+     * OPTIONAL.
+     *
+     * @var string
+     */
+    protected $apiDocumentation = '';
+
+    /**
      * {@inheritdoc}
      */
-    protected function configure() {
+    protected function configure()
+    {
         if ($this->config->exists('openid_identifier')) {
             $this->openidIdentifier = $this->config->get('openid_identifier');
         }
@@ -56,9 +66,10 @@ abstract class OpenID extends AbstractAdapter implements AdapterInterface {
     /**
      * {@inheritdoc}
      */
-    protected function initialize() {
+    protected function initialize()
+    {
         $hostPort = parse_url($this->callback, PHP_URL_PORT);
-        $hostUrl  = parse_url($this->callback, PHP_URL_HOST);
+        $hostUrl = parse_url($this->callback, PHP_URL_HOST);
 
         if ($hostPort) {
             $hostUrl .= ':' . $hostPort;
@@ -71,7 +82,8 @@ abstract class OpenID extends AbstractAdapter implements AdapterInterface {
     /**
      * {@inheritdoc}
      */
-    public function authenticate() {
+    public function authenticate()
+    {
         $this->logger->info(sprintf('%s::authenticate()', get_class($this)));
 
         if ($this->isConnected()) {
@@ -90,14 +102,16 @@ abstract class OpenID extends AbstractAdapter implements AdapterInterface {
     /**
      * {@inheritdoc}
      */
-    public function isConnected() {
-        return (bool) $this->storage->get($this->providerId . '.user');
+    public function isConnected()
+    {
+        return (bool)$this->storage->get($this->providerId . '.user');
     }
 
     /**
      * {@inheritdoc}
      */
-    public function disconnect() {
+    public function disconnect()
+    {
         $this->storage->delete($this->providerId . '.user');
 
         return true;
@@ -108,10 +122,11 @@ abstract class OpenID extends AbstractAdapter implements AdapterInterface {
      *
      * Include and instantiate LightOpenID
      */
-    protected function authenticateBegin() {
-        $this->openIdClient->identity  = $this->openidIdentifier;
+    protected function authenticateBegin()
+    {
+        $this->openIdClient->identity = $this->openidIdentifier;
         $this->openIdClient->returnUrl = $this->callback;
-        $this->openIdClient->required  = [
+        $this->openIdClient->required = [
             'namePerson/first',
             'namePerson/last',
             'namePerson/friendly',
@@ -143,7 +158,8 @@ abstract class OpenID extends AbstractAdapter implements AdapterInterface {
      * @throws AuthorizationDeniedException
      * @throws UnexpectedApiResponseException
      */
-    protected function authenticateFinish() {
+    protected function authenticateFinish()
+    {
         $this->logger->debug(
             sprintf('%s::authenticateFinish(), callback url:', get_class($this)),
             [HttpClient\Util::getCurrentUrl(true)]
@@ -153,13 +169,13 @@ abstract class OpenID extends AbstractAdapter implements AdapterInterface {
             throw new AuthorizationDeniedException('User has cancelled the authentication.');
         }
 
-        if ( ! $this->openIdClient->validate()) {
+        if (!$this->openIdClient->validate()) {
             throw new UnexpectedApiResponseException('Invalid response received.');
         }
 
         $openidAttributes = $this->openIdClient->getAttributes();
 
-        if ( ! $this->openIdClient->identity) {
+        if (!$this->openIdClient->identity) {
             throw new UnexpectedApiResponseException('Provider returned an unexpected response.');
         }
 
@@ -176,24 +192,25 @@ abstract class OpenID extends AbstractAdapter implements AdapterInterface {
      *
      * @return User\Profile
      */
-    protected function fetchUserProfile($openidAttributes) {
+    protected function fetchUserProfile($openidAttributes)
+    {
         $data = new Data\Collection($openidAttributes);
 
         $userProfile = new User\Profile();
 
         $userProfile->identifier = $this->openIdClient->identity;
 
-        $userProfile->firstName  = $data->get('namePerson/first');
-        $userProfile->lastName   = $data->get('namePerson/last');
-        $userProfile->email      = $data->get('contact/email');
-        $userProfile->language   = $data->get('pref/language');
-        $userProfile->country    = $data->get('contact/country/home');
-        $userProfile->zip        = $data->get('contact/postalCode/home');
-        $userProfile->gender     = $data->get('person/gender');
-        $userProfile->photoURL   = $data->get('media/image/default');
-        $userProfile->birthDay   = $data->get('birthDate/birthDay');
+        $userProfile->firstName = $data->get('namePerson/first');
+        $userProfile->lastName = $data->get('namePerson/last');
+        $userProfile->email = $data->get('contact/email');
+        $userProfile->language = $data->get('pref/language');
+        $userProfile->country = $data->get('contact/country/home');
+        $userProfile->zip = $data->get('contact/postalCode/home');
+        $userProfile->gender = $data->get('person/gender');
+        $userProfile->photoURL = $data->get('media/image/default');
+        $userProfile->birthDay = $data->get('birthDate/birthDay');
         $userProfile->birthMonth = $data->get('birthDate/birthMonth');
-        $userProfile->birthYear  = $data->get('birthDate/birthDate');
+        $userProfile->birthYear = $data->get('birthDate/birthDate');
 
         $userProfile = $this->fetchUserGender($userProfile, $data->get('person/gender'));
 
@@ -205,12 +222,13 @@ abstract class OpenID extends AbstractAdapter implements AdapterInterface {
     /**
      * Extract users display names
      *
-     * @param User\Profile    $userProfile
+     * @param User\Profile $userProfile
      * @param Data\Collection $data
      *
      * @return User\Profile
      */
-    protected function fetchUserDisplayName(User\Profile $userProfile, Data\Collection $data) {
+    protected function fetchUserDisplayName(User\Profile $userProfile, Data\Collection $data)
+    {
         $userProfile->displayName = $data->get('namePerson');
 
         $userProfile->displayName = $userProfile->displayName
@@ -228,12 +246,13 @@ abstract class OpenID extends AbstractAdapter implements AdapterInterface {
      * Extract users gender
      *
      * @param User\Profile $userProfile
-     * @param string       $gender
+     * @param string $gender
      *
      * @return User\Profile
      */
-    protected function fetchUserGender(User\Profile $userProfile, $gender) {
-        $gender = strtolower($gender);
+    protected function fetchUserGender(User\Profile $userProfile, $gender)
+    {
+        $gender = strtolower((string)$gender);
 
         if ('f' == $gender) {
             $gender = 'female';
@@ -251,10 +270,11 @@ abstract class OpenID extends AbstractAdapter implements AdapterInterface {
     /**
      * OpenID only provide the user profile one. This method will attempt to retrieve the profile from storage.
      */
-    public function getUserProfile() {
+    public function getUserProfile()
+    {
         $userProfile = $this->storage->get($this->providerId . '.user');
 
-        if ( ! is_object($userProfile)) {
+        if (!is_object($userProfile)) {
             throw new UnexpectedApiResponseException('Provider returned an unexpected response.');
         }
 

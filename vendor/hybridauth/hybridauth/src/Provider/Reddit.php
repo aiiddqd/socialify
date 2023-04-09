@@ -15,7 +15,8 @@ use Hybridauth\User;
 /**
  * Reddit OAuth2 provider adapter.
  */
-class Reddit extends OAuth2 {
+class Reddit extends OAuth2
+{
     /**
      * {@inheritdoc}
      */
@@ -44,7 +45,8 @@ class Reddit extends OAuth2 {
     /**
      * {@inheritdoc}
      */
-    protected function initialize() {
+    protected function initialize()
+    {
         parent::initialize();
 
         $this->AuthorizeUrlParameters += [
@@ -52,8 +54,8 @@ class Reddit extends OAuth2 {
         ];
 
         $this->tokenExchangeParameters = [
-            'client_id'    => $this->clientId,
-            'grant_type'   => 'authorization_code',
+            'client_id' => $this->clientId,
+            'grant_type' => 'authorization_code',
             'redirect_uri' => $this->callback
         ];
 
@@ -67,20 +69,22 @@ class Reddit extends OAuth2 {
     /**
      * {@inheritdoc}
      */
-    public function getUserProfile() {
+    public function getUserProfile()
+    {
         $response = $this->apiRequest('me.json');
 
         $data = new Data\Collection($response);
 
-        if ( ! $data->exists('id')) {
+        if (!$data->exists('id')) {
             throw new UnexpectedApiResponseException('Provider API returned an unexpected response.');
         }
 
         $userProfile = new User\Profile();
 
-        $userProfile->identifier  = $data->get('id');
+        $userProfile->identifier = $data->get('id');
         $userProfile->displayName = $data->get('name');
-        $userProfile->profileURL  = 'https://www.reddit.com/user/' . $data->get('name') . '/';
+        $userProfile->profileURL = 'https://www.reddit.com/user/' . $data->get('name') . '/';
+        $userProfile->photoURL = $data->get('icon_img');
 
         return $userProfile;
     }

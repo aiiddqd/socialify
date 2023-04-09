@@ -10,5 +10,6 @@ namespace Hybridauth\Exception;
 /**
  *
  */
-class InvalidApplicationCredentialsException extends InvalidArgumentException implements ExceptionInterface {
+class InvalidApplicationCredentialsException extends InvalidArgumentException implements ExceptionInterface
+{
 }

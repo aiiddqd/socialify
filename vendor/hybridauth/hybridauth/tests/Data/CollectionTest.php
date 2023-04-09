@@ -1,35 +1,44 @@
-<?php namespace HybridauthTest\Hybridauth\Data;
+<?php
+
+namespace HybridauthTest\Hybridauth\Data;
 
 use Hybridauth\Data\Collection;
 
-class CollectionTest extends \PHPUnit\Framework\TestCase {
-    public function some_random_id() {
+class CollectionTest extends \PHPUnit\Framework\TestCase
+{
+    public function some_random_id()
+    {
         return 69;
     }
 
-    public function some_random_year() {
+    public function some_random_year()
+    {
         return 2020;
     }
 
-    public function some_random_array() {
+    public function some_random_array()
+    {
         return ['id' => 69, 'slugs' => ['Γεια σας', 'Bonjour', '안녕하세요', 'year' => 2020]];
     }
 
-    public function some_random_object() {
-        $object        = new \StdClass();
-        $object->id    = 69;
+    public function some_random_object()
+    {
+        $object = new \StdClass();
+        $object->id = 69;
         $object->slugs = ['Γεια σας', 'Bonjour', '안녕하세요', 'year' => 2020];
 
         return $object;
     }
 
-    public function test_instance_of() {
-        $collection = new Collection;
+    public function test_instance_of()
+    {
+        $collection = new Collection();
 
         $this->assertInstanceOf('\\Hybridauth\\Data\\Collection', $collection);
     }
 
-    public function test_identity() {
+    public function test_identity()
+    {
         $array = $this->some_random_array();
 
         $collection = new Collection($array);
@@ -42,7 +51,8 @@ class CollectionTest extends \PHPUnit\Framework\TestCase {
     /**
      * @covers Collection::exists
      */
-    public function test_exists() {
+    public function test_exists()
+    {
         $array = $this->some_random_array();
 
         $collection = new Collection($array);
@@ -65,7 +75,8 @@ class CollectionTest extends \PHPUnit\Framework\TestCase {
     /**
      * @covers Collection::get
      */
-    public function test_get() {
+    public function test_get()
+    {
         $array = $this->some_random_array();
 
         $collection = new Collection($array);
@@ -88,7 +99,8 @@ class CollectionTest extends \PHPUnit\Framework\TestCase {
     /**
      * @covers Collection::filter
      */
-    public function test_filter() {
+    public function test_filter()
+    {
         $array = $this->some_random_array();
 
         $collection = new Collection($array);

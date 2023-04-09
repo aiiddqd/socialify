@@ -8,9 +8,10 @@
 namespace Hybridauth\HttpClient;
 
 /**
- * HybridAuth Http clients interface
+ * Hybridauth Http clients interface
  */
-interface HttpClientInterface {
+interface HttpClientInterface
+{
     /**
      * Send request to the remote server
      *
@@ -18,12 +19,13 @@ interface HttpClientInterface {
      *
      * @param string $uri
      * @param string $method
-     * @param array  $parameters
-     * @param array  $headers
+     * @param array $parameters
+     * @param array $headers
+     * @param bool $multipart
      *
      * @return mixed
      */
-    public function request($uri, $method = 'GET', $parameters = [], $headers = []);
+    public function request($uri, $method = 'GET', $parameters = [], $headers = [], $multipart = false);
 
     /**
      * Returns raw response from the server on success, FALSE on failure
@@ -42,7 +44,7 @@ interface HttpClientInterface {
     /**
      * Returns latest request HTTP status code
      *
-     * @return integer
+     * @return int
      */
     public function getResponseHttpCode();
 

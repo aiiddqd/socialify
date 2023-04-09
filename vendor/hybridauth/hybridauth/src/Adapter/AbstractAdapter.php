@@ -22,7 +22,8 @@ use Hybridauth\Data;
 /**
  * Class AbstractAdapter
  */
-abstract class AbstractAdapter implements AdapterInterface {
+abstract class AbstractAdapter implements AdapterInterface
+{
     use DataStoreTrait;
 
     /**
@@ -77,17 +78,17 @@ abstract class AbstractAdapter implements AdapterInterface {
     /**
      * Whether to validate API status codes of http responses
      *
-     * @var boolean
+     * @var bool
      */
     protected $validateApiResponseHttpCode = true;
 
     /**
      * Common adapters constructor.
      *
-     * @param array               $config
+     * @param array $config
      * @param HttpClientInterface $httpClient
-     * @param StorageInterface    $storage
-     * @param LoggerInterface     $logger
+     * @param StorageInterface $storage
+     * @param LoggerInterface $logger
      */
     public function __construct(
         $config = [],
@@ -99,13 +100,13 @@ abstract class AbstractAdapter implements AdapterInterface {
 
         $this->config = new Data\Collection($config);
 
-        $this->configure();
-
         $this->setHttpClient($httpClient);
 
         $this->setStorage($storage);
 
         $this->setLogger($logger);
+
+        $this->configure();
 
         $this->logger->debug(sprintf('Initialize %s, config: ', get_class($this)), $config);
 
@@ -125,72 +126,85 @@ abstract class AbstractAdapter implements AdapterInterface {
     /**
      * {@inheritdoc}
      */
-    public function apiRequest($url, $method = 'GET', $parameters = [], $headers = []) {
+    abstract public function isConnected();
+
+    /**
+     * {@inheritdoc}
+     */
+    public function apiRequest($url, $method = 'GET', $parameters = [], $headers = [], $multipart = false)
+    {
         throw new NotImplementedException('Provider does not support this feature.');
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getUserProfile() {
+    public function maintainToken()
+    {
+        // Nothing needed for most providers
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getUserProfile()
+    {
         throw new NotImplementedException('Provider does not support this feature.');
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getUserContacts() {
+    public function getUserContacts()
+    {
         throw new NotImplementedException('Provider does not support this feature.');
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getUserPages() {
+    public function getUserPages()
+    {
         throw new NotImplementedException('Provider does not support this feature.');
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getUserActivity($stream) {
+    public function getUserActivity($stream)
+    {
         throw new NotImplementedException('Provider does not support this feature.');
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setUserStatus($status) {
+    public function setUserStatus($status)
+    {
         throw new NotImplementedException('Provider does not support this feature.');
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setPageStatus($status, $pageId) {
+    public function setPageStatus($status, $pageId)
+    {
         throw new NotImplementedException('Provider does not support this feature.');
     }
 
     /**
      * {@inheritdoc}
-     *
-     * Checking access_token only works for oauth1 and oauth2, openid will overwrite this method.
      */
-    public function isConnected() {
-        return (bool) $this->getStoredData('access_token');
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function disconnect() {
+    public function disconnect()
+    {
         $this->clearStoredData();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getAccessToken() {
+    public function getAccessToken()
+    {
         $tokenNames = [
             'access_token',
             'access_token_secret',
@@ -204,7 +218,7 @@ abstract class AbstractAdapter implements AdapterInterface {
 
         foreach ($tokenNames as $name) {
             if ($this->getStoredData($name)) {
-                $tokens[ $name ] = $this->getStoredData($name);
+                $tokens[$name] = $this->getStoredData($name);
             }
         }
 
@@ -214,7 +228,8 @@ abstract class AbstractAdapter implements AdapterInterface {
     /**
      * {@inheritdoc}
      */
-    public function setAccessToken($tokens = []) {
+    public function setAccessToken($tokens = [])
+    {
         $this->clearStoredData();
 
         foreach ($tokens as $token => $value) {
@@ -228,7 +243,8 @@ abstract class AbstractAdapter implements AdapterInterface {
     /**
      * {@inheritdoc}
      */
-    public function setHttpClient(HttpClientInterface $httpClient = null) {
+    public function setHttpClient(HttpClientInterface $httpClient = null)
+    {
         $this->httpClient = $httpClient ?: new HttpClient();
 
         if ($this->config->exists('curl_options') && method_exists($this->httpClient, 'setCurlOptions')) {
@@ -239,28 +255,32 @@ abstract class AbstractAdapter implements AdapterInterface {
     /**
      * {@inheritdoc}
      */
-    public function getHttpClient() {
+    public function getHttpClient()
+    {
         return $this->httpClient;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setStorage(StorageInterface $storage = null) {
+    public function setStorage(StorageInterface $storage = null)
+    {
         $this->storage = $storage ?: new Session();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getStorage() {
+    public function getStorage()
+    {
         return $this->storage;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setLogger(LoggerInterface $logger = null) {
+    public function setLogger(LoggerInterface $logger = null)
+    {
         $this->logger = $logger ?: new Logger(
             $this->config->get('debug_mode'),
             $this->config->get('debug_file')
@@ -274,7 +294,8 @@ abstract class AbstractAdapter implements AdapterInterface {
     /**
      * {@inheritdoc}
      */
-    public function getLogger() {
+    public function getLogger()
+    {
         return $this->logger;
     }
 
@@ -285,8 +306,9 @@ abstract class AbstractAdapter implements AdapterInterface {
      *
      * @throws InvalidArgumentException
      */
-    protected function setCallback($callback) {
-        if ( ! filter_var($callback, FILTER_VALIDATE_URL)) {
+    protected function setCallback($callback)
+    {
+        if (!filter_var($callback, FILTER_VALIDATE_URL)) {
             throw new InvalidArgumentException('A valid callback url is required.');
         }
 
@@ -298,15 +320,16 @@ abstract class AbstractAdapter implements AdapterInterface {
      *
      * @param array|Data\Collection $endpoints
      */
-    protected function setApiEndpoints($endpoints = null) {
+    protected function setApiEndpoints($endpoints = null)
+    {
         if (empty($endpoints)) {
             return;
         }
 
         $collection = is_array($endpoints) ? new Data\Collection($endpoints) : $endpoints;
 
-        $this->apiBaseUrl     = $collection->get('api_base_url') ?: $this->apiBaseUrl;
-        $this->authorizeUrl   = $collection->get('authorize_url') ?: $this->authorizeUrl;
+        $this->apiBaseUrl = $collection->get('api_base_url') ?: $this->apiBaseUrl;
+        $this->authorizeUrl = $collection->get('authorize_url') ?: $this->authorizeUrl;
         $this->accessTokenUrl = $collection->get('access_token_url') ?: $this->accessTokenUrl;
     }
 
@@ -322,8 +345,9 @@ abstract class AbstractAdapter implements AdapterInterface {
      * @throws HttpClientFailureException
      * @throws HttpRequestFailedException
      */
-    protected function validateApiResponse($error = '') {
-        $error .= ! empty($error) ? '. ' : '';
+    protected function validateApiResponse($error = '')
+    {
+        $error .= !empty($error) ? '. ' : '';
 
         if ($this->httpClient->getResponseClientError()) {
             throw new HttpClientFailureException(
@@ -332,7 +356,7 @@ abstract class AbstractAdapter implements AdapterInterface {
         }
 
         // if validateApiResponseHttpCode is set to false, we by pass verification of http status code
-        if ( ! $this->validateApiResponseHttpCode) {
+        if (!$this->validateApiResponseHttpCode) {
             return;
         }
 

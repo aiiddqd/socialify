@@ -15,11 +15,12 @@ use Hybridauth\User;
 /**
  * GitLab OAuth2 provider adapter.
  */
-class GitLab extends OAuth2 {
+class GitLab extends OAuth2
+{
     /**
      * {@inheritdoc}
      */
-    public $scope = 'api';
+    protected $scope = 'api';
 
     /**
      * {@inheritdoc}
@@ -44,24 +45,25 @@ class GitLab extends OAuth2 {
     /**
      * {@inheritdoc}
      */
-    public function getUserProfile() {
+    public function getUserProfile()
+    {
         $response = $this->apiRequest('user');
 
         $data = new Data\Collection($response);
 
-        if ( ! $data->exists('id')) {
+        if (!$data->exists('id')) {
             throw new UnexpectedApiResponseException('Provider API returned an unexpected response.');
         }
 
         $userProfile = new User\Profile();
 
-        $userProfile->identifier  = $data->get('id');
+        $userProfile->identifier = $data->get('id');
         $userProfile->displayName = $data->get('name');
         $userProfile->description = $data->get('bio');
-        $userProfile->photoURL    = $data->get('avatar_url');
-        $userProfile->profileURL  = $data->get('web_url');
-        $userProfile->email       = $data->get('email');
-        $userProfile->webSiteURL  = $data->get('website_url');
+        $userProfile->photoURL = $data->get('avatar_url');
+        $userProfile->profileURL = $data->get('web_url');
+        $userProfile->email = $data->get('email');
+        $userProfile->webSiteURL = $data->get('website_url');
 
         $userProfile->displayName = $userProfile->displayName ?: $data->get('username');
 

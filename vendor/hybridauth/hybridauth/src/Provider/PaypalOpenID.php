@@ -13,7 +13,8 @@ use Hybridauth\HttpClient;
 /**
  * PayPal OpenID provider adapter.
  */
-class PaypalOpenID extends OpenID {
+class PaypalOpenID extends OpenID
+{
     /**
      * {@inheritdoc}
      */
@@ -22,10 +23,16 @@ class PaypalOpenID extends OpenID {
     /**
      * {@inheritdoc}
      */
-    public function authenticateBegin() {
-        $this->openIdClient->identity  = $this->openidIdentifier;
+    protected $apiDocumentation = 'https://developer.paypal.com/docs/connect-with-paypal/';
+
+    /**
+     * {@inheritdoc}
+     */
+    public function authenticateBegin()
+    {
+        $this->openIdClient->identity = $this->openidIdentifier;
         $this->openIdClient->returnUrl = $this->callback;
-        $this->openIdClient->required  = [
+        $this->openIdClient->required = [
             'namePerson/prefix',
             'namePerson/first',
             'namePerson/last',

@@ -15,7 +15,8 @@ use Hybridauth\User;
 /**
  * Tumblr OAuth1 provider adapter.
  */
-class Tumblr extends OAuth1 {
+class Tumblr extends OAuth1
+{
     /**
      * {@inheritdoc}
      */
@@ -44,12 +45,13 @@ class Tumblr extends OAuth1 {
     /**
      * {@inheritdoc}
      */
-    public function getUserProfile() {
+    public function getUserProfile()
+    {
         $response = $this->apiRequest('user/info');
 
         $data = new Data\Collection($response);
 
-        if ( ! $data->exists('response')) {
+        if (!$data->exists('response')) {
             throw new UnexpectedApiResponseException('Provider API returned an unexpected response.');
         }
 
@@ -61,13 +63,13 @@ class Tumblr extends OAuth1 {
             $blog = new Data\Collection($blog);
 
             if ($blog->get('primary') && $blog->exists('url')) {
-                $userProfile->identifier  = $blog->get('url');
-                $userProfile->profileURL  = $blog->get('url');
-                $userProfile->webSiteURL  = $blog->get('url');
+                $userProfile->identifier = $blog->get('url');
+                $userProfile->profileURL = $blog->get('url');
+                $userProfile->webSiteURL = $blog->get('url');
                 $userProfile->description = strip_tags($blog->get('description'));
 
                 $bloghostname = explode('://', $blog->get('url'));
-                $bloghostname = substr($bloghostname[1], 0, - 1);
+                $bloghostname = substr($bloghostname[1], 0, -1);
 
                 // store user's primary blog which will be used as target by setUserStatus
                 $this->storeData('primary_blog', $bloghostname);
@@ -82,7 +84,8 @@ class Tumblr extends OAuth1 {
     /**
      * {@inheritdoc}
      */
-    public function setUserStatus($status) {
+    public function setUserStatus($status)
+    {
         $status = is_string($status)
             ? ['type' => 'text', 'body' => $status]
             : $status;

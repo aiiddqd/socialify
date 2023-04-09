@@ -15,7 +15,8 @@ use Hybridauth\User;
 /**
  * Dribbble OAuth2 provider adapter.
  */
-class Dribbble extends OAuth2 {
+class Dribbble extends OAuth2
+{
     /**
      * {@inheritdoc}
      */
@@ -39,22 +40,23 @@ class Dribbble extends OAuth2 {
     /**
      * {@inheritdoc}
      */
-    public function getUserProfile() {
+    public function getUserProfile()
+    {
         $response = $this->apiRequest('user');
 
         $data = new Data\Collection($response);
 
-        if ( ! $data->exists('id')) {
+        if (!$data->exists('id')) {
             throw new UnexpectedApiResponseException('Provider API returned an unexpected response.');
         }
 
         $userProfile = new User\Profile();
 
-        $userProfile->identifier  = $data->get('id');
-        $userProfile->profileURL  = $data->get('html_url');
-        $userProfile->photoURL    = $data->get('avatar_url');
+        $userProfile->identifier = $data->get('id');
+        $userProfile->profileURL = $data->get('html_url');
+        $userProfile->photoURL = $data->get('avatar_url');
         $userProfile->description = $data->get('bio');
-        $userProfile->region      = $data->get('location');
+        $userProfile->region = $data->get('location');
         $userProfile->displayName = $data->get('name');
 
         $userProfile->displayName = $userProfile->displayName ?: $data->get('username');

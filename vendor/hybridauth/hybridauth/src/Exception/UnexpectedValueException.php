@@ -14,5 +14,6 @@ namespace Hybridauth\Exception;
  * another function and expects the return value to be of a certain type or value not including arithmetic or
  * buffer related errors.
  */
-class UnexpectedValueException extends RuntimeException implements ExceptionInterface {
+class UnexpectedValueException extends RuntimeException implements ExceptionInterface
+{
 }

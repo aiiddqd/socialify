@@ -4,26 +4,33 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitfbfb0c32a459fed72f9f23c694ffe44c {
-  public static $prefixLengthsPsr4 = [
-    'H' =>
-      [
-        'Hybridauth\\' => 11,
-      ],
-  ];
+class ComposerStaticInitfbfb0c32a459fed72f9f23c694ffe44c
+{
+    public static $prefixLengthsPsr4 = array (
+        'H' => 
+        array (
+            'Hybridauth\\' => 11,
+        ),
+    );
 
-  public static $prefixDirsPsr4 = [
-    'Hybridauth\\' =>
-      [
-        0 => __DIR__ . '/..' . '/hybridauth/hybridauth/src',
-      ],
-  ];
+    public static $prefixDirsPsr4 = array (
+        'Hybridauth\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/hybridauth/hybridauth/src',
+        ),
+    );
 
-  public static function getInitializer(ClassLoader $loader) {
-    return \Closure::bind(function() use ($loader) {
-      $loader->prefixLengthsPsr4 = ComposerStaticInitfbfb0c32a459fed72f9f23c694ffe44c::$prefixLengthsPsr4;
-      $loader->prefixDirsPsr4    = ComposerStaticInitfbfb0c32a459fed72f9f23c694ffe44c::$prefixDirsPsr4;
+    public static $classMap = array (
+        'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
+    );
 
-    }, null, ClassLoader::class);
-  }
+    public static function getInitializer(ClassLoader $loader)
+    {
+        return \Closure::bind(function () use ($loader) {
+            $loader->prefixLengthsPsr4 = ComposerStaticInitfbfb0c32a459fed72f9f23c694ffe44c::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitfbfb0c32a459fed72f9f23c694ffe44c::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInitfbfb0c32a459fed72f9f23c694ffe44c::$classMap;
+
+        }, null, ClassLoader::class);
+    }
 }

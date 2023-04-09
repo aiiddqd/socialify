@@ -15,11 +15,12 @@ use Hybridauth\User;
 /**
  * Amazon OAuth2 provider adapter.
  */
-class Amazon extends OAuth2 {
+class Amazon extends OAuth2
+{
     /**
      * {@inheritdoc}
      */
-    public $scope = 'profile';
+    protected $scope = 'profile';
 
     /**
      * {@inheritdoc}
@@ -44,20 +45,36 @@ class Amazon extends OAuth2 {
     /**
      * {@inheritdoc}
      */
-    public function getUserProfile() {
+    protected function initialize()
+    {
+        parent::initialize();
+
+        if ($this->isRefreshTokenAvailable()) {
+            $this->tokenRefreshParameters += [
+                'client_id' => $this->clientId,
+                'client_secret' => $this->clientSecret,
+            ];
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getUserProfile()
+    {
         $response = $this->apiRequest('user/profile');
 
         $data = new Data\Collection($response);
 
-        if ( ! $data->exists('user_id')) {
+        if (!$data->exists('user_id')) {
             throw new UnexpectedApiResponseException('Provider API returned an unexpected response.');
         }
 
         $userProfile = new User\Profile();
 
-        $userProfile->identifier  = $data->get('user_id');
+        $userProfile->identifier = $data->get('user_id');
         $userProfile->displayName = $data->get('name');
-        $userProfile->email       = $data->get('email');
+        $userProfile->email = $data->get('email');
 
         return $userProfile;
     }

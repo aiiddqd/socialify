@@ -1,11 +1,15 @@
-<?php namespace HybridauthTest\Hybridauth\Storage;
+<?php
+
+namespace HybridauthTest\Hybridauth\Storage;
 
 use Hybridauth\Storage\Session;
 
 session_start(); // they will hate me for this..
 
-class SessionTest extends \PHPUnit\Framework\TestCase {
-    public function some_random_session_data() {
+class SessionTest extends \PHPUnit\Framework\TestCase
+{
+    public function some_random_session_data()
+    {
         return [
             ['foo', 'bar'],
             [1234, 'bar'],
@@ -24,8 +28,9 @@ class SessionTest extends \PHPUnit\Framework\TestCase {
         ];
     }
 
-    public function test_instance_of() {
-        $storage = new Session;
+    public function test_instance_of()
+    {
+        $storage = new Session();
 
         $this->assertInstanceOf('\\Hybridauth\\Storage\\StorageInterface', $storage);
     }
@@ -35,8 +40,9 @@ class SessionTest extends \PHPUnit\Framework\TestCase {
      * @covers       Session::get
      * @covers       Session::set
      */
-    public function test_set_and_get_data($key, $value) {
-        $storage = new Session;
+    public function test_set_and_get_data($key, $value)
+    {
+        $storage = new Session();
 
         $storage->set($key, $value);
 
@@ -49,8 +55,9 @@ class SessionTest extends \PHPUnit\Framework\TestCase {
      * @dataProvider some_random_session_data
      * @covers       Session::delete
      */
-    public function test_delete_data($key, $value) {
-        $storage = new Session;
+    public function test_delete_data($key, $value)
+    {
+        $storage = new Session();
 
         $storage->set($key, $value);
 
@@ -65,8 +72,9 @@ class SessionTest extends \PHPUnit\Framework\TestCase {
      * @dataProvider some_random_session_data
      * @covers       Session::clear
      */
-    public function test_clear_data($key, $value) {
-        $storage = new Session;
+    public function test_clear_data($key, $value)
+    {
+        $storage = new Session();
 
         $storage->set($key, $value);
 
@@ -80,16 +88,17 @@ class SessionTest extends \PHPUnit\Framework\TestCase {
     /**
      * @covers Session::clear
      */
-    public function test_clear_data_bulk() {
-        $storage = new Session;
+    public function test_clear_data_bulk()
+    {
+        $storage = new Session();
 
-        foreach ((array) $this->some_random_session_data() as $key => $value) {
+        foreach ((array)$this->some_random_session_data() as $key => $value) {
             $storage->set($key, $value);
         }
 
         $storage->clear();
 
-        foreach ((array) $this->some_random_session_data() as $key => $value) {
+        foreach ((array)$this->some_random_session_data() as $key => $value) {
             $data = $storage->get($key);
 
             $this->assertNull($data);
@@ -100,8 +109,9 @@ class SessionTest extends \PHPUnit\Framework\TestCase {
      * @dataProvider some_random_session_data
      * @covers       Session::deleteMatch
      */
-    public function test_delete_match_data($key, $value) {
-        $storage = new Session;
+    public function test_delete_match_data($key, $value)
+    {
+        $storage = new Session();
 
         $storage->set($key, $value);
 

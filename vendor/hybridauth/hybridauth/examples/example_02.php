@@ -15,22 +15,22 @@ $config = [
     'providers' => [
         'GitHub' => [
             'enabled' => true,
-            'keys'    => ['id' => '', 'secret' => ''],
+            'keys' => ['id' => '', 'secret' => ''],
         ],
 
         'Google' => [
             'enabled' => true,
-            'keys'    => ['id' => '', 'secret' => ''],
+            'keys' => ['id' => '', 'secret' => ''],
         ],
 
         'Facebook' => [
             'enabled' => true,
-            'keys'    => ['id' => '', 'secret' => ''],
+            'keys' => ['id' => '', 'secret' => ''],
         ],
 
         'Twitter' => [
             'enabled' => true,
-            'keys'    => ['key' => '', 'secret' => ''],
+            'keys' => ['key' => '', 'secret' => ''],
         ]
     ],
 
@@ -44,13 +44,13 @@ $config = [
         'curl_options' => [
             // setting custom certificates
             CURLOPT_SSL_VERIFYPEER => true,
-            CURLOPT_CAINFO         => '/path/to/your/certificate.crt',
+            CURLOPT_CAINFO => '/path/to/your/certificate.crt',
 
             // set a valid proxy ip address
             CURLOPT_PROXY => '*.*.*.*:*',
 
             // set a custom user agent
-            CURLOPT_USERAGENT      => ''
+            CURLOPT_USERAGENT => ''
         ] */
 ];
 
@@ -59,15 +59,15 @@ try {
 
     $adapter = $hybridauth->authenticate('GitHub');
 
-    // $adapter = $hybridauth->authenticate( 'Google' );
-    // $adapter = $hybridauth->authenticate( 'Facebook' );
-    // $adapter = $hybridauth->authenticate( 'Twitter' );
+    // $adapter = $hybridauth->authenticate('Google');
+    // $adapter = $hybridauth->authenticate('Facebook');
+    // $adapter = $hybridauth->authenticate('Twitter');
 
-    $tokens      = $adapter->getAccessToken();
+    $tokens = $adapter->getAccessToken();
     $userProfile = $adapter->getUserProfile();
 
-    // print_r( $tokens );
-    // print_r( $userProfile );
+    // print_r($tokens);
+    // print_r($userProfile);
 
     $adapter->disconnect();
 } catch (\Exception $e) {

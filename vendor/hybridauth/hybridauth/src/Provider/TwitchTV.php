@@ -15,7 +15,8 @@ use Hybridauth\User;
 /**
  * TwitchTV OAuth2 provider adapter.
  */
-class TwitchTV extends OAuth2 {
+class TwitchTV extends OAuth2
+{
     /**
      * {@inheritdoc}
      */
@@ -44,26 +45,37 @@ class TwitchTV extends OAuth2 {
     /**
      * {@inheritdoc}
      */
-    public function getUserProfile() {
+    protected function initialize()
+    {
+        parent::initialize();
+
+        $this->apiRequestHeaders['Client-ID'] = $this->clientId;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getUserProfile()
+    {
         $response = $this->apiRequest('users');
 
         $data = new Data\Collection($response);
 
-        if ( ! $data->exists('data')) {
+        if (!$data->exists('data')) {
             throw new UnexpectedApiResponseException('Provider API returned an unexpected response.');
         }
 
-        $users = $data->filter('data')->properties();
-        $user  = new Data\Collection($users[0]);
+        $users = $data->filter('data')->values();
+        $user = new Data\Collection($users[0]);
 
         $userProfile = new User\Profile();
 
-        $userProfile->identifier  = $user->get('id');
+        $userProfile->identifier = $user->get('id');
         $userProfile->displayName = $user->get('display_name');
-        $userProfile->photoURL    = $user->get('profile_image_url');
-        $userProfile->email       = $user->get('email');
+        $userProfile->photoURL = $user->get('profile_image_url');
+        $userProfile->email = $user->get('email');
         $userProfile->description = strip_tags($user->get('description'));
-        $userProfile->profileURL  = "https://www.twitch.tv/{$userProfile->displayName}";
+        $userProfile->profileURL = "https://www.twitch.tv/{$userProfile->displayName}";
 
         return $userProfile;
     }

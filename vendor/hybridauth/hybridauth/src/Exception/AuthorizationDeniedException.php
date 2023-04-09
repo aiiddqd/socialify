@@ -10,5 +10,6 @@ namespace Hybridauth\Exception;
 /**
  *
  */
-class AuthorizationDeniedException extends UnexpectedValueException implements ExceptionInterface {
+class AuthorizationDeniedException extends UnexpectedValueException implements ExceptionInterface
+{
 }

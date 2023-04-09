@@ -8,7 +8,7 @@
 /**
  * Step 0: Start PHP session
  *
- * Normally this step is not required as HybridAuth will attempt to start the session for you, however
+ * Normally this step is not required as Hybridauth will attempt to start the session for you, however
  * in some cases it might be better to call session_start() at top of script to avoid cookie-based sessions
  * issues.
  *
@@ -72,13 +72,13 @@ $config = [
         'curl_options' => [
             // setting custom certificates
             CURLOPT_SSL_VERIFYPEER => true,
-            CURLOPT_CAINFO         => '/path/to/your/certificate.crt',
+            CURLOPT_CAINFO => '/path/to/your/certificate.crt',
 
             // set a valid proxy ip address
             CURLOPT_PROXY => '*.*.*.*:*',
 
             // set a custom user agent
-            CURLOPT_USERAGENT      => ''
+            CURLOPT_USERAGENT => ''
         ] */
 ];
 
@@ -108,7 +108,7 @@ $github->authenticate();
  *
  * Calling getUserProfile returns an instance of class Hybridauth\User\Profile which contain the
  * connected user's profile in simple and standardized structure across all the social APIs supported
- * by HybridAuth.
+ * by Hybridauth.
  */
 
 $userProfile = $github->getUserProfile();
@@ -153,7 +153,9 @@ $github->disconnect();
 
 try {
     $github->getUserProfile();
-} /**
+}
+
+/**
  * Catch Curl Errors
  *
  * This kind of error may happen in case of:
@@ -162,23 +164,24 @@ try {
  *
  * The full list of curl errors that may happen can be found at http://curl.haxx.se/libcurl/c/libcurl-errors.html
  */
-
 catch (Hybridauth\Exception\HttpClientFailureException $e) {
     echo 'Curl text error message : ' . $github->getHttpClient()->getResponseClientError();
-} /**
+}
+
+/**
  * Catch API Requests Errors
  *
  * This usually happens when requesting a:
  *     - Wrong URI or a mal-formatted http request.
  *     - Protected resource without providing a valid access token.
  */
-
 catch (Hybridauth\Exception\HttpRequestFailedException $e) {
     echo 'Raw API Response: ' . $github->getHttpClient()->getResponseBody();
-} /**
+}
+
+/**
  * Base PHP's exception that catches everything [else]
  */
-
 catch (\Exception $e) {
     echo 'Oops! We ran into an unknown issue: ' . $e->getMessage();
 }

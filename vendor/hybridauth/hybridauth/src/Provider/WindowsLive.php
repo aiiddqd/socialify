@@ -15,11 +15,12 @@ use Hybridauth\User;
 /**
  * Windows Live OAuth2 provider adapter.
  */
-class WindowsLive extends OAuth2 {
+class WindowsLive extends OAuth2
+{
     /**
      * {@inheritdoc}
      */
-    public $scope = 'wl.basic wl.contacts_emails wl.emails wl.signin wl.share wl.birthday';
+    protected $scope = 'wl.basic wl.contacts_emails wl.emails wl.signin wl.share wl.birthday';
 
     /**
      * {@inheritdoc}
@@ -44,29 +45,30 @@ class WindowsLive extends OAuth2 {
     /**
      * {@inheritdoc}
      */
-    public function getUserProfile() {
+    public function getUserProfile()
+    {
         $response = $this->apiRequest('me');
 
         $data = new Data\Collection($response);
 
-        if ( ! $data->exists('id')) {
+        if (!$data->exists('id')) {
             throw new UnexpectedApiResponseException('Provider API returned an unexpected response.');
         }
 
         $userProfile = new User\Profile();
 
-        $userProfile->identifier    = $data->get('id');
-        $userProfile->displayName   = $data->get('name');
-        $userProfile->firstName     = $data->get('first_name');
-        $userProfile->lastName      = $data->get('last_name');
-        $userProfile->gender        = $data->get('gender');
-        $userProfile->profileURL    = $data->get('link');
-        $userProfile->email         = $data->filter('emails')->get('preferred');
+        $userProfile->identifier = $data->get('id');
+        $userProfile->displayName = $data->get('name');
+        $userProfile->firstName = $data->get('first_name');
+        $userProfile->lastName = $data->get('last_name');
+        $userProfile->gender = $data->get('gender');
+        $userProfile->profileURL = $data->get('link');
+        $userProfile->email = $data->filter('emails')->get('preferred');
         $userProfile->emailVerified = $data->filter('emails')->get('account');
-        $userProfile->birthDay      = $data->get('birth_day');
-        $userProfile->birthMonth    = $data->get('birth_month');
-        $userProfile->birthYear     = $data->get('birth_year');
-        $userProfile->language      = $data->get('locale');
+        $userProfile->birthDay = $data->get('birth_day');
+        $userProfile->birthMonth = $data->get('birth_month');
+        $userProfile->birthYear = $data->get('birth_year');
+        $userProfile->language = $data->get('locale');
 
         return $userProfile;
     }
@@ -74,12 +76,13 @@ class WindowsLive extends OAuth2 {
     /**
      * {@inheritdoc}
      */
-    public function getUserContacts() {
+    public function getUserContacts()
+    {
         $response = $this->apiRequest('me/contacts');
 
         $data = new Data\Collection($response);
 
-        if ( ! $data->exists('data')) {
+        if (!$data->exists('data')) {
             throw new UnexpectedApiResponseException('Provider API returned an unexpected response.');
         }
 
@@ -88,9 +91,9 @@ class WindowsLive extends OAuth2 {
         foreach ($data->filter('data')->toArray() as $idx => $entry) {
             $userContact = new User\Contact();
 
-            $userContact->identifier  = $entry->get('id');
+            $userContact->identifier = $entry->get('id');
             $userContact->displayName = $entry->get('name');
-            $userContact->email       = $entry->filter('emails')->get('preferred');
+            $userContact->email = $entry->filter('emails')->get('preferred');
 
             $contacts[] = $userContact;
         }

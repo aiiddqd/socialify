@@ -10,5 +10,6 @@ namespace Hybridauth\Exception;
 /**
  *
  */
-class HttpClientFailureException extends UnexpectedValueException implements ExceptionInterface {
+class HttpClientFailureException extends UnexpectedValueException implements ExceptionInterface
+{
 }
