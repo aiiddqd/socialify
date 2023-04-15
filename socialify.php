@@ -37,8 +37,15 @@ add_action('init', function(){
 
 require_once __DIR__ . '/Google/GoogleLogin.php';
 
-add_filter( "plugin_action_links_" . plugin_basename( __FILE__ ), function($links ) {
-    $settings_link = sprintf( '<a href="%s">%s</a>', admin_url('admin.php?page=socialify'), __('Settings', 'socialify') );
-    array_unshift($links, $settings_link);
-    return $links;
-} );
+Main::init();
+
+class Main {
+    public static function init (){
+        add_filter( "plugin_action_links_" . plugin_basename( __FILE__ ), function($links ) {
+            $settings_link = sprintf( '<a href="%s">%s</a>', admin_url('admin.php?page=socialify'), __('Settings', 'socialify') );
+            array_unshift($links, $settings_link);
+            return $links;
+        } );
+    }
+}
+
