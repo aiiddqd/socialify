@@ -29,14 +29,13 @@ defined('ABSPATH') || die();
 require_once __DIR__ . '/vendor/autoload.php';
 
 add_action('init', function(){
-    if(!current_user_can('administrator')){
-        return;
-    }
     $files = glob(__DIR__ . '/includes/*.php');
     foreach ($files as $file) {
       require_once $file;
     }
 });
+
+require_once __DIR__ . '/Google/GoogleLogin.php';
 
 add_filter( "plugin_action_links_" . plugin_basename( __FILE__ ), function($links ) {
     $settings_link = sprintf( '<a href="%s">%s</a>', admin_url('admin.php?page=socialify'), __('Settings', 'socialify') );
