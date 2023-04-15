@@ -70,7 +70,7 @@ final class ShortcodeLogin
     public static function add_settings(){
       add_settings_section(
         $section_id = self::$option_name . '_section',
-        $section_title = __('Shortcode'),
+        $section_title = __('Integrations', 'socialify'),
         $callback = '',
         General::$settings_group
       );
@@ -78,7 +78,7 @@ final class ShortcodeLogin
 
       add_settings_field(
         $setting_id = self::$option_name . '_login_page_show',
-        $setting_title = 'Показывать шорткод на странице авторизации',
+        $setting_title = __('Show buttons on login page WP', 'socialify'),
         $callback = function($args){
           printf(
             '<input type="checkbox" name="%s" value="1" %s>',

@@ -9,7 +9,7 @@
  * Domain Path:  /languages/
  * GitHub Plugin URI: https://github.com/uptimizt/socialify
  * Requires PHP: 8.0
- * Version:      0.9.230409
+ * Version:      0.9.230415
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,20 @@
 namespace Socialify;
 
 defined('ABSPATH') || die();
+
+require_once __DIR__ . '/vendor/autoload.php';
+
+add_action('init', function(){
+    if(!current_user_can('administrator')){
+        return;
+    }
+    $files = glob(__DIR__ . '/includes/*.php');
+    foreach ($files as $file) {
+      require_once $file;
+    }
+});
+
+
 
 final class General
 {
@@ -67,10 +81,8 @@ final class General
         self::$plugin_dir_path = plugin_dir_path(__FILE__);
         self::$plugin_dir_url = plugin_dir_url( __FILE__ );
 
-        require_once __DIR__ . '/vendor/autoload.php';
-        require_once __DIR__ . '/includes/FacebookLogin.php';
-        require_once __DIR__ . '/includes/GoogleLogin.php';
-        require_once __DIR__ . '/includes/ShortcodeLogin.php';
+        // require_once __DIR__ . '/includes/GoogleLogin.php';
+        // require_once __DIR__ . '/includes/ShortcodeLogin.php';
 
         add_action('wp', [__CLASS__, 'start_auth']);
 
@@ -78,7 +90,7 @@ final class General
 
         add_filter( "plugin_action_links_" . self::$plugin_basename, [__CLASS__, 'add_settings_url_to_plugins_list'] );
 
-        add_action('admin_menu', function(){
+        add_action('admin_menu1', function(){
             add_options_page(
                 $page_title = 'Socialify Settings',
                 $menu_title = self::$name,
