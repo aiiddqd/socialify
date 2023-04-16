@@ -10,6 +10,9 @@ Socialify for WordPress - Social Login, OAuth2, HybridAuth
 
 ## Addons
 - Facebook
+- Instagram
+- GitHub
+- Telegram
 - Yandex
 - Vkontakte
-
+- the list of providers will be expanded soon
