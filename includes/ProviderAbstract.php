@@ -16,7 +16,7 @@ abstract class ProviderAbstract implements ProviderInterface {
     }
     public static function get_callback_url()
     {
-        return rest_url('socialify/v1/' . static::$provider_name);
+        return rest_url('socialify/v1/' . static::$provider_id);
     }
 
 }
@@ -29,15 +29,11 @@ trait ProviderTrait {
     }
 
     public static function add_rest_route(){
-        register_rest_route('socialify/v1', static::$provider_name, [
+        register_rest_route('socialify/v1', static::$provider_id, [
             'methods' => 'GET',
             'callback' => [__CLASS__, 'api_handle'],
             'permission_callback' => '__return_true'
         ]);
-    }
-    public static function render_test()
-    {
-        echo __CLASS__;
     }
 
 
