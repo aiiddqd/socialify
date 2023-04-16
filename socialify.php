@@ -28,12 +28,10 @@ defined('ABSPATH') || die();
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-add_action('init', function(){
-    $files = glob(__DIR__ . '/includes/*.php');
-    foreach ($files as $file) {
-      require_once $file;
-    }
-});
+$files = glob(__DIR__ . '/includes/*.php');
+foreach ($files as $file) {
+  require_once $file;
+}
 
 require_once __DIR__ . '/Google/GoogleLogin.php';
 
