@@ -39,7 +39,7 @@ foreach ($files as $file) {
 
 
 
-final class Core
+final class General
 {
     /**
      * Name of product
@@ -304,4 +304,4 @@ final class Core
 
 }
 
-Core::init();
+General::init();
