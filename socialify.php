@@ -39,7 +39,7 @@ foreach ($files as $file) {
 
 
 
-final class General
+final class Core
 {
     /**
      * Name of product
@@ -90,15 +90,7 @@ final class General
 
         add_filter( "plugin_action_links_" . self::$plugin_basename, [__CLASS__, 'add_settings_url_to_plugins_list'] );
 
-        add_action('admin_menu', function(){
-            add_options_page(
-                $page_title = 'Socialify Settings',
-                $menu_title = self::$name,
-                $capability = 'administrator',
-                $menu_slug = self::$slug . '-settings',
-                $callback = [__CLASS__, 'render_settings']
-            );
-        });
+        
     }
 
 
@@ -294,24 +286,6 @@ final class General
     }
 
     /**
-     * Add settings
-     */
-    public static function render_settings(){
-        ?>
-        <div class="wrap">
-            <h1><?= __('Socialify Settings', 'socialify') ?></h1>
-
-            <form method="post" action="options.php">
-                <?php settings_fields( self::$settings_group ); ?>
-                <?php do_settings_sections( self::$settings_group ); ?>
-                <?php submit_button(); ?>
-
-            </form>
-        </div>
-        <?php
-    }
-
-    /**
      * add endpoint
      */
     public static function add_endpoint()
@@ -330,4 +304,4 @@ final class General
 
 }
 
-General::init();
+Core::init();
