@@ -10,6 +10,4 @@ Socialify for WordPress - Social Login, OAuth2, HybridAuth
 ## Other
 
 sponsor link 
-https://bizzapps.ru/p/telegram-open-network/
-
-1
+https://wpcraft.ru
