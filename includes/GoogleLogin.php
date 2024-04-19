@@ -22,11 +22,9 @@ final class GoogleLogin
     {
         self::$endpoint = site_url(self::$endpoint);
 
-        add_action('plugins_loaded', function () {
-            add_filter('socialify_auth_process', [__CLASS__, 'auth_process'], 11, 2);
-            add_action('admin_init', [__CLASS__, 'add_settings']);
-            add_filter('socialify_shortcode_data', [__CLASS__, 'add_btn_for_shortcode']);
-        });
+        add_filter('socialify_auth_process', [__CLASS__, 'auth_process'], 11, 2);
+        add_action('admin_init', [__CLASS__, 'add_settings']);
+        add_filter('socialify_shortcode_data', [__CLASS__, 'add_btn_for_shortcode']);
     }
 
     /**

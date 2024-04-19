@@ -8,8 +8,8 @@
  * Text Domain:  socialify
  * Domain Path:  /languages/
  * GitHub Plugin URI: https://github.com/uptimizt/socialify
- * Requires PHP: 5.6
- * Version:      0.9.230409
+ * Requires PHP: 8.0
+ * Version:      0.9.240419
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,16 @@
 
 namespace Socialify;
 
+init();
 
+function init(){
+    require_once __DIR__ . '/vendor/autoload.php';
+}
+
+$files = glob(__DIR__ . '/includes/*.php');
+foreach ($files as $file) {
+  require_once $file;
+}
 
 
 defined('ABSPATH') || die();
@@ -70,10 +79,9 @@ final class General
         self::$plugin_dir_path = plugin_dir_path(__FILE__);
         self::$plugin_dir_url = plugin_dir_url( __FILE__ );
 
-        require_once __DIR__ . '/vendor/autoload.php';
-        require_once __DIR__ . '/includes/FacebookLogin.php';
-        require_once __DIR__ . '/includes/GoogleLogin.php';
-        require_once __DIR__ . '/includes/ShortcodeLogin.php';
+        // require_once __DIR__ . '/includes/FacebookLogin.php';
+        // require_once __DIR__ . '/includes/GoogleLogin.php';
+        // require_once __DIR__ . '/includes/ShortcodeLogin.php';
 
         add_action('wp', [__CLASS__, 'start_auth']);
 
