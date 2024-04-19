@@ -15,11 +15,12 @@ use Hybridauth\User;
 /**
  * Discord OAuth2 provider adapter.
  */
-class Discord extends OAuth2 {
+class Discord extends OAuth2
+{
     /**
      * {@inheritdoc}
      */
-    public $scope = 'identify email';
+    protected $scope = 'identify email';
 
     /**
      * {@inheritdoc}
@@ -44,12 +45,28 @@ class Discord extends OAuth2 {
     /**
      * {@inheritdoc}
      */
-    public function getUserProfile() {
+    protected function initialize()
+    {
+        parent::initialize();
+
+        if ($this->isRefreshTokenAvailable()) {
+            $this->tokenRefreshParameters += [
+                'client_id' => $this->clientId,
+                'client_secret' => $this->clientSecret,
+            ];
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getUserProfile()
+    {
         $response = $this->apiRequest('users/@me');
 
         $data = new Data\Collection($response);
 
-        if ( ! $data->exists('id')) {
+        if (!$data->exists('id')) {
             throw new UnexpectedApiResponseException('Provider API returned an unexpected response.');
         }
 
@@ -61,16 +78,17 @@ class Discord extends OAuth2 {
 
         $userProfile = new User\Profile();
 
-        $userProfile->identifier  = $data->get('id');
+        $userProfile->identifier = $data->get('id');
         $userProfile->displayName = $displayName;
-        $userProfile->email       = $data->get('email');
+        $userProfile->email = $data->get('email');
 
         if ($data->get('verified')) {
             $userProfile->emailVerified = $data->get('email');
         }
 
         if ($data->get('avatar')) {
-            $userProfile->photoURL = 'https://cdn.discordapp.com/avatars/' . $data->get('id') . '/' . $data->get('avatar') . '.png';
+            $userProfile->photoURL = 'https://cdn.discordapp.com/avatars/';
+            $userProfile->photoURL .= $data->get('id') . '/' . $data->get('avatar') . '.png';
         }
 
         return $userProfile;

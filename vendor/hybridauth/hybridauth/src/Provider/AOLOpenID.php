@@ -12,9 +12,15 @@ use Hybridauth\Adapter\OpenID;
 /**
  * AOL OpenID provider adapter.
  */
-class AOLOpenID extends OpenID {
+class AOLOpenID extends OpenID
+{
     /**
      * {@inheritdoc}
      */
     protected $openidIdentifier = 'http://openid.aol.com/';
+
+    /**
+     * {@inheritdoc}
+     */
+    protected $apiDocumentation = ''; // Not available
 }

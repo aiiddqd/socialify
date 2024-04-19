@@ -6,22 +6,22 @@
  * Understandably, you need to replace 'path/to/hybridauth' with the real path to this script.
  */
 $config = [
-    'callback'  => 'https://path/to/hybridauth/examples/example_07/callback.php',
+    'callback' => 'https://path/to/hybridauth/examples/example_07/callback.php',
     'providers' => [
 
         'Google' => [
             'enabled' => true,
-            'keys'    => [
-                'id'     => '...',
+            'keys' => [
+                'id' => '...',
                 'secret' => '...',
             ],
-            'scope'   => 'email',
+            'scope' => 'email',
         ],
 
-        // 'Yahoo'     => ['enabled' => true, 'keys' => [ 'key'  => '...', 'secret' => '...']],
-        // 'Facebook'  => ['enabled' => true, 'keys' => [ 'id'   => '...', 'secret' => '...']],
-        // 'Twitter'   => ['enabled' => true, 'keys' => [ 'key'  => '...', 'secret' => '...']],
-        // 'Instagram' => ['enabled' => true, 'keys' => [ 'id'   => '...', 'secret' => '...']],
+        // 'Yahoo' => ['enabled' => true, 'keys' => ['key' => '...', 'secret' => '...']],
+        // 'Facebook' => ['enabled' => true, 'keys' => ['id' => '...', 'secret' => '...']],
+        // 'Twitter' => ['enabled' => true, 'keys' => ['key' => '...', 'secret' => '...']],
+        // 'Instagram' => ['enabled' => true, 'keys' => ['id' => '...', 'secret' => '...']],
 
     ],
 ];

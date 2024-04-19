@@ -15,7 +15,8 @@ use Hybridauth\User;
 /**
  * WordPress OAuth2 provider adapter.
  */
-class WordPress extends OAuth2 {
+class WordPress extends OAuth2
+{
     /**
      * {@inheritdoc}
      */
@@ -39,23 +40,24 @@ class WordPress extends OAuth2 {
     /**
      * {@inheritdoc}
      */
-    public function getUserProfile() {
+    public function getUserProfile()
+    {
         $response = $this->apiRequest('me/');
 
         $data = new Data\Collection($response);
 
-        if ( ! $data->exists('ID')) {
+        if (!$data->exists('ID')) {
             throw new UnexpectedApiResponseException('Provider API returned an unexpected response.');
         }
 
         $userProfile = new User\Profile();
 
-        $userProfile->identifier  = $data->get('ID');
+        $userProfile->identifier = $data->get('ID');
         $userProfile->displayName = $data->get('display_name');
-        $userProfile->photoURL    = $data->get('avatar_URL');
-        $userProfile->profileURL  = $data->get('profile_URL');
-        $userProfile->email       = $data->get('email');
-        $userProfile->language    = $data->get('language');
+        $userProfile->photoURL = $data->get('avatar_URL');
+        $userProfile->profileURL = $data->get('profile_URL');
+        $userProfile->email = $data->get('email');
+        $userProfile->language = $data->get('language');
 
         $userProfile->displayName = $userProfile->displayName ?: $data->get('username');
 

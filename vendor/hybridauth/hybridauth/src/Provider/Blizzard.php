@@ -15,11 +15,12 @@ use Hybridauth\User;
 /**
  * Blizzard Battle.net OAuth2 provider adapter.
  */
-class Blizzard extends OAuth2 {
+class Blizzard extends OAuth2
+{
     /**
      * {@inheritdoc}
      */
-    public $scope = '';
+    protected $scope = '';
 
     /**
      * {@inheritdoc}
@@ -44,18 +45,19 @@ class Blizzard extends OAuth2 {
     /**
      * {@inheritdoc}
      */
-    public function getUserProfile() {
+    public function getUserProfile()
+    {
         $response = $this->apiRequest('oauth/userinfo');
 
         $data = new Data\Collection($response);
 
-        if ( ! $data->exists('id')) {
+        if (!$data->exists('id')) {
             throw new UnexpectedApiResponseException('Provider API returned an unexpected response.');
         }
 
         $userProfile = new User\Profile();
 
-        $userProfile->identifier  = $data->get('id');
+        $userProfile->identifier = $data->get('id');
         $userProfile->displayName = $data->get('battletag') ?: $data->get('login');
 
         return $userProfile;

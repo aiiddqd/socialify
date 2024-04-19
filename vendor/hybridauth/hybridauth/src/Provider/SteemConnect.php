@@ -15,7 +15,8 @@ use Hybridauth\User;
 /**
  * Instagram OAuth2 provider adapter.
  */
-class SteemConnect extends OAuth2 {
+class SteemConnect extends OAuth2
+{
     /**
      * {@inheritdoc}
      */
@@ -44,12 +45,13 @@ class SteemConnect extends OAuth2 {
     /**
      * {@inheritdoc}
      */
-    public function getUserProfile() {
+    public function getUserProfile()
+    {
         $response = $this->apiRequest('api/me');
 
         $data = new Data\Collection($response);
 
-        if ( ! $data->exists('result')) {
+        if (!$data->exists('result')) {
             throw new UnexpectedApiResponseException('Provider API returned an unexpected response.');
         }
 
@@ -57,10 +59,10 @@ class SteemConnect extends OAuth2 {
 
         $data = $data->filter('result');
 
-        $userProfile->identifier  = $data->get('id');
+        $userProfile->identifier = $data->get('id');
         $userProfile->description = $data->get('about');
-        $userProfile->photoURL    = $data->get('profile_image');
-        $userProfile->webSiteURL  = $data->get('website');
+        $userProfile->photoURL = $data->get('profile_image');
+        $userProfile->webSiteURL = $data->get('website');
         $userProfile->displayName = $data->get('name');
 
         return $userProfile;

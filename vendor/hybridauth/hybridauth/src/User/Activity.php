@@ -12,7 +12,8 @@ use Hybridauth\Exception\UnexpectedValueException;
 /**
  * Hybridauth\User\Activity
  */
-final class Activity {
+final class Activity
+{
     /**
      * activity id on the provider side, usually given as integer
      *
@@ -44,25 +45,29 @@ final class Activity {
     /**
      *
      */
-    public function __construct() {
+    public function __construct()
+    {
         $this->user = new \stdClass();
 
         // typically, we should have a few information about the user who created the event from social apis
-        $this->user->identifier  = null;
+        $this->user->identifier = null;
         $this->user->displayName = null;
-        $this->user->profileURL  = null;
-        $this->user->photoURL    = null;
+        $this->user->profileURL = null;
+        $this->user->photoURL = null;
     }
 
     /**
      * Prevent the providers adapters from adding new fields.
      *
-     * @throws Exception\UnexpectedValueException
-     * @var mixed  $value
-     *
+     * @throws UnexpectedValueException
      * @var string $name
+     *
+     * @var mixed $value
+     *
      */
-    public function __set($name, $value) {
+    public function __set($name, $value)
+    {
+        // phpcs:ignore
         throw new UnexpectedValueException(sprintf('Adding new property "%s\' to %s is not allowed.', $name, __CLASS__));
     }
 }

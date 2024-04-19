@@ -12,7 +12,8 @@ use Hybridauth\Data;
 /**
  * HttpClient\Util home to a number of utility functions.
  */
-class Util {
+class Util
+{
     /**
      * Redirect handler.
      *
@@ -36,8 +37,11 @@ class Util {
      *   If callable $exitHandler is defined, it will be called instead of exit().
      *
      * @param string $url
+     *
+     * @return mixed
      */
-    public static function redirect($url) {
+    public static function redirect($url)
+    {
         if (static::$redirectHandler) {
             return call_user_func(static::$redirectHandler, $url);
         }
@@ -56,7 +60,8 @@ class Util {
      *
      * @param callable $callback
      */
-    public static function setRedirectHandler($callback) {
+    public static function setRedirectHandler($callback)
+    {
         self::$redirectHandler = $callback;
     }
 
@@ -65,7 +70,8 @@ class Util {
      *
      * @param callable $callback
      */
-    public static function setExitHandler($callback) {
+    public static function setExitHandler($callback)
+    {
         self::$exitHandler = $callback;
     }
 
@@ -76,22 +82,19 @@ class Util {
      *
      * @return string
      */
-    public static function getCurrentUrl($requestUri = false) {
+    public static function getCurrentUrl($requestUri = false)
+    {
         $collection = new Data\Collection($_SERVER);
 
         $protocol = 'http://';
 
-        if (
-            (
-                $collection->get('HTTPS') && $collection->get('HTTPS') !== 'off'
-            ) ||
-            $collection->get('HTTP_X_FORWARDED_PROTO') === 'https'
-        ) {
+        if (($collection->get('HTTPS') && $collection->get('HTTPS') !== 'off') ||
+            $collection->get('HTTP_X_FORWARDED_PROTO') === 'https') {
             $protocol = 'https://';
         }
 
         return $protocol .
-               $collection->get('HTTP_HOST') .
-               $collection->get($requestUri ? 'REQUEST_URI' : 'PHP_SELF');
+            $collection->get('HTTP_HOST') .
+            $collection->get($requestUri ? 'REQUEST_URI' : 'PHP_SELF');
     }
 }

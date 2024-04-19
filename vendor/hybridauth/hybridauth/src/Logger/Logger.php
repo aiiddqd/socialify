@@ -13,7 +13,8 @@ use Hybridauth\Exception\InvalidArgumentException;
 /**
  * Debugging and Logging utility.
  */
-class Logger implements LoggerInterface {
+class Logger implements LoggerInterface
+{
     const NONE = 'none';  // turn logging off
     const DEBUG = 'debug'; // debug, info and error messages
     const INFO = 'info';  // info and error messages
@@ -37,19 +38,20 @@ class Logger implements LoggerInterface {
 
     /**
      * @param bool|string $level One of Logger::NONE, Logger::DEBUG, Logger::INFO, Logger::ERROR
-     * @param string      $file  File where to write messages
+     * @param string $file File where to write messages
      *
      * @throws InvalidArgumentException
      * @throws RuntimeException
      */
-    public function __construct($level, $file) {
+    public function __construct($level, $file)
+    {
         $this->level = self::NONE;
 
         if ($level && $level !== self::NONE) {
             $this->initialize($file);
 
             $this->level = $level === true ? Logger::DEBUG : $level;
-            $this->file  = $file;
+            $this->file = $file;
         }
     }
 
@@ -59,16 +61,17 @@ class Logger implements LoggerInterface {
      * @throws InvalidArgumentException
      * @throws RuntimeException
      */
-    protected function initialize($file) {
-        if ( ! $file) {
+    protected function initialize($file)
+    {
+        if (!$file) {
             throw new InvalidArgumentException('Log file is not specified.');
         }
 
-        if ( ! file_exists($file) && ! touch($file)) {
+        if (!file_exists($file) && !touch($file)) {
             throw new RuntimeException(sprintf('Log file %s can not be created.', $file));
         }
 
-        if ( ! is_writable($file)) {
+        if (!is_writable($file)) {
             throw new RuntimeException(sprintf('Log file %s is not writeable.', $file));
         }
     }
@@ -76,8 +79,9 @@ class Logger implements LoggerInterface {
     /**
      * @inheritdoc
      */
-    public function info($message, array $context = []) {
-        if ( ! in_array($this->level, [self::DEBUG, self::INFO])) {
+    public function info($message, array $context = [])
+    {
+        if (!in_array($this->level, [self::DEBUG, self::INFO])) {
             return;
         }
 
@@ -87,8 +91,9 @@ class Logger implements LoggerInterface {
     /**
      * @inheritdoc
      */
-    public function debug($message, array $context = []) {
-        if ( ! in_array($this->level, [self::DEBUG])) {
+    public function debug($message, array $context = [])
+    {
+        if (!in_array($this->level, [self::DEBUG])) {
             return;
         }
 
@@ -98,8 +103,9 @@ class Logger implements LoggerInterface {
     /**
      * @inheritdoc
      */
-    public function error($message, array $context = []) {
-        if ( ! in_array($this->level, [self::DEBUG, self::INFO, self::ERROR])) {
+    public function error($message, array $context = [])
+    {
+        if (!in_array($this->level, [self::DEBUG, self::INFO, self::ERROR])) {
             return;
         }
 
@@ -109,7 +115,8 @@ class Logger implements LoggerInterface {
     /**
      * @inheritdoc
      */
-    public function log($level, $message, array $context = []) {
+    public function log($level, $message, array $context = [])
+    {
         $datetime = new \DateTime();
         $datetime = $datetime->format(DATE_ATOM);
 

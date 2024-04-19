@@ -15,12 +15,12 @@ use Hybridauth\User;
 /**
  * Spotify OAuth2 provider adapter.
  */
-class Spotify extends OAuth2 {
-
+class Spotify extends OAuth2
+{
     /**
      * {@inheritdoc}
      */
-    public $scope = 'user-read-email';
+    protected $scope = 'user-read-email';
 
     /**
      * {@inheritdoc}
@@ -40,24 +40,30 @@ class Spotify extends OAuth2 {
     /**
      * {@inheritdoc}
      */
-    public function getUserProfile() {
+    protected $apiDocumentation = 'https://developer.spotify.com/documentation/general/guides/authorization-guide/';
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getUserProfile()
+    {
         $response = $this->apiRequest('me');
 
         $data = new Data\Collection($response);
 
-        if ( ! $data->exists('id')) {
+        if (!$data->exists('id')) {
             throw new UnexpectedApiResponseException('Provider API returned an unexpected response.');
         }
 
         $userProfile = new User\Profile();
 
-        $userProfile->identifier    = $data->get('id');
-        $userProfile->displayName   = $data->get('display_name');
-        $userProfile->email         = $data->get('email');
+        $userProfile->identifier = $data->get('id');
+        $userProfile->displayName = $data->get('display_name');
+        $userProfile->email = $data->get('email');
         $userProfile->emailVerified = $data->get('email');
-        $userProfile->profileURL    = $data->filter('external_urls')->get('spotify');
-        $userProfile->photoURL      = $data->filter('images')->get('url');
-        $userProfile->country       = $data->get('country');
+        $userProfile->profileURL = $data->filter('external_urls')->get('spotify');
+        $userProfile->photoURL = $data->filter('images')->get('url');
+        $userProfile->country = $data->get('country');
 
         if ($data->exists('birthdate')) {
             $this->fetchBirthday($userProfile, $data->get('birthdate'));
@@ -68,15 +74,20 @@ class Spotify extends OAuth2 {
 
     /**
      * Fetch use birthday
+     *
+     * @param User\Profile $userProfile
+     * @param              $birthday
+     *
+     * @return User\Profile
      */
-    protected function fetchBirthday(User\Profile $userProfile, $birthday) {
-        $result = (new Data\Parser())->parseBirthday($birthday, '-');
+    protected function fetchBirthday(User\Profile $userProfile, $birthday)
+    {
+        $result = (new Data\Parser())->parseBirthday($birthday);
 
-        $userProfile->birthDay   = (int) $result[0];
-        $userProfile->birthMonth = (int) $result[1];
-        $userProfile->birthYear  = (int) $result[2];
+        $userProfile->birthDay = (int)$result[0];
+        $userProfile->birthMonth = (int)$result[1];
+        $userProfile->birthYear = (int)$result[2];
 
         return $userProfile;
     }
-
 }

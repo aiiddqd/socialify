@@ -9,7 +9,7 @@ require 'config.php';
 use Hybridauth\Hybridauth;
 
 $hybridauth = new Hybridauth($config);
-$adapters   = $hybridauth->getConnectedAdapters();
+$adapters = $hybridauth->getConnectedAdapters();
 ?>
 
 <!DOCTYPE html>
@@ -19,30 +19,34 @@ $adapters   = $hybridauth->getConnectedAdapters();
     <title>Example 07</title>
 
     <script>
-    function auth_popup (provider) {
-      // replace 'path/to/hybridauth' with the real path to this script
-      var authWindow = window.open('https://path/to/hybridauth/examples/example_07/callback.php?provider=' + provider, 'authWindow', 'width=600,height=400,scrollbars=yes');
-      return false;
-    }
-    </script>
+        function auth_popup(provider) {
+            // replace 'path/to/hybridauth' with the real path to this script
+            var authWindow = window.open('https://path/to/hybridauth/examples/example_07/callback.php?provider=' + provider, 'authWindow', 'width=600,height=400,scrollbars=yes');
+            window.closeAuthWindow = function () {
+              authWindow.close();
+            }
 
+            return false;
+        }
+    </script>
+    
 </head>
 <body>
-<h1>Sign in</h1>
+    <h1>Sign in</h1>
 
-<ul>
+    <ul>
 
-    <?php foreach ($hybridauth->getProviders() as $name) : ?>
-        <?php if ( ! isset($adapters[ $name ])) : ?>
-            <li>
-                <a href="#" onclick="javascript:auth_popup('<?php print $name ?>');">
-                    Sign in with <?php print $name ?>
-                </a>
-            </li>
-        <?php endif; ?>
-    <?php endforeach; ?>
+<?php foreach ($hybridauth->getProviders() as $name) : ?>
+    <?php if (!isset($adapters[$name])) : ?>
+        <li>
+            <a href="#" onclick="javascript:auth_popup('<?php print $name ?>');">
+                Sign in with <?php print $name ?>
+            </a>
+        </li>
+    <?php endif; ?>
+<?php endforeach; ?>
 
-</ul>
+    </ul>
 
 <?php if ($adapters) : ?>
     <h1>You are logged in:</h1>

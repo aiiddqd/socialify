@@ -10,7 +10,8 @@ namespace Hybridauth\Exception;
 /**
  * Hybridauth Exceptions Interface
  */
-interface ExceptionInterface {
+interface ExceptionInterface
+{
     /*
     ExceptionInterface
     Exception                                             extends \Exception implements ExceptionInterface

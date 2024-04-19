@@ -15,7 +15,8 @@ use Hybridauth\User;
 /**
  * Disqus OAuth2 provider adapter.
  */
-class Disqus extends OAuth2 {
+class Disqus extends OAuth2
+{
     /**
      * {@inheritdoc}
      */
@@ -44,24 +45,25 @@ class Disqus extends OAuth2 {
     /**
      * {@inheritdoc}
      */
-    protected function initialize() {
+    protected function initialize()
+    {
         parent::initialize();
 
         $this->apiRequestParameters = [
-            'api_key'    => $this->clientId,
-            'api_secret' => $this->clientSecret
+            'api_key' => $this->clientId, 'api_secret' => $this->clientSecret
         ];
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getUserProfile() {
+    public function getUserProfile()
+    {
         $response = $this->apiRequest('users/details');
 
         $data = new Data\Collection($response);
 
-        if ( ! $data->filter('response')->exists('id')) {
+        if (!$data->filter('response')->exists('id')) {
             throw new UnexpectedApiResponseException('Provider API returned an unexpected response.');
         }
 
@@ -69,12 +71,12 @@ class Disqus extends OAuth2 {
 
         $data = $data->filter('response');
 
-        $userProfile->identifier  = $data->get('id');
+        $userProfile->identifier = $data->get('id');
         $userProfile->displayName = $data->get('name');
         $userProfile->description = $data->get('bio');
-        $userProfile->profileURL  = $data->get('profileUrl');
-        $userProfile->email       = $data->get('email');
-        $userProfile->region      = $data->get('location');
+        $userProfile->profileURL = $data->get('profileUrl');
+        $userProfile->email = $data->get('email');
+        $userProfile->region = $data->get('location');
         $userProfile->description = $data->get('about');
 
         $userProfile->photoURL = $data->filter('avatar')->get('permalink');

@@ -15,7 +15,8 @@ use Hybridauth\User;
 /**
  * Blizzard EU Battle.net OAuth2 provider adapter.
  */
-class BlizzardEU extends Blizzard {
+class BlizzardEU extends Blizzard
+{
     /**
      * {@inheritdoc}
      */

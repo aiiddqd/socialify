@@ -12,7 +12,8 @@ use Hybridauth\Exception\UnexpectedValueException;
 /**
  * Hybridauth\User\Contact
  */
-final class Contact {
+final class Contact
+{
     /**
      * The Unique contact user ID
      *
@@ -66,11 +67,12 @@ final class Contact {
      * Prevent the providers adapters from adding new fields.
      *
      * @param string $name
-     * @param mixed  $value
+     * @param mixed $value
      *
      * @throws UnexpectedValueException
      */
-    public function __set($name, $value) {
+    public function __set($name, $value)
+    {
         throw new UnexpectedValueException(sprintf('Adding new property "%s" to %s is not allowed.', $name, __CLASS__));
     }
 }

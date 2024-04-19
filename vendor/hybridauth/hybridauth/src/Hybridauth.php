@@ -22,7 +22,8 @@ use Hybridauth\HttpClient\HttpClientInterface;
  * configuration array containing the list of providers you want to use, their respective credentials
  * and authorized callback.
  */
-class Hybridauth {
+class Hybridauth
+{
     /**
      * Hybridauth config.
      *
@@ -52,10 +53,10 @@ class Hybridauth {
     protected $logger;
 
     /**
-     * @param array|string        $config Array with configuration or Path to PHP file that will return array
+     * @param array|string $config Array with configuration or Path to PHP file that will return array
      * @param HttpClientInterface $httpClient
-     * @param StorageInterface    $storage
-     * @param LoggerInterface     $logger
+     * @param StorageInterface $storage
+     * @param LoggerInterface $logger
      *
      * @throws InvalidArgumentException
      */
@@ -67,18 +68,18 @@ class Hybridauth {
     ) {
         if (is_string($config) && file_exists($config)) {
             $config = include $config;
-        } elseif ( ! is_array($config)) {
+        } elseif (!is_array($config)) {
             throw new InvalidArgumentException('Hybridauth config does not exist on the given path.');
         }
 
-        $this->config     = $config + [
-                'debug_mode'   => Logger::NONE,
-                'debug_file'   => '',
+        $this->config = $config + [
+                'debug_mode' => Logger::NONE,
+                'debug_file' => '',
                 'curl_options' => null,
-                'providers'    => []
+                'providers' => []
             ];
-        $this->storage    = $storage;
-        $this->logger     = $logger;
+        $this->storage = $storage;
+        $this->logger = $logger;
         $this->httpClient = $httpClient;
     }
 
@@ -95,7 +96,8 @@ class Hybridauth {
      * @throws InvalidArgumentException
      * @throws UnexpectedValueException
      */
-    public function authenticate($name) {
+    public function authenticate($name)
+    {
         $adapter = $this->getAdapter($name);
 
         $adapter->authenticate();
@@ -112,17 +114,18 @@ class Hybridauth {
      * @throws InvalidArgumentException
      * @throws UnexpectedValueException
      */
-    public function getAdapter($name) {
+    public function getAdapter($name)
+    {
         $config = $this->getProviderConfig($name);
 
         $adapter = isset($config['adapter']) ? $config['adapter'] : sprintf('Hybridauth\\Provider\\%s', $name);
 
-        if ( ! class_exists($adapter)) {
+        if (!class_exists($adapter)) {
             $adapter = null;
-            $fs      = new \FilesystemIterator(__DIR__ . '/Provider/');
+            $fs = new \FilesystemIterator(__DIR__ . '/Provider/');
             /** @var \SplFileInfo $file */
             foreach ($fs as $file) {
-                if ( ! $file->isDir()) {
+                if (!$file->isDir()) {
                     $provider = strtok($file->getFilename(), '.');
                     if ($name === mb_strtolower($provider)) {
                         $adapter = sprintf('Hybridauth\\Provider\\%s', $provider);
@@ -148,22 +151,27 @@ class Hybridauth {
      *
      * @return array
      */
-    public function getProviderConfig($name) {
+    public function getProviderConfig($name)
+    {
         $name = strtolower($name);
 
         $providersConfig = array_change_key_case($this->config['providers'], CASE_LOWER);
 
-        if ( ! isset($providersConfig[ $name ])) {
+        if (!isset($providersConfig[$name])) {
             throw new InvalidArgumentException('Unknown Provider.');
         }
 
-        if ( ! $providersConfig[ $name ]['enabled']) {
+        if (!$providersConfig[$name]['enabled']) {
             throw new UnexpectedValueException('Disabled Provider.');
         }
 
-        $config = $providersConfig[ $name ];
+        $config = $providersConfig[$name];
+        $config += [
+            'debug_mode' => $this->config['debug_mode'],
+            'debug_file' => $this->config['debug_file'],
+        ];
 
-        if ( ! isset($config['callback']) && isset($this->config['callback'])) {
+        if (!isset($config['callback']) && isset($this->config['callback'])) {
             $config['callback'] = $this->config['callback'];
         }
 
@@ -175,11 +183,12 @@ class Hybridauth {
      *
      * @param string $name adapter's name (case insensitive)
      *
-     * @return boolean
+     * @return bool
      * @throws InvalidArgumentException
      * @throws UnexpectedValueException
      */
-    public function isConnectedWith($name) {
+    public function isConnectedWith($name)
+    {
         return $this->getAdapter($name)->isConnected();
     }
 
@@ -188,7 +197,8 @@ class Hybridauth {
      *
      * @return array
      */
-    public function getProviders() {
+    public function getProviders()
+    {
         $providers = [];
 
         foreach ($this->config['providers'] as $name => $config) {
@@ -207,7 +217,8 @@ class Hybridauth {
      * @throws InvalidArgumentException
      * @throws UnexpectedValueException
      */
-    public function getConnectedProviders() {
+    public function getConnectedProviders()
+    {
         $providers = [];
 
         foreach ($this->getProviders() as $name) {
@@ -226,14 +237,15 @@ class Hybridauth {
      * @throws InvalidArgumentException
      * @throws UnexpectedValueException
      */
-    public function getConnectedAdapters() {
+    public function getConnectedAdapters()
+    {
         $adapters = [];
 
         foreach ($this->getProviders() as $name) {
             $adapter = $this->getAdapter($name);
 
             if ($adapter->isConnected()) {
-                $adapters[ $name ] = $adapter;
+                $adapters[$name] = $adapter;
             }
         }
 
@@ -243,7 +255,8 @@ class Hybridauth {
     /**
      * Disconnect all currently connected adapters at once
      */
-    public function disconnectAllAdapters() {
+    public function disconnectAllAdapters()
+    {
         foreach ($this->getProviders() as $name) {
             $adapter = $this->getAdapter($name);
 
