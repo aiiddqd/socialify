@@ -24,6 +24,8 @@
 
 namespace Socialify;
 
+defined('ABSPATH') || die();
+
 init();
 
 function init(){
@@ -36,7 +38,6 @@ foreach ($files as $file) {
 }
 
 
-defined('ABSPATH') || die();
 
 final class General
 {
