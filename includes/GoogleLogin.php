@@ -125,9 +125,9 @@ final class GoogleLogin
             $section_id = self::$option_name . '_section',
             $section_title = self::$data['settings_section_title'],
             $callback = [__CLASS__, 'render_settings_instructions'],
-            General::$settings_group
+            Settings::get_settings_group()
         );
-        register_setting(General::$settings_group, self::$option_name);
+        register_setting(Settings::get_settings_group(), self::$option_name);
 
         self::add_setting_id();
         self::add_setting_secret();
@@ -172,7 +172,7 @@ final class GoogleLogin
                     $args['name'], $args['value']
                 );
             },
-            $page = General::$settings_group,
+            $page = Settings::get_settings_group(),
             $section = self::$option_name . '_section',
             $args = [
                 'name' => self::$option_name . '[id]',
@@ -199,7 +199,7 @@ final class GoogleLogin
                     $args['name'], $args['value']
                 );
             },
-            $page = General::$settings_group,
+            $page = Settings::get_settings_group(),
             $section = self::$option_name . '_section',
             $args = [
                 'name' => self::$option_name . '[secret]',

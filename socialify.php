@@ -37,6 +37,7 @@ foreach ($files as $file) {
   require_once $file;
 }
 
+Settings::init();
 
 
 final class General
