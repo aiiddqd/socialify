@@ -38,6 +38,8 @@ function main()
     }
 
     Settings::init();
+    General::init();
+
 
 }
 
@@ -312,4 +314,3 @@ final class General
 
 }
 
-General::init();
