@@ -26,9 +26,9 @@ namespace Socialify;
 
 defined('ABSPATH') || die();
 
-init();
+main();
 
-function init(){
+function main(){
     require_once __DIR__ . '/vendor/autoload.php';
 }
 
