@@ -28,16 +28,19 @@ defined('ABSPATH') || die();
 
 main();
 
-function main(){
+function main()
+{
     require_once __DIR__ . '/vendor/autoload.php';
+
+    $files = glob(__DIR__ . '/includes/*.php');
+    foreach ($files as $file) {
+        require_once $file;
+    }
+
+    Settings::init();
+
 }
 
-$files = glob(__DIR__ . '/includes/*.php');
-foreach ($files as $file) {
-  require_once $file;
-}
-
-Settings::init();
 
 
 final class General
@@ -76,10 +79,10 @@ final class General
      */
     public static function init()
     {
-        self::$plugin_basename = plugin_basename( __FILE__ );
+        self::$plugin_basename = plugin_basename(__FILE__);
         self::$plugin_file_path = __FILE__;
         self::$plugin_dir_path = plugin_dir_path(__FILE__);
-        self::$plugin_dir_url = plugin_dir_url( __FILE__ );
+        self::$plugin_dir_url = plugin_dir_url(__FILE__);
 
         // require_once __DIR__ . '/includes/FacebookLogin.php';
         // require_once __DIR__ . '/includes/GoogleLogin.php';
@@ -89,17 +92,18 @@ final class General
 
         add_action('init', [__CLASS__, 'add_endpoint']);
 
-        add_filter( "plugin_action_links_" . self::$plugin_basename, [__CLASS__, 'add_settings_url_to_plugins_list'] );
+        add_filter("plugin_action_links_" . self::$plugin_basename, [__CLASS__, 'add_settings_url_to_plugins_list']);
 
-        
+
     }
 
 
     /**
      * Add Settings link in pligins list
      */
-    public static function add_settings_url_to_plugins_list( $links ) {
-        $settings_link = sprintf( '<a href="%s">%s</a>', admin_url('admin.php?page=socialify-settings'), __('Settings', self::$slug) );
+    public static function add_settings_url_to_plugins_list($links)
+    {
+        $settings_link = sprintf('<a href="%s">%s</a>', admin_url('admin.php?page=socialify-settings'), __('Settings', self::$slug));
         array_unshift($links, $settings_link);
         return $links;
     }
@@ -113,9 +117,10 @@ final class General
      *
      * @return string|void
      */
-    public static function get_current_url(){
+    public static function get_current_url()
+    {
         global $wp;
-        return home_url( $wp->request );
+        return home_url($wp->request);
     }
 
 
@@ -125,7 +130,7 @@ final class General
             return;
         }
 
-        if( ! $endpoint = get_query_var(self::$slug)){
+        if (! $endpoint = get_query_var(self::$slug)) {
             wp_redirect(site_url());
             exit;
         }
@@ -136,35 +141,33 @@ final class General
             $userProfile = apply_filters('socialify_user_profile', $userProfile, $endpoint);
 
             $auth_process_data = [
-                    'user_data' => $userProfile,
-                    'redirect_to' => '',
+                'user_data' => $userProfile,
+                'redirect_to' => '',
             ];
 
             $auth_process_data = apply_filters('socialify_auth_process', $auth_process_data, $endpoint);
 
-            if(is_wp_error($auth_process_data['user_data'])){
+            if (is_wp_error($auth_process_data['user_data'])) {
                 throw new \Exception('$userProfile is WP Error.');
             }
 
-            if(empty($auth_process_data['user_data'])){
+            if (empty($auth_process_data['user_data'])) {
                 throw new \Exception('$userProfile is empty.');
             }
 
             self::user_handler($auth_process_data);
 
-            if(empty(self::$redirect_to)){
+            if (empty(self::$redirect_to)) {
                 self::$redirect_to = $auth_process_data['redirect_to'];
             }
 
-            if(empty(self::$redirect_to)){
+            if (empty(self::$redirect_to)) {
                 wp_redirect(site_url());
             } else {
                 wp_redirect(self::$redirect_to);
             }
             exit;
-        }
-
-        catch(\Exception $e){
+        } catch (\Exception $e) {
             error_log('Socialify: Oops, we ran into an issue! ' . $e->getMessage());
             wp_redirect(site_url());
             exit;
@@ -180,7 +183,7 @@ final class General
      */
     public static function user_handler($process_data)
     {
-        if(empty($process_data['user_data']) || empty($process_data['provider'])){
+        if (empty($process_data['user_data']) || empty($process_data['provider'])) {
             return false;
         }
 
@@ -188,19 +191,19 @@ final class General
 
         $user = get_user_by('id', get_current_user_id());
 
-        if(empty($user)){
+        if (empty($user)) {
             $user = self::get_connected_user($user_data->identifier, $process_data['provider']);
         }
 
-        if(empty($user) && !empty($user_data->email)){
+        if (empty($user) && ! empty($user_data->email)) {
             $user = get_user_by('email', $user_data->email);
         }
 
-        if(empty($user)){
+        if (empty($user)) {
             $user = self::add_user($user_data);
         }
 
-        if(empty($user)){
+        if (empty($user)) {
             return false;
         }
 
@@ -212,7 +215,8 @@ final class General
 
     }
 
-    public static function get_connected_user($identifier = '', $provider = ''){
+    public static function get_connected_user($identifier = '', $provider = '')
+    {
 
         $auth_id_meta_key = 'socialify_' . $provider . '_id_' . $identifier;
         $users = get_users(array(
@@ -221,68 +225,71 @@ final class General
             'count_total' => false
         ));
 
-        if(empty($users[0]->ID)){
+        if (empty($users[0]->ID)) {
             return false;
         }
 
-        if(count($users) > 1){
+        if (count($users) > 1) {
             return false;
         }
 
         return get_user_by('id', $users[0]->ID);
     }
 
-    public static function add_user($userProfile){
-        if(empty($userProfile->email)){
+    public static function add_user($userProfile)
+    {
+        if (empty($userProfile->email)) {
             return false;
         }
 
         $user_data = [
             'user_login' => self::generate_new_userlogin(),
-            'user_pass'  => wp_generate_password( 11, false ),
+            'user_pass' => wp_generate_password(11, false),
             'user_email' => sanitize_email($userProfile->email),
         ];
 
-        if( ! empty($userProfile->firstName) ){
+        if (! empty($userProfile->firstName)) {
             $user_data['first_name'] = sanitize_text_field($userProfile->firstName);
         }
 
-        if( ! empty($userProfile->lastName) ){
+        if (! empty($userProfile->lastName)) {
             $user_data['last_name'] = sanitize_text_field($userProfile->lastName);
         }
 
-        if( ! empty($userProfile->displayName) ){
+        if (! empty($userProfile->displayName)) {
             $user_data['display_name'] = sanitize_text_field($userProfile->displayName);
         }
 
-        if( ! $user_id = wp_insert_user($user_data) ){
+        if (! $user_id = wp_insert_user($user_data)) {
             return false;
         }
 
-        if(!$user = get_user_by('id', $user_id)){
+        if (! $user = get_user_by('id', $user_id)) {
             return false;
         }
 
         return $user;
     }
 
-    public static function generate_new_userlogin(){
-        $users_ids  = get_users('fields=ID&number=3&orderby=registered&order=DESC');
-        $last_id    = max($users_ids);
-        $new_id     = $last_id + 1;
+    public static function generate_new_userlogin()
+    {
+        $users_ids = get_users('fields=ID&number=3&orderby=registered&order=DESC');
+        $last_id = max($users_ids);
+        $new_id = $last_id + 1;
         $user_login = 'id' . $new_id;
 
         return $user_login;
     }
 
-    public static function auth_user($user){
-        if(empty($user->ID)){
+    public static function auth_user($user)
+    {
+        if (empty($user->ID)) {
             return false;
         }
 
-        wp_set_current_user( $user->ID );
-        wp_set_auth_cookie( $user->ID, true );
-        do_action( 'wp_login', $user->user_login, $user );
+        wp_set_current_user($user->ID);
+        wp_set_auth_cookie($user->ID, true);
+        do_action('wp_login', $user->user_login, $user);
         return true;
     }
 
@@ -298,7 +305,7 @@ final class General
          */
         $rules = get_option('rewrite_rules');
         $key = sprintf('%s(/(.*))?/?$', self::$slug);
-        if ( ! isset($rules[$key])) {
+        if (! isset($rules[$key])) {
             flush_rewrite_rules($hard = false);
         }
     }
