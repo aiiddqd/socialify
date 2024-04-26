@@ -83,8 +83,6 @@ final class General
         add_action('init', [__CLASS__, 'add_endpoint']);
 
         add_filter("plugin_action_links_" . self::$plugin_basename, [__CLASS__, 'add_settings_url_to_plugins_list']);
-
-
     }
 
 

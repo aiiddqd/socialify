@@ -2,10 +2,7 @@
 namespace Socialify;
 defined('ABSPATH') || die();
 
-/**
- * ShortcodeLogin
- */
-final class ShortcodeLogin
+final class AddActionsToLoginForm
 {
     /**
      * @var bool for check login page
@@ -64,15 +61,14 @@ final class ShortcodeLogin
         });
     }
 
-    /**
-     * add_settings
-     */
     public static function add_settings(){
+
+      // dd(1);
       add_settings_section(
         $section_id = self::$option_name . '_section',
         $section_title = __('Shortcode'),
         $callback = '',
-        General::$settings_group
+        Settings::get_settings_group()
       );
       register_setting(General::$settings_group, self::$option_name);
 
@@ -85,7 +81,7 @@ final class ShortcodeLogin
             $args['name'], checked( 1, $args['value'], false )
           );
         },
-        $page = General::$settings_group,
+        Settings::get_settings_group(),
         $section = self::$option_name . '_section',
         $args = [
           'name' => self::$option_name . '[login_page_show]',
@@ -165,4 +161,4 @@ final class ShortcodeLogin
     }
 }
 
-ShortcodeLogin::init();
+AddActionsToLoginForm::init();
