@@ -2,6 +2,8 @@
 
 namespace Socialify;
 
+Settings::init();
+
 class Settings {
 
     public static $settings_group = 'socialify_settings';

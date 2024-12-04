@@ -9,7 +9,7 @@ defined('ABSPATH') || die();
 final class GoogleLogin
 {
     public static $data = [
-        'settings_section_title' => 'Google Login',
+        'settings_section_title' => 'Google',
         'setting_title_id' => 'Google ID',
         'setting_title_secret' => 'Google Secret',
     ];
