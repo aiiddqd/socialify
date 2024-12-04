@@ -6,7 +6,7 @@ defined('ABSPATH') || die();
 /**
  * Login via Google OAuth2
  */
-final class GoogleLogin
+final class Google
 {
     public static $data = [
         'settings_section_title' => 'Google',
@@ -209,4 +209,4 @@ final class GoogleLogin
     }
 }
 
-GoogleLogin::init();
+Google::init();
