@@ -2,31 +2,31 @@
 namespace Socialify;
 defined('ABSPATH') || die();
 
-final class FacebookLogin
+// Yandex::init();
+
+final class Yandex
 {
-    public static $data = [
-        'settings_section_title' => 'Facebook Login',
-        'settings_section_key' => 'socialify_config_facebook_section',
-        'setting_title_id' => 'Facebook ID',
-        'setting_title_secret' => 'Facebook Secret',
-    ];
+    public static $key = 'yandex';
+    public static $endpoint;
 
-    public static $option_name = 'socialify_config_facebook';
 
-    public static $endpoint = '/socialify/Facebook/';
 
     public static function init()
     {
-        self::$endpoint = site_url(self::$endpoint);
+        // self::$endpoint = site_url(self::$endpoint);
+        self::$endpoint = get_rest_url(null, 'socialify/v1/' . self::$endpoint);
+        // var_dump(self::$endpoint); exit;
 
-        add_action('plugins_loaded', function (){
+        return;
 
-            add_filter('socialify_auth_process', [__CLASS__, 'auth_process'], 11, 2);
+        // add_action('plugins_loaded', function (){
 
-            add_filter('socialify_shortcode_data', [__CLASS__, 'add_btn_for_shortcode']);
+        //     add_filter('socialify_auth_process', [__CLASS__, 'auth_process'], 11, 2);
 
-            add_action('admin_init', [__CLASS__, 'add_settings']);
-        });
+        //     add_filter('socialify_shortcode_data', [__CLASS__, 'add_btn_for_shortcode']);
+
+        //     add_action('admin_init', [__CLASS__, 'add_settings']);
+        // });
 
     }
 
@@ -189,4 +189,3 @@ final class FacebookLogin
     }
 }
 
-FacebookLogin::init();
