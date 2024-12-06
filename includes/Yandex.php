@@ -21,9 +21,6 @@ final class Yandex
                 'callback' => [__CLASS__, 'process'],
                 'permission_callback' => '__return_true'
             ]);
-
-
-
         });
 
         add_action('init', function () {
@@ -39,27 +36,23 @@ final class Yandex
      */
     public static function process(\WP_REST_Request $req)
     {
-
         $appConfig = self::get_config();
 
         if(empty($appConfig['id']) || empty($appConfig['secret'])) {
             return new \WP_Error('no_config', 'No config');
         }
 
-
         $url = 'https://oauth.yandex.ru/authorize';
 
         $url = add_query_arg([
-            'client_id' => $appConfig['id'],
             'response_type' => 'code',
+            'client_id' => $appConfig['id'],
         ], $url);
 
         if(empty($_GET['code'])){
             wp_redirect($url);
             exit;
         }
-
-
 
         $code = $_GET['code'] ?? null;
         if(empty($code)){    
@@ -79,7 +72,7 @@ final class Yandex
         $data = wp_remote_request($url, [
             'method' => 'POST',
             'headers' => [
-                // 'Content-Type' => 'application/x-www-form-urlencoded',
+                'Content-Type' => 'application/json',
                 // 'Content-Length ' => strlen(http_build_query([
                 //     'grant_type' => 'authorization_code',
                 //     'code' => $code,
