@@ -3,11 +3,11 @@
 namespace Socialify;
 
 Settings::init();
-
 class Settings {
 
     public static $settings_group = 'socialify_settings';
-    public static $option_key = 'socialify_options';
+
+    public static $option_key = 'socialify_config';
 
     public static function init(){
         add_action('admin_init', [__CLASS__, 'register_main_setting']);

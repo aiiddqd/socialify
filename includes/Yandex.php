@@ -1,23 +1,38 @@
 <?php
+
 namespace Socialify;
+
 defined('ABSPATH') || die();
 
-// Yandex::init();
+Yandex::init();
 
 final class Yandex
 {
     public static $key = 'yandex';
+
     public static $endpoint;
-
-
 
     public static function init()
     {
-        // self::$endpoint = site_url(self::$endpoint);
-        self::$endpoint = get_rest_url(null, 'socialify/v1/' . self::$endpoint);
-        // var_dump(self::$endpoint); exit;
+        // @link https://wpcraft.ru/wp-json/socialify/v1/yandex
+        add_action('rest_api_init', function () {
+            register_rest_route('socialify/v1', 'yandex', [
+                'methods' => 'GET',
+                'callback' => [__CLASS__, 'process'],
+                'permission_callback' => '__return_true'
+            ]);
 
-        return;
+
+
+        });
+
+        add_action('init', function () {
+            self::$endpoint = rest_url('socialify/v1/yandex');
+        });
+
+        add_action('admin_init', [__CLASS__, 'add_settings']);
+
+        // return;
 
         // add_action('plugins_loaded', function (){
 
@@ -25,167 +40,153 @@ final class Yandex
 
         //     add_filter('socialify_shortcode_data', [__CLASS__, 'add_btn_for_shortcode']);
 
-        //     add_action('admin_init', [__CLASS__, 'add_settings']);
         // });
 
     }
 
     /**
-     * apply_filters('socialify_auth_process', $auth_process_data);
+     * // @link https://wpcraft.ru/wp-json/socialify/v1/yandex
      */
-    public static function auth_process($auth_process_data, $endpoint)
+    public static function process(\WP_REST_Request $req)
     {
-        if ('Facebook' != $endpoint) {
-            return $auth_process_data;
+
+        $appConfig = self::get_config();
+
+        if(empty($appConfig['id']) || empty($appConfig['secret'])) {
+            return new \WP_Error('no_config', 'No config');
         }
 
-        $config_data = get_option(self::$option_name);
-        if (empty($config_data['id']) || empty($config_data['secret'])) {
-            return $auth_process_data;
+
+        $url = 'https://oauth.yandex.ru/authorize';
+
+        $url = add_query_arg([
+            'client_id' => $appConfig['id'],
+            'response_type' => 'code',
+        ], $url);
+
+        if(empty($_GET['code'])){
+            wp_redirect($url);
         }
 
-        $config = [
-            'callback' => self::$endpoint,
-            //Facebook application credentials
-            'keys'     => [
-                'id'     => $config_data['id'], //Required: your Facebook application id
-                'secret' => $config_data['secret']  //Required: your Facebook application secret
-            ]
-        ];
 
-        //Instantiate Facebook's adapter directly
-        $adapter = new \Hybridauth\Provider\Facebook($config);
+        // var_dump($_GET); exit;
 
-        if(!empty($_GET['redirect_to'])){
-            $redirect_to = $_GET['redirect_to'];
-            $adapter->getStorage()->set('socialify_redirect_to', $redirect_to);
-        }
+        $code = $_GET['code'] ?? null;
 
-        //Attempt to authenticate the user with Facebook
-        $adapter->authenticate();
+        $url = 'https://oauth.yandex.ru/';
 
-        $auth_process_data['user_data'] = $adapter->getUserProfile();
-        $auth_process_data['redirect_to'] = $adapter->getStorage()->get('socialify_redirect_to');
-        $auth_process_data['provider'] = 'facebook';
+        $url = add_query_arg([
+            'grant_type' => 'authorization_code',
+            'code' => $code,
+        ], $url);
 
-        //Disconnect the adapter
-        $adapter->disconnect();
+        $data = wp_remote_request($url, [
+            'method' => 'POST',
+            'headers' => [
+                'Content-Type' => 'application/x-www-form-urlencoded',
+                // 'Content-Length ' => strlen(http_build_query([
+                //     'grant_type' => 'authorization_code',
+                //     'code' => $code,
+                // ])),
+                // 'Authorization' => 'Basic ' . base64_encode($appConfig['id'] . ':' . $appConfig['secret']),
+                // 'grant_type' => 'authorization_code',
+                // 'code' => $code,
+            ],
+            'body' => [
+                
+            ],
+        ]);
 
-        return $auth_process_data;
+        echo '<pre>';
+        var_dump($data); exit;
+
+        $url = add_query_arg('', $req->get_param(''), $url);
+        // var_dump($req); exit;
+        
     }
 
-    public static function add_btn_for_shortcode($data)
-    {
-        if(!self::is_active()){
-          return $data;
-        }
-
-        $data['login_items']['fb'] = [
-            'url' => self::$endpoint,
-            'ico_url' => General::$plugin_dir_url . 'assets/svg/facebook.svg',
-        ];
-
-        return $data;
-    }
-
-    /**
-     * Check is active
-     */
-    public static function is_active(){
-      $config_data = get_option(self::$option_name);
-      if(empty($config_data['id']) || empty($config_data['secret'])){
-        return false;
-      }
-
-      return true;
-    }
-
+    
     /**
      * Add settings
      */
     public static function add_settings()
     {
         add_settings_section(
-            $section_id = self::$data['settings_section_key'],
-            $header = self::$data['settings_section_title'],
-            $callback = [__CLASS__, 'render_settings_instructions'],
-            General::$settings_group
+            self::get_section_id(),
+            __('Yandex', 'socialify'),
+            function () { ?>
+            <ol>
+                <li>
+                    <span><?= __('Get values: ', 'socialify') ?></span>
+                    <a href="https://oauth.yandex.ru/" target="_blank">https://oauth.yandex.ru/</a>
+                </li>
+                <li>Callback URI: <code><?= self::$endpoint ?></code></li>
+                <li>Website: <code><?= site_url() ?></code></li>
+                <li>Domain: <code><?= $_SERVER['SERVER_NAME'] ?></code></li>
+            </ol>
+            <?php
+            },
+            Settings::$settings_group
         );
 
-        register_setting(General::$settings_group, self::$option_name);
+        // register_setting(Settings::$settings_group, Settings::$option_key);
 
         self::add_setting_id();
         self::add_setting_secret();
     }
 
-    /**
-     * render_settings_instructions
-     */
-    public static function render_settings_instructions(){
-        ?>
-
-        <ol>
-            <li>
-                <span><?= __('Получить реквизиты для доступа можно по ссылке: ', 'socialify') ?></span>
-                <a href="https://developers.facebook.com/apps/" target="_blank">https://developers.facebook.com/apps/</a>
-            </li>
-            <li>В поле Callback URI запишите: <code><?= self::$endpoint ?></code></li>
-            <li>Ссылка на сайт: <code><?= site_url() ?></code></li>
-            <li>Домен если потребуется: <code><?= $_SERVER['SERVER_NAME'] ?></code></li>
-        </ol>
-        <?php
+    public static function get_section_id()
+    {
+        return self::$key . '_section';
     }
 
-    /**
-     * add_setting_id
-     *
-     * input name: socialify_config_facebook[id]
-     */
     public static function add_setting_id()
     {
         add_settings_field(
-            $setting_id = self::$option_name . '_id',
-            $setting_title = self::$data['setting_title_id'],
+            self::$key . '_id',
+            __('Yandex ID', 'socialify'),
             $callback = function ($args) {
                 printf(
                     '<input type="text" name="%s" value="%s" size="77">',
-                    $args['name'], $args['value']
+                    $args['name'],
+                    $args['value']
                 );
             },
-            $page = General::$settings_group,
-            $section_id = self::$data['settings_section_key'],
-            $args = [
-                'name'  => self::$option_name . '[id]',
-                'value' => @get_option(self::$option_name)['id'],
+            Settings::$settings_group,
+            self::get_section_id(),
+            [
+                'name' => Settings::$option_key . '[yandex][id]',
+                'value' => get_option(Settings::$option_key)['yandex']['id'] ?? null,
             ]
         );
     }
 
-    /**
-     * add_setting_secret
-     *
-     * input name: socialify_config_facebook[secret]
-     */
+    public static function get_config()
+    {
+        return get_option(Settings::$option_key)['yandex'] ?? [];
+    }
+
     public static function add_setting_secret()
     {
-        $setting_title = 'Facebook Secret';
-        $setting_id    = General::$slug . '_facebook_secret';
+
         add_settings_field(
-            $setting_id,
-            $setting_title,
+            self::$key . '_secret',
+            __('Yandex Secret', 'socialify'),
             $callback = function ($args) {
                 printf(
                     '<input type="text" name="%s" value="%s" size="77">',
-                    $args['name'], $args['value']
+                    $args['name'],
+                    $args['value']
                 );
             },
-            $page = General::$settings_group,
-            $section_id = self::$data['settings_section_key'],
-            $args = [
-                'name'  => self::$option_name . '[secret]',
-                'value' => @get_option(self::$option_name)['secret'],
+            Settings::$settings_group,
+            self::get_section_id(),
+            [
+                'name' => Settings::$option_key . '[yandex][secret]',
+                'value' => get_option(Settings::$option_key)['yandex']['secret'] ?? null,
             ]
         );
+
     }
 }
 
