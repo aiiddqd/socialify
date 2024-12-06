@@ -32,16 +32,6 @@ final class Yandex
 
         add_action('admin_init', [__CLASS__, 'add_settings']);
 
-        // return;
-
-        // add_action('plugins_loaded', function (){
-
-        //     add_filter('socialify_auth_process', [__CLASS__, 'auth_process'], 11, 2);
-
-        //     add_filter('socialify_shortcode_data', [__CLASS__, 'add_btn_for_shortcode']);
-
-        // });
-
     }
 
     /**
@@ -66,24 +56,30 @@ final class Yandex
 
         if(empty($_GET['code'])){
             wp_redirect($url);
+            exit;
         }
 
 
-        // var_dump($_GET); exit;
 
         $code = $_GET['code'] ?? null;
+        if(empty($code)){    
+            return new \WP_Error('no_code', 'No code');
+        }
 
-        $url = 'https://oauth.yandex.ru/';
+        $url = 'https://oauth.yandex.ru';
 
         $url = add_query_arg([
-            'grant_type' => 'authorization_code',
             'code' => $code,
+            'grant_type' => 'authorization_code',
         ], $url);
+
+
+        // var_dump($url); exit;
 
         $data = wp_remote_request($url, [
             'method' => 'POST',
             'headers' => [
-                'Content-Type' => 'application/x-www-form-urlencoded',
+                // 'Content-Type' => 'application/x-www-form-urlencoded',
                 // 'Content-Length ' => strlen(http_build_query([
                 //     'grant_type' => 'authorization_code',
                 //     'code' => $code,
@@ -92,9 +88,7 @@ final class Yandex
                 // 'grant_type' => 'authorization_code',
                 // 'code' => $code,
             ],
-            'body' => [
-                
-            ],
+            
         ]);
 
         echo '<pre>';
