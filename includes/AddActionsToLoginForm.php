@@ -3,6 +3,13 @@ namespace Socialify;
 
 defined('ABSPATH') || die();
 
+
+add_shortcode('socialify_btns', function ($args) {
+  ob_start();
+  do_action('socialify_shortcode', $args);
+  return ob_get_clean();
+});
+
 final class AddActionsToLoginForm
 {
   /**
@@ -23,7 +30,7 @@ final class AddActionsToLoginForm
 
       self::$show_on_login = get_option(self::$option_name)['login_page_show'] ?? null;
 
-      add_shortcode('socialify_login', function ($args) {
+      add_shortcode('!socialify_login', function ($args) {
         $data = [];
         if (! empty ($args['email'])) {
           $data['login_items'] = [
@@ -166,4 +173,4 @@ final class AddActionsToLoginForm
   }
 }
 
-AddActionsToLoginForm::init();
+// AddActionsToLoginForm::init();
