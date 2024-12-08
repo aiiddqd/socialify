@@ -3,13 +3,13 @@ Socialify for WordPress - Social Login, OAuth2, HybridAuth
 
 ## Features
 - Google Login
+- Yandex Login
+
+# Addons
 - Facebook Login
-- Yandex Login https://github.com/uptimizt/socialify-yandex-login
-- Vkontakte Login https://github.com/uptimizt/socialify-vkontakte-login
+- Vkontakte Login https://github.com/aiiddqd/socialify-vkontakte-login
 
 ## Other
 
 sponsor link 
-https://bizzapps.ru/p/telegram-open-network/
-
-1
+https://wpcraft.ru

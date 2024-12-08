@@ -6,10 +6,10 @@ defined('ABSPATH') || die();
 /**
  * Login via Google OAuth2
  */
-final class GoogleLogin
+final class Google
 {
     public static $data = [
-        'settings_section_title' => 'Google Login',
+        'settings_section_title' => 'Google',
         'setting_title_id' => 'Google ID',
         'setting_title_secret' => 'Google Secret',
     ];
@@ -22,11 +22,9 @@ final class GoogleLogin
     {
         self::$endpoint = site_url(self::$endpoint);
 
-        add_action('plugins_loaded', function () {
-            add_filter('socialify_auth_process', [__CLASS__, 'auth_process'], 11, 2);
-            add_action('admin_init', [__CLASS__, 'add_settings']);
-            add_filter('socialify_shortcode_data', [__CLASS__, 'add_btn_for_shortcode']);
-        });
+        add_filter('socialify_auth_process', [__CLASS__, 'auth_process'], 11, 2);
+        add_action('admin_init', [__CLASS__, 'add_settings']);
+        add_filter('socialify_shortcode_data', [__CLASS__, 'add_btn_for_shortcode']);
     }
 
     /**
@@ -127,9 +125,9 @@ final class GoogleLogin
             $section_id = self::$option_name . '_section',
             $section_title = self::$data['settings_section_title'],
             $callback = [__CLASS__, 'render_settings_instructions'],
-            General::$settings_group
+            Settings::get_settings_group()
         );
-        register_setting(General::$settings_group, self::$option_name);
+        register_setting(Settings::get_settings_group(), self::$option_name);
 
         self::add_setting_id();
         self::add_setting_secret();
@@ -174,7 +172,7 @@ final class GoogleLogin
                     $args['name'], $args['value']
                 );
             },
-            $page = General::$settings_group,
+            $page = Settings::get_settings_group(),
             $section = self::$option_name . '_section',
             $args = [
                 'name' => self::$option_name . '[id]',
@@ -201,7 +199,7 @@ final class GoogleLogin
                     $args['name'], $args['value']
                 );
             },
-            $page = General::$settings_group,
+            $page = Settings::get_settings_group(),
             $section = self::$option_name . '_section',
             $args = [
                 'name' => self::$option_name . '[secret]',
@@ -211,4 +209,4 @@ final class GoogleLogin
     }
 }
 
-GoogleLogin::init();
+Google::init();
