@@ -44,13 +44,11 @@ final class Yandex
 
         $url = 'https://oauth.yandex.ru/authorize';
 
-        $state = [
-            'redirect' => $_GET['redirect'] ?? '',
-        ];
+        $state = $_GET['redirect'] ?? '';
 
         $url = add_query_arg([
             'response_type' => 'code',
-            'state' => json_encode($state),
+            'state' => urlencode($state),
             'client_id' => $appConfig['id'],
         ], $url);
 
@@ -99,7 +97,6 @@ final class Yandex
         $userData = self::get_user_data($access_token);
 
         
-
         $email = $userData['default_email'] ?? null;
         if (empty($email)) {
             return new \WP_Error('no_email', 'No email');
@@ -120,7 +117,6 @@ final class Yandex
             ]);
         }
 
-        
         $meta = get_user_meta($user->ID, 'socialify', true);
         if($meta){
             $meta = [];
@@ -133,14 +129,13 @@ final class Yandex
 
         update_user_meta($user->ID, 'socialify', $meta);
 
-        General::auth_user($user);
-
-        $state = json_decode($_GET['state'] ?? '', true);
-
         $redirect_url = site_url();
-        if(isset($state['redirect']) && filter_var($state['redirect'], FILTER_VALIDATE_URL)) {
-            $redirect_url = $state['redirect'];
+        $state = $_GET['state'] ?? '';
+        if(isset($state) && filter_var($state, FILTER_VALIDATE_URL)) {
+            $redirect_url = $state;
         }
+        
+        General::auth_user($user);
 
         wp_redirect($redirect_url);
         exit;
