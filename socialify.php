@@ -8,7 +8,7 @@
  * Text Domain:  socialify
  * Domain Path:  /languages/
  * GitHub Plugin URI: https://github.com/uptimizt/socialify
- * Requires PHP: 8.1
+ * Requires PHP: 8.0
  * Version:      0.9.241208
  *
  * This program is free software; you can redistribute it and/or modify
