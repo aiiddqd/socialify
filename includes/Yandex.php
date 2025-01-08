@@ -14,6 +14,14 @@ final class Yandex
 
     public static function init()
     {
+
+        add_action('admin_init', function () {
+            if (isset($_GET['test_yandex'])) {
+                wp_send_new_user_notifications(1182);
+                var_dump(1); exit;
+            }
+        });
+
         add_action('rest_api_init', function () {
             register_rest_route('socialify/v1', 'yandex', [
                 'methods' => 'GET',
@@ -124,8 +132,14 @@ final class Yandex
 
         $user = get_user_by('email', $email);
         if (empty($user)) {
-            $username = wp_generate_uuid4();
-            $user_id = wp_create_user($username, wp_generate_password(), $email);
+            if(function_exists('wc_create_new_customer')) {
+                $user_id = wc_create_new_customer($email);
+            } else {
+                $username = wp_generate_uuid4();
+                $user_id = wp_create_user($username, wp_generate_password(), $email);
+            }
+
+            wp_send_new_user_notifications($user_id, 'admin');
 
             $user = get_user_by('id', $user_id);
 
@@ -148,8 +162,6 @@ final class Yandex
         // ];
 
         update_user_meta($user->ID, 'socialify', $meta);
-
-
 
         General::auth_user($user);
 
