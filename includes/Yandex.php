@@ -16,10 +16,9 @@ final class Yandex
     {
 
         add_action('admin_init', function () {
-            if (isset($_GET['test_yandex'])) {
-                wp_send_new_user_notifications(1182);
-                var_dump(1); exit;
-            }
+            // if (isset($_GET['test_yandex'])) {
+            //     var_dump(1); exit;
+            // }
         });
 
         add_action('rest_api_init', function () {
