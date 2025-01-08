@@ -131,10 +131,10 @@ final class Yandex
 
         $user = get_user_by('email', $email);
         if (empty($user)) {
-            if(function_exists('wc_create_new_customer')) {
-                $user_id = wc_create_new_customer($email);
+            $username = wp_generate_uuid4();
+            if (function_exists('wc_create_new_customer')) {
+                $user_id = wc_create_new_customer($email, $username);
             } else {
-                $username = wp_generate_uuid4();
                 $user_id = wp_create_user($username, wp_generate_password(), $email);
             }
 
