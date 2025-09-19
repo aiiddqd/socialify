@@ -14,17 +14,10 @@ final class Yandex
 
     public static function init()
     {
-
-        add_action('admin_init', function () {
-            // if (isset($_GET['test_yandex'])) {
-            //     var_dump(1); exit;
-            // }
-        });
-
         add_action('rest_api_init', function () {
             register_rest_route('socialify/v1', 'yandex', [
                 'methods' => 'GET',
-                'callback' => [__CLASS__, 'process'],
+                'callback' => [self::class, 'process'],
                 'permission_callback' => '__return_true'
             ]);
         });
@@ -33,8 +26,8 @@ final class Yandex
             self::$endpoint = rest_url('socialify/v1/yandex');
         });
 
-        add_action('admin_init', [__CLASS__, 'add_settings']);
-        add_action('socialify_shortcode', [__CLASS__, 'display_button']);
+        add_action('admin_init', [self::class, 'add_settings']);
+        add_action('socialify_shortcode', [self::class, 'display_button']);
 
     }
 
