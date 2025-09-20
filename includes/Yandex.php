@@ -155,7 +155,7 @@ final class Yandex
 
         update_user_meta($user->ID, 'socialify', $meta);
 
-        General::auth_user($user);
+        Plugin::auth_user($user);
 
         wp_redirect($redirect_url);
         exit;

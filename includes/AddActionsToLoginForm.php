@@ -36,7 +36,7 @@ final class AddActionsToLoginForm
           $data['login_items'] = [
             'email_standard' => [
               'url' => wp_login_url(home_url()),
-              'ico_url' => General::$plugin_dir_url . 'assets/svg/email.svg',
+              'ico_url' => Plugin::$plugin_dir_url . 'assets/svg/email.svg',
             ],
           ];
         }
@@ -79,7 +79,7 @@ final class AddActionsToLoginForm
       $callback = '',
       Settings::get_settings_group()
     );
-    register_setting(General::$settings_group, self::$option_name);
+    register_setting(Plugin::$settings_group, self::$option_name);
 
     add_settings_field(
       $setting_id = self::$option_name . '_login_page_show',
@@ -148,9 +148,9 @@ final class AddActionsToLoginForm
     self::$is_login_page = true; //hack for check login page
     wp_enqueue_style(
       'socialify-sc-style',
-      $url = General::$plugin_dir_url . 'assets/style.css',
+      $url = Plugin::$plugin_dir_url . 'assets/style.css',
       $dep = array(),
-      $ver = filemtime(General::$plugin_dir_path . '/assets/style.css')
+      $ver = filemtime(Plugin::$plugin_dir_path . '/assets/style.css')
     );
   }
 
@@ -165,9 +165,9 @@ final class AddActionsToLoginForm
     if (apply_filters('socialify_shortcode_css_enable', true)) {
       wp_enqueue_style(
         'socialify-sc-style',
-        $url = General::$plugin_dir_url . 'assets/style.css',
+        $url = Plugin::$plugin_dir_url . 'assets/style.css',
         $dep = array(),
-        $ver = filemtime(General::$plugin_dir_path . '/assets/style.css')
+        $ver = filemtime(Plugin::$plugin_dir_path . '/assets/style.css')
       );
     }
   }
