@@ -26,7 +26,10 @@ abstract class AbstractProvider
      * Get the logo URL
      */
     abstract public static function getLogoUrl() : string;
-    
+    abstract public static function getProviderKey() : string;
+    abstract public static function getProviderName() : string;
+
     abstract public static function getAuthStartUrl() : string;
+    abstract public static function is_enabled() : bool;
 }
     

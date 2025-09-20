@@ -4,15 +4,20 @@ namespace Socialify;
 
 defined('ABSPATH') || die();
 
-Yandex::init();
+add_filter('socialify_providers', function ($providers) {
+    $providers[] = Yandex::class;
+    return $providers;
+});
 
-final class Yandex
+final class Yandex extends AbstractProvider
 {
     public static $key = 'yandex';
 
     public static $endpoint;
 
-    public static function init()
+
+
+    public static function init(): void
     {
         add_action('rest_api_init', function () {
             register_rest_route('socialify/v1', 'yandex', [
@@ -31,13 +36,32 @@ final class Yandex
 
     }
 
+    public static function getAuthStartUrl(): string
+    {
+        return self::$endpoint ?? '';
+    }
+
+    public static function getLogoUrl(): string
+    {
+        // Replace with the actual logo URL if available
+        return plugins_url('assets/yandex.png', dirname(__FILE__));
+    }
+
+    public static function getProviderKey(): string
+    {
+        return self::$key;
+    }
+    public static function getProviderName(): string
+    {
+        return 'Yandex';
+    }
 
     public static function display_button($args)
     {
         if (is_user_logged_in()) {
             return;
         }
-        if (!self::is_enabled()) {
+        if (! self::is_enabled()) {
             return;
         }
 
@@ -89,7 +113,7 @@ final class Yandex
             ],
             'headers' => [
                 'Content-type' => 'application/x-www-form-urlencoded',
-                'Authorization' => 'Basic ' . base64_encode($appConfig['id'] . ':' . $appConfig['secret']),
+                'Authorization' => 'Basic '.base64_encode($appConfig['id'].':'.$appConfig['secret']),
             ],
 
         ]);
@@ -190,7 +214,7 @@ final class Yandex
 
         $response = wp_remote_get($url, [
             'headers' => [
-                'Authorization' => 'OAuth ' . $access_token,
+                'Authorization' => 'OAuth '.$access_token,
             ],
         ]);
 
@@ -229,8 +253,6 @@ final class Yandex
             Settings::$settings_group
         );
 
-        // register_setting(Settings::$settings_group, Settings::$option_key);
-
         self::add_setting_enable();
         self::add_setting_id();
         self::add_setting_secret();
@@ -239,13 +261,13 @@ final class Yandex
 
     public static function get_section_id()
     {
-        return self::$key . '_section';
+        return self::$key.'_section';
     }
 
     public static function add_setting_enable()
     {
         add_settings_field(
-            self::$key . '_enable',
+            self::$key.'_enable',
             __('Enable', 'socialify'),
             function ($args) {
                 printf(
@@ -257,7 +279,7 @@ final class Yandex
             Settings::$settings_group,
             self::get_section_id(),
             [
-                'name' => Settings::$option_key . '[yandex][enable]',
+                'name' => Settings::$option_key.'[yandex][enable]',
                 'value' => get_option(Settings::$option_key)['yandex']['enable'] ?? null,
             ]
         );
@@ -265,11 +287,11 @@ final class Yandex
 
     public static function add_setting_show_button()
     {
-        if (!self::is_enabled()) {
+        if (! self::is_enabled()) {
             return;
         }
         add_settings_field(
-            self::$key . '_show_button',
+            self::$key.'_show_button',
             __('Show button', 'socialify'),
             function ($args) {
                 printf(
@@ -281,24 +303,24 @@ final class Yandex
             Settings::$settings_group,
             self::get_section_id(),
             [
-                'name' => Settings::$option_key . '[yandex][show_button]',
+                'name' => Settings::$option_key.'[yandex][show_button]',
                 'value' => get_option(Settings::$option_key)['yandex']['show_button'] ?? null,
             ]
         );
     }
 
-    public static function is_enabled()
+    public static function is_enabled(): bool
     {
         return get_option(Settings::$option_key)['yandex']['enable'] ? true : false;
     }
 
     public static function add_setting_id()
     {
-        if (!self::is_enabled()) {
+        if (! self::is_enabled()) {
             return;
         }
         add_settings_field(
-            self::$key . '_id',
+            self::$key.'_id',
             __('Client ID', 'socialify'),
             $callback = function ($args) {
                 printf(
@@ -310,7 +332,7 @@ final class Yandex
             Settings::$settings_group,
             self::get_section_id(),
             [
-                'name' => Settings::$option_key . '[yandex][id]',
+                'name' => Settings::$option_key.'[yandex][id]',
                 'value' => get_option(Settings::$option_key)['yandex']['id'] ?? null,
             ]
         );
@@ -319,11 +341,11 @@ final class Yandex
 
     public static function add_setting_secret()
     {
-        if (!self::is_enabled()) {
+        if (! self::is_enabled()) {
             return;
         }
         add_settings_field(
-            self::$key . '_secret',
+            self::$key.'_secret',
             __('Client Secret', 'socialify'),
             $callback = function ($args) {
                 printf(
@@ -335,7 +357,7 @@ final class Yandex
             Settings::$settings_group,
             self::get_section_id(),
             [
-                'name' => Settings::$option_key . '[yandex][secret]',
+                'name' => Settings::$option_key.'[yandex][secret]',
                 'value' => get_option(Settings::$option_key)['yandex']['secret'] ?? null,
             ]
         );

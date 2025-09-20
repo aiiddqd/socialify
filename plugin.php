@@ -16,12 +16,7 @@ namespace Socialify;
 
 defined('ABSPATH') || die();
 
-require_once __DIR__ . '/vendor/autoload.php';
 
-$files = glob(__DIR__ . '/includes/*.php');
-foreach ($files as $file) {
-    require_once $file;
-}
 
 Plugin::init();
 
@@ -50,6 +45,7 @@ final class Plugin
     public static $plugin_dir_path = '';
     public static $plugin_dir_url = '';
     public static $redirect_to = '';
+    public static $providers = [];
 
     /**
      * @var string - for grouping all settings (by Settings API)
@@ -66,11 +62,41 @@ final class Plugin
         self::$plugin_dir_path = plugin_dir_path(__FILE__);
         self::$plugin_dir_url = plugin_dir_url(__FILE__);
 
-        add_action('wp', [__CLASS__, 'start_auth']);
+        require_once __DIR__.'/vendor/autoload.php';
 
-        add_action('init', [__CLASS__, 'add_endpoint']);
+        $files = glob(__DIR__.'/includes/*.php');
+        foreach ($files as $file) {
+            require_once $file;
+        }
 
-        add_filter("plugin_action_links_" . self::$plugin_basename, [__CLASS__, 'add_settings_url_to_plugins_list']);
+        add_action('wp', [self::class, 'start_auth']);
+
+        add_action('init', [self::class, 'add_endpoint']);
+        add_action('plugins_loaded', [self::class, 'load_providers']);
+
+        add_filter("plugin_action_links_".self::$plugin_basename, [self::class, 'add_settings_url_to_plugins_list']);
+    }
+
+    public static function load_providers()
+    {
+        self::$providers = apply_filters('socialify_providers', []);
+        
+
+        foreach (self::$providers as $provider) {
+
+            $provider::init();
+
+            if (is_subclass_of($provider, AbstractProvider::class)) {
+                // dd(self::$providers); exit;
+
+            }
+        }
+    }
+
+    //get providers
+    public static function get_providers()
+    {
+        return self::$providers;
     }
 
 
@@ -144,7 +170,7 @@ final class Plugin
             }
             exit;
         } catch (\Exception $e) {
-            error_log('Socialify: Oops, we ran into an issue! ' . $e->getMessage());
+            error_log('Socialify: Oops, we ran into an issue! '.$e->getMessage());
             wp_redirect(site_url());
             exit;
         }
@@ -183,7 +209,7 @@ final class Plugin
             return false;
         }
 
-        $auth_id_meta_key = 'socialify_' . $process_data['provider'] . '_id_' . $user_data->identifier;
+        $auth_id_meta_key = 'socialify_'.$process_data['provider'].'_id_'.$user_data->identifier;
         update_user_meta($user->ID, $auth_id_meta_key, $user_data->identifier);
 
         self::auth_user($user);
@@ -194,7 +220,7 @@ final class Plugin
     public static function get_connected_user($identifier = '', $provider = '')
     {
 
-        $auth_id_meta_key = 'socialify_' . $provider . '_id_' . $identifier;
+        $auth_id_meta_key = 'socialify_'.$provider.'_id_'.$identifier;
         $users = get_users(array(
             'meta_key' => $auth_id_meta_key,
             'meta_value' => $identifier,
@@ -252,7 +278,7 @@ final class Plugin
         $users_ids = get_users('fields=ID&number=3&orderby=registered&order=DESC');
         $last_id = max($users_ids);
         $new_id = $last_id + 1;
-        $user_login = 'id' . $new_id;
+        $user_login = 'id'.$new_id;
 
         return $user_login;
     }
