@@ -20,7 +20,6 @@ if (empty($items)) {
                     <img decoding="async" width="64" height="64" src="<?php echo esc_url($item['logo_url']); ?>"
                         alt="<?php echo esc_attr(ucfirst($key)); ?>" />
                 </figure>
-
                 <p>Connect with <span><?php echo esc_html($item['name']); ?></span></p>
             </div>
 
