@@ -232,9 +232,6 @@ class TelegramProvider extends AbstractProvider
 
     public static function is_enabled(): bool
     {
-        return true;
-        // Logic to determine if the Telegram provider is enabled
-        $options = get_option(Plugin::$slug.'_settings', []);
-        return ! empty($options['telegram_enabled']);
+        return get_option(Settings::$option_key)[self::getProviderKey()]['enable'] ? true : false;
     }
 }
