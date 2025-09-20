@@ -226,6 +226,11 @@ final class Yandex extends AbstractProvider
         return get_option(Settings::$option_key)['yandex'] ?? [];
     }
 
+    public static function getUrlToConnect(): string
+    {
+        return self::$endpoint ?? '';
+    }
+
     /**
      * Add settings
      */

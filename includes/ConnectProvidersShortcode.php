@@ -25,7 +25,7 @@ final class ConnectProvidersShortcode
         foreach (Plugin::get_providers() as $provider) {
             if ($provider::is_enabled()) {
                 $items[$provider::$key] = [
-                    'url' => $provider::getAuthStartUrl(),
+                    'url' => $provider::getUrlToConnect(),
                     'logo_url' => $provider::getLogoUrl(),
                     'name' => $provider::getProviderName(),
                     'key' => $provider::getProviderKey(),

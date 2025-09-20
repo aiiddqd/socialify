@@ -44,6 +44,9 @@ abstract class AbstractProvider
     abstract public static function getProviderKey(): string;
     abstract public static function getProviderName(): string;
 
+    
+    abstract public static function getUrlToConnect(): string;
+
     abstract public static function getAuthStartUrl(): string;
     abstract public static function is_enabled(): bool;
 }
