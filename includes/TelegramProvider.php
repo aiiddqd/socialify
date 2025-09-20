@@ -139,51 +139,49 @@ class TelegramProvider extends AbstractProvider
         if ($redirect_to) {
             $callbackUrl = add_query_arg('_redirect_to', $redirect_to, $callbackUrl);
         }
+    
+        $userProfile = self::authAndGetUserProfile($callbackUrl);
 
+        $user_id = get_transient('telegram_otp_'.$nonce);
+        delete_transient('telegram_otp_'.$nonce);
+        self::saveDataToUserMeta(user_id: $user_id, data: $userProfile);
+
+        $redirect_to = $_GET['_redirect_to'] ?? home_url();
+        $redirect_url = esc_url_raw($redirect_to);
+
+        wp_redirect($redirect_url);
+        exit;
+    }
+
+    public static function authAndGetUserProfile($callbackUrl)
+    {
         try {
+
             $config = [
                 'callback' => $callbackUrl,
                 'keys' => [
-                    'id' => self::get_config()['id'] ?? '', 
+                    'id' => self::get_config()['id'] ?? '',
                     'secret' => self::get_config()['secret'] ?? '',
                 ],
             ];
+
             $adapter = new \Hybridauth\Provider\Telegram($config);
 
+            //starter step with widget JS
             if (empty($_GET['hash'])) {
                 header('Content-Type: text/html; charset=utf-8');
                 $adapter->authenticate();
                 exit;
             }
 
-            /**
-             * @todo escape data
-             */
-            $userProfile = [
-                'id' => $_REQUEST['id'] ?? null,
-                'first_name' => $_REQUEST['first_name'] ?? null,
-                'last_name' => $_REQUEST['last_name'] ?? null,
-                'username' => $_REQUEST['username'] ?? null,
-                'photo_url' => $_REQUEST['photo_url'] ?? null,
-                'auth_date' => $_REQUEST['auth_date'] ?? null,
-                'hash' => $_REQUEST['hash'] ?? null,
-            ];
-
-            $user_id = get_transient('telegram_otp_'.$nonce);
-            delete_transient('telegram_otp_'.$nonce);
-            update_user_meta($user_id, 'socialify_telegram', $userProfile);
-
-            $redirect_to = $_GET['_redirect_to'] ?? home_url();
-            $redirect_url = esc_url_raw($redirect_to);
-
-            wp_redirect($redirect_url);
-            exit;
-
+            return $adapter->getUserProfile();
         } catch (Exception $e) {
             echo 'Authentication failed: '.$e->getMessage();
+            return null;
         }
 
     }
+
 
     //get meta key for provider
     public static function getProviderData($user_id): string
