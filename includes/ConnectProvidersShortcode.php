@@ -26,7 +26,7 @@ final class ConnectProvidersShortcode
             if ($provider::is_enabled()) {
                 $items[$provider::$key] = [
                     'url' => $provider::getUrlToConnect(),
-                    'logo_url' => $provider::getLogoUrl(),
+                    'logo_url' => $provider::getUrlToLogo(),
                     'name' => $provider::getProviderName(),
                     'key' => $provider::getProviderKey(),
                 ];

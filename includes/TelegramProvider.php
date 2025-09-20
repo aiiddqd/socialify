@@ -14,7 +14,6 @@ add_filter('socialify_providers', function ($providers) {
 
 class TelegramProvider extends AbstractProvider
 {
-
     public static $key = 'telegram';
 
     public static function init(): void
@@ -189,7 +188,7 @@ class TelegramProvider extends AbstractProvider
         return get_user_meta($user_id, 'socialify_telegram', true);
     }
 
-    public static function getLogoUrl(): string
+    public static function getUrlToLogo(): string
     {
         return plugins_url('assets/telegram.svg', dirname(__FILE__));
     }
@@ -211,7 +210,6 @@ class TelegramProvider extends AbstractProvider
 
     public static function getUrlToConnect(): string
     {
-
         global $wp;
         $url = rest_url('socialify/v1/telegram-connect');
         $user_id = get_current_user_id();
@@ -226,7 +224,7 @@ class TelegramProvider extends AbstractProvider
         return $url;
     }
 
-    public static function getAuthStartUrl(): string
+    public static function getUrlToAuth(): string
     {
         // Return the URL to start the authentication process with Telegram
         return self::getUrlToConnect();

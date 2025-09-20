@@ -36,12 +36,12 @@ final class Yandex extends AbstractProvider
 
     }
 
-    public static function getAuthStartUrl(): string
+    public static function getUrlToAuth(): string
     {
         return self::$endpoint ?? '';
     }
 
-    public static function getLogoUrl(): string
+    public static function getUrlToLogo(): string
     {
         // Replace with the actual logo URL if available
         return plugins_url('assets/yandex.png', dirname(__FILE__));
