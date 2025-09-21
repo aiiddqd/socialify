@@ -73,7 +73,7 @@ abstract class AbstractProvider
         return get_user_meta($user_id, 'socialify_'.static::getProviderKey(), true);
     }
 
-    public static function getUserIdByIdFromProvider($provider_user_id)
+    public static function getUserByIdFromProvider($provider_user_id)
     {
         $key = 'socialify_'.static::getProviderKey().'_id_'.$provider_user_id;
         $user_query = new \WP_User_Query(array(
@@ -85,7 +85,7 @@ abstract class AbstractProvider
             return false;
         }
 
-        return $users[0]->ID;
+        return $users[0];
     }
 
     public static function deleteDataFromUserMeta($user_id)

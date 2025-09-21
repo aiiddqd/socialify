@@ -289,12 +289,8 @@ final class Plugin
         return false;
     }
 
-    public static function auth_user($user)
+    public static function auth_user(\WP_User $user)
     {
-        if (empty($user->ID)) {
-            return false;
-        }
-
         wp_set_current_user($user->ID);
         wp_set_auth_cookie($user->ID, true);
         do_action('wp_login', $user->user_login, $user);

@@ -8,9 +8,9 @@ use Hybridauth\Exception\Exception;
 defined('ABSPATH') || die();
 
 add_filter('socialify_providers', function ($providers) {
-    $providers[] = TelegramProvider::class;
+    $providers[TelegramProvider::$key] = TelegramProvider::class;
     return $providers;
-});
+}, 33);
 
 class TelegramProvider extends AbstractProvider
 {
@@ -81,17 +81,14 @@ class TelegramProvider extends AbstractProvider
         }
         $userProfile = self::authAndGetUserProfile($callbackUrl);
 
-        $user_id = self::getUserIdByIdFromProvider($userProfile->identifier);
+        $user = self::getUserByIdFromProvider($userProfile->identifier);
 
         //auth user by id
-        if (empty($user_id)) {
+        if (empty($user)) {
             wp_die(__('Пользователь не найден. Вам нужно сначала подключить Телеграм к одному из существующих пользователей.', 'socialify'));
         }
 
-        wp_set_current_user($user_id);
-        wp_set_auth_cookie($user_id, true);
-        $user = get_user_by('id', $user_id);
-        do_action('wp_login', $user->user_login, $user);
+        Plugin::auth_user($user);
         wp_redirect($redirect_to);
         exit;
 
