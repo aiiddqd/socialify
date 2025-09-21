@@ -10,7 +10,6 @@ add_filter('socialify_providers', function ($providers) {
 
 class GoogleProvider extends AbstractProvider
 {
-
     public static function init(): void
     {
         add_action('admin_init', [self::class, 'additionalSettings']);
