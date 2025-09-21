@@ -23,7 +23,7 @@ final class AuthShortcode
 
         $items = [];
         foreach (Plugin::get_providers() as $provider) {
-            if ($provider::is_enabled()) {
+            if ($provider::isEnabled()) {
                 $items[$provider::$key] = [
                     'actionUrl' => $provider::getUrlToAuth(),
                     'logo_url' => $provider::getUrlToLogo(),

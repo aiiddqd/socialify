@@ -117,7 +117,6 @@ abstract class AbstractProvider
     abstract public static function getProviderKey(): string;
     abstract public static function getProviderName(): string;
 
-
     abstract public static function getUrlToLogo(): string;
 
     public static function redirectAfterAuth()
@@ -160,12 +159,6 @@ abstract class AbstractProvider
         wp_set_auth_cookie($user->ID, true);
         do_action('wp_login', $user->user_login, $user);
     }
-
-    /**
-     * @todo remove - deprecated
-     */
-    abstract public static function is_enabled(): bool;
-
 
     public static function add_routes()
     {

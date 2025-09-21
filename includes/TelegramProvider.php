@@ -185,24 +185,4 @@ class TelegramProvider extends AbstractProvider
         return 'Telegram';
     }
 
-    public static function getUrlToConnect(): string
-    {
-        global $wp;
-        $url = rest_url('socialify/v1/telegram-connect');
-        $user_id = get_current_user_id();
-
-        $redirect_to = $_GET['_redirect_to'] ?? home_url($wp->request);
-        $nonce = wp_create_nonce('telegram_connect');
-        set_transient('telegram_otp_'.$nonce, $user_id, 5 * MINUTE_IN_SECONDS);
-        $url = add_query_arg([
-            '_redirect_to' => $redirect_to,
-            'nonce' => $nonce
-        ], $url);
-        return $url;
-    }
-
-    public static function is_enabled(): bool
-    {
-        return get_option(Settings::$option_key)[self::getProviderKey()]['enable'] ? true : false;
-    }
 }

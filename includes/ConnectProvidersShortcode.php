@@ -35,7 +35,7 @@ final class ConnectProvidersShortcode
 
         $items = [];
         foreach (Plugin::get_providers() as $provider) {
-            if ($provider::is_enabled()) {
+            if ($provider::isEnabled()) {
                 $url = add_query_arg('nonce', $nonce, $provider::getUrlToConnect());
                 $url = add_query_arg('_redirect_to', site_url($wp->request), $url);
 

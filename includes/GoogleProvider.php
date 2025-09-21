@@ -14,7 +14,7 @@ class GoogleProvider extends AbstractProvider
     {
         add_action('admin_init', [self::class, 'additionalSettings']);
     }
-
+    
     public static function getInstructionsHtml(): void
     {
         ?>
@@ -169,10 +169,5 @@ class GoogleProvider extends AbstractProvider
     public static function getUrlToLogo(): string
     {
         return 'https://www.google.com/favicon.ico';
-    }
-
-    public static function is_enabled(): bool
-    {
-        return self::isEnabled();
     }
 }
