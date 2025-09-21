@@ -4,14 +4,20 @@
 
 
 @plugin "daisyui" {
-  themes: false;
-  include: button, input, select;
+  themes: light;
+  prefix: "socialify-";
+  root: ".socialify-auth-providers";
+  logs: true;
+  /* include: button; */
 }
 
+@source "./templates/**/*.php";
+
+
 @layer components-socialify {
-  .socialify-connect-providers {
-    @apply max-w-md mx-auto;
-  }
+  .socialify-btn {
+    @apply socialify-btn px-3! bg-white text-black border-gray-300! border-2!;
+  } 
 
 }
 
