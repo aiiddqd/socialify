@@ -112,6 +112,7 @@ abstract class AbstractProvider
      * Get the logo URL
      */
     abstract public static function actionAuth();
+    abstract public static function getInstructionsHtml(): void;
     abstract public static function actionConnect();
     abstract public static function getProviderKey(): string;
     abstract public static function getProviderName(): string;

@@ -280,7 +280,7 @@ final class YandexProvider extends AbstractProvider
         return get_option(Settings::$option_key)['yandex'] ?? [];
     }
 
-    public static function getInstructionsHtml()
+    public static function getInstructionsHtml(): void
     {
         ?>
         <p>To get Google Client ID and Secret, follow these steps:</p>

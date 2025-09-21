@@ -15,9 +15,9 @@ class GoogleProvider extends AbstractProvider
         add_action('admin_init', [self::class, 'additionalSettings']);
     }
 
-    public static function getInstructionsHtml()
+    public static function getInstructionsHtml(): void
     {
-        echo '
+        ?>
         <p>To get Google Client ID and Secret, follow these steps:</p>
         <ol>
             <li>Go to the <a href="https://console.developers.google.com/" target="_blank" rel="noopener">Google Developers Console</a>.</li>
@@ -31,7 +31,7 @@ class GoogleProvider extends AbstractProvider
             <li>Click "Create" to generate your Client ID and Secret.</li>
             <li>Copy the Client ID and Secret and paste them into the fields below.</li>
         </ol>
-        ';
+        <?php
     }
 
     public static function additionalSettings()

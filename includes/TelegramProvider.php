@@ -19,25 +19,13 @@ class TelegramProvider extends AbstractProvider
     public static function init(): void
     {
 
-        // rest route for connect telegram auth
-        // example route url http://aappss.ru/wp-json/socialify/v1/telegram-connect
-        add_action('rest_api_init', function () {
-            register_rest_route('socialify/v1', '/telegram-connect', [
-                'methods' => 'GET',
-                'callback' => [self::class, 'handleConnect'],
-                'permission_callback' => '__return_true',
-            ]);
-        });
-
-
-        add_action('admin_init', [self::class, 'addSettings']);
-
+        add_action('admin_init', [self::class, 'additionalSettings']);
 
     }
 
 
-    //handle connect
-    public static function handleConnect()
+
+    public static function actionConnect()
     {
         $callbackUrl = rest_url('socialify/v1/telegram-connect');
         $redirect_to = esc_url($_GET['_redirect_to'] ?? null);
@@ -69,11 +57,6 @@ class TelegramProvider extends AbstractProvider
         wp_redirect($redirect_url);
         exit;
     }
-
-
-    public static function actionConnect(){
-        //TBD
-    }
     public static function actionAuth()
     {
         $callbackUrl = rest_url('socialify/telegram-auth');
@@ -94,59 +77,12 @@ class TelegramProvider extends AbstractProvider
         wp_redirect($redirect_to);
         exit;
 
-        // return self::handleConnect();
     }
 
-    public static function addSettings()
-    {
-        add_settings_section(
-            id: self::get_section_id(),
-            title: self::getProviderName(),
-            callback: function () { ?>
-            <details>
-                <summary>Help</summary>
-                <ol>
-                    <li>
-                        <span><?= __('Get values: ', 'socialify') ?></span>
-                        <a href="https://core.telegram.org/bots/features#web-login" target="_blank">Instructions</a>
-                    </li>
-                    <li>Website: <code><?= site_url() ?></code></li>
-                    <li>Domain: <code><?= $_SERVER['SERVER_NAME'] ?></code></li>
-                </ol>
-            </details>
-            <?php
-            },
-            page: Settings::$settings_group
-        );
-
-        self::add_setting_fields();
-        // self::add_setting_id();
-        // self::add_setting_secret();
-
-    }
-
-    public static function add_setting_fields()
+    public static function additionalSettings()
     {
         add_settings_field(
-            id: self::$key.'_enabled',
-            title: __('Enable/Disable', 'socialify'),
-            callback: function ($args) {
-                printf(
-                    '<input type="checkbox" name="%s" value="1" %s>',
-                    $args['name'],
-                    checked(1, $args['value'], false)
-                );
-            },
-            page: Settings::$settings_group,
-            section: self::get_section_id(),
-            args: [
-                'name' => Settings::$option_key.'[telegram][enable]',
-                'value' => get_option(Settings::$option_key)['telegram']['enable'] ?? null,
-            ]
-        );
-
-        add_settings_field(
-            id: self::$key.'_id',
+            id: self::getProviderKey().'_id',
             title: __('Telegram Bot ID/Name', 'socialify'),
             callback: function ($args) {
                 printf(
@@ -156,7 +92,7 @@ class TelegramProvider extends AbstractProvider
                 );
             },
             page: Settings::$settings_group,
-            section: self::get_section_id(),
+            section: self::getSectionId(),
             args: [
                 'name' => Settings::$option_key.'[telegram][id]',
                 'value' => get_option(Settings::$option_key)['telegram']['id'] ?? null,
@@ -164,7 +100,7 @@ class TelegramProvider extends AbstractProvider
         );
 
         add_settings_field(
-            id: self::$key.'_secret',
+            id: self::getProviderKey().'_secret',
             title: __('Telegram Bot Secret', 'socialify'),
             callback: function ($args) {
                 printf(
@@ -174,21 +110,27 @@ class TelegramProvider extends AbstractProvider
                 );
             },
             page: Settings::$settings_group,
-            section: self::get_section_id(),
+            section: self::getSectionId(),
             args: [
                 'name' => Settings::$option_key.'[telegram][secret]',
                 'value' => get_option(Settings::$option_key)['telegram']['secret'] ?? null,
             ]
         );
-
-
     }
 
-    public static function get_section_id()
+    public static function getInstructionsHtml(): void
     {
-        return self::$key.'_section';
+        ?>
+        <ol>
+            <li>
+                <span><?= __('Get values: ', 'socialify') ?></span>
+                <a href="https://core.telegram.org/bots/features#web-login" target="_blank">Instructions</a>
+            </li>
+            <li>Website: <code><?= site_url() ?></code></li>
+            <li>Domain: <code><?= $_SERVER['SERVER_NAME'] ?></code></li>
+        </ol>
+        <?php
     }
-
 
     public static function authAndGetUserProfile($callbackUrl)
     {
