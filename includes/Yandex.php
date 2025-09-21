@@ -228,7 +228,7 @@ final class Yandex extends AbstractProvider
 
     public static function getUrlToConnect(): string
     {
-        return self::$endpoint ?? '';
+        return rest_url('socialify/v1/yandex');
     }
 
     /**

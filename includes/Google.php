@@ -209,4 +209,4 @@ final class Google
     }
 }
 
-Google::init();
+// Google::init();

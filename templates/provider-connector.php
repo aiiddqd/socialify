@@ -2,7 +2,7 @@
 
 defined('ABSPATH') || die();
 
-dd($items);
+dd_web($items);
 
 if (empty($items)) {
     return 'No providers are enabled';

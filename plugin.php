@@ -16,8 +16,6 @@ namespace Socialify;
 
 defined('ABSPATH') || die();
 
-
-
 Plugin::init();
 
 final class Plugin
@@ -80,11 +78,15 @@ final class Plugin
     public static function load_providers()
     {
         self::$providers = apply_filters('socialify_providers', []);
-        
+
 
         foreach (self::$providers as $provider) {
 
-            $provider::init();
+            if (is_callable($provider)) {
+                $provider();
+            } else {
+                // $provider::init();
+            }
 
             if (is_subclass_of($provider, AbstractProvider::class)) {
                 // dd(self::$providers); exit;
