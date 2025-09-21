@@ -15,10 +15,9 @@ class GoogleProvider extends AbstractProvider
         add_action('admin_init', [self::class, 'additionalSettings']);
     }
 
-    //getInstructionsHtml
-    public static function getInstructionsHtml(): string
+    public static function getInstructionsHtml()
     {
-        return '
+        echo '
         <p>To get Google Client ID and Secret, follow these steps:</p>
         <ol>
             <li>Go to the <a href="https://console.developers.google.com/" target="_blank" rel="noopener">Google Developers Console</a>.</li>
@@ -34,6 +33,7 @@ class GoogleProvider extends AbstractProvider
         </ol>
         ';
     }
+
     public static function additionalSettings()
     {
         add_settings_field(

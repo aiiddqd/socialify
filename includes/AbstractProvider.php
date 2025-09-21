@@ -52,7 +52,7 @@ abstract class AbstractProvider
                 <summary>Help</summary>
                 <?php
                     if (method_exists(static::class, 'getInstructionsHtml')) {
-                        echo static::getInstructionsHtml();
+                        static::getInstructionsHtml();
                     }
                     ?>
             </details>
@@ -91,11 +91,12 @@ abstract class AbstractProvider
     }
 
     //get option
-    public static function getOption($key){
+    public static function getOption($key)
+    {
         $options = get_option(Settings::$option_key);
         return $options[static::getProviderKey()][$key] ?? null;
     }
-    
+
     public static function isEnabled(): bool
     {
         $options = get_option(Settings::$option_key);
@@ -122,6 +123,12 @@ abstract class AbstractProvider
         }
         wp_redirect($redirect_url);
         exit;
+    }
+
+    //get nonce from url
+    public static function getNonceFromUrl(): ?string
+    {
+        return esc_attr($_GET['nonce']) ?? null;
     }
 
     public static function getUrlToConnect(): string
@@ -180,12 +187,13 @@ abstract class AbstractProvider
         return get_user_meta($user_id, 'socialify_'.static::getProviderKey(), true);
     }
 
-    public static function authenticateByProviderProfile($providerProfile){
+    public static function authenticateByProviderProfile($providerProfile)
+    {
         $user = self::getUserByIdFromProvider($providerProfile->identifier);
         if (empty($user)) {
             $user = self::tryRegisterUserByProviderProfile($providerProfile);
         }
-        if($user){
+        if ($user) {
             self::setCurrentUser($user);
             return $user;
         }
