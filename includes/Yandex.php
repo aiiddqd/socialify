@@ -94,12 +94,13 @@ final class Yandex extends AbstractProvider
             };
 
             $userProfile = $getUserData($appConfig);
+            $user =self::authenticateByProviderProfile($userProfile);
 
-            $user = get_user_by('email', $userProfile->email) ?? null;
+            //  get_user_by('email', $userProfile->email) ?? null;
 
-            self::saveDataToUserMeta($user->ID, data: $userProfile);
+            // self::saveDataToUserMeta($user->ID, data: $userProfile);
 
-            self::setCurrentUser($user);
+            // self::setCurrentUser($user);
 
             self::redirectAfterAuth();
 

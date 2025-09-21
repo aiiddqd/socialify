@@ -180,6 +180,61 @@ abstract class AbstractProvider
         return get_user_meta($user_id, 'socialify_'.static::getProviderKey(), true);
     }
 
+    public static function authenticateByProviderProfile($providerProfile){
+        $user = self::getUserByIdFromProvider($providerProfile->identifier);
+        if (empty($user)) {
+            $user = self::tryRegisterUserByProviderProfile($providerProfile);
+        }
+        if($user){
+            self::setCurrentUser($user);
+            return $user;
+        }
+
+        wp_die(__('Authentication failed.', 'socialify'));
+    }
+
+    //tryRegisterUserByProviderProfile
+    public static function tryRegisterUserByProviderProfile($providerProfile)
+    {
+        $email = $providerProfile->email ?? null;
+        if (empty($email)) {
+            wp_die(__('Email not provided by provider. Cannot register user without email.', 'socialify'));
+        }
+        if (email_exists($email)) {
+            return get_user_by('email', $email);
+        }
+
+        //check is registration allowed
+        if (get_option('users_can_register') != 1) {
+            // wp_die(__('User registration is disabled. Please contact the site administrator.', 'socialify'));
+        }
+
+
+
+        $username = sanitize_user($providerProfile->displayName ?? ($providerProfile->firstName ?? 'user'), true);
+        if (username_exists($username)) {
+            $username .= rand(1000, 9999);
+        }
+        if (empty($username)) {
+            $username = 'user'.rand(1000, 9999);
+        }
+
+        $random_password = wp_generate_password(12, false);
+        $user_id = wp_create_user($username, $random_password, $email);
+        if (is_wp_error($user_id)) {
+            wp_die($user_id->get_error_message());
+        }
+
+        //update user meta with provider data
+        self::saveDataToUserMeta($user_id, data: $providerProfile);
+
+        //send notification to user with password
+        // wp_new_user_notification($user_id, null, 'both');
+
+        return get_user_by('id', $user_id);
+
+    }
+
     public static function getUserByIdFromProvider($provider_user_id)
     {
         $key = 'socialify_'.static::getProviderKey().'_id_'.$provider_user_id;

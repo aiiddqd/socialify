@@ -100,15 +100,15 @@ class GoogleProvider extends AbstractProvider
 
         $userProfile = $adapter->getUserProfile();
 
-        $user = self::getUserByIdFromProvider($userProfile->identifier);
+        $user = self::authenticateByProviderProfile($userProfile);
 
         if (empty($user)) {
             wp_die(__('Пользователь не найден. Вам нужно сначала подключить Телеграм к одному из существующих пользователей.', 'socialify'));
         }
 
-        Plugin::auth_user($user);
-        wp_redirect($redirect_to);
-        exit;
+        // Plugin::auth_user($user);
+        self::redirectAfterAuth();
+        // exit;
     }
 
     public static function actionConnect()
