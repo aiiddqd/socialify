@@ -18,7 +18,7 @@ final class AuthShortcode
     {
         $user_id = get_current_user_id();
         if ($user_id) {
-            // return '';
+            return '';
         }
 
         $items = [];
