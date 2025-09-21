@@ -25,7 +25,6 @@ final class YandexProvider extends AbstractProvider
 
     public static function actionConnect()
     {
-        // $config = self::get_config();
 
         $config = [
             'id' => self::getOption('id'),
@@ -48,9 +47,6 @@ final class YandexProvider extends AbstractProvider
         $callbackUrl = self::getUrlToConnect();
         $callbackUrl = add_query_arg('nonce', $nonce, $callbackUrl);
 
-        // $redirect_to = esc_url($_GET['_redirect_to'] ?? home_url());
-        // $callbackUrl = add_query_arg('state', $redirect_to, $callbackUrl);
-
         if (empty($_GET['code'])) {
             self::request_code($config['id'], $callbackUrl);
         }
@@ -62,7 +58,6 @@ final class YandexProvider extends AbstractProvider
 
         $user_id = self::getUserIdByNonce($nonce);
 
-        // $redirect_url = site_url();
         $state = $_GET['state'] ?? '';
         if (isset($state) && filter_var($state, FILTER_VALIDATE_URL)) {
             $redirect_to = $state;
