@@ -72,6 +72,9 @@ class TelegramProvider extends AbstractProvider
     }
 
 
+    public static function actionConnect(){
+        //TBD
+    }
     public static function actionAuth()
     {
         $callbackUrl = rest_url('socialify/telegram-auth');

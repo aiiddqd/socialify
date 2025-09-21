@@ -44,12 +44,12 @@ abstract class AbstractProvider
      * Get the logo URL
      */
     abstract public static function actionAuth();
+    abstract public static function actionConnect();
     abstract public static function getProviderKey(): string;
     abstract public static function getProviderName(): string;
 
 
     abstract public static function getUrlToLogo(): string;
-    abstract public static function getUrlToConnect(): string;
 
     public static function redirectAfterAuth() {
         $redirect_url = site_url();
@@ -61,6 +61,11 @@ abstract class AbstractProvider
         exit;
     }
 
+    public static function getUrlToConnect(): string {
+        $url = rest_url(sprintf('socialify/%s-connect', static::getProviderKey()));
+        
+        return $url;
+    }
     public static function getUrlToAuth(): string
     {
         global $wp;
@@ -90,6 +95,14 @@ abstract class AbstractProvider
             args: [
                 'methods' => 'GET',
                 'callback' => [static::class, 'actionAuth'],
+                'permission_callback' => '__return_true',
+            ]);
+        register_rest_route(
+            route_namespace: 'socialify/',
+            route: sprintf('%s-connect', static::getProviderKey()),
+            args: [
+                'methods' => 'GET',
+                'callback' => [static::class, 'actionConnect'],
                 'permission_callback' => '__return_true',
             ]);
     }

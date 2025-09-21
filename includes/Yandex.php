@@ -14,9 +14,6 @@ final class Yandex extends AbstractProvider
     public static $key = 'yandex';
 
     public static $endpoint;
-
-
-
     public static function init(): void
     {
         add_action('rest_api_init', function () {
@@ -34,6 +31,11 @@ final class Yandex extends AbstractProvider
         add_action('admin_init', [self::class, 'add_settings']);
         add_action('socialify_shortcode', [self::class, 'display_button']);
 
+    }
+
+    public static function actionConnect(){
+
+        //TBD
     }
 
     public static function actionAuth()
@@ -334,11 +336,6 @@ final class Yandex extends AbstractProvider
         return get_option(Settings::$option_key)['yandex'] ?? [];
     }
 
-    public static function getUrlToConnect(): string
-    {
-        return rest_url('socialify/v1/yandex');
-    }
-
     /**
      * Add settings
      */
@@ -355,7 +352,8 @@ final class Yandex extends AbstractProvider
                         <span><?= __('Get values: ', 'socialify') ?></span>
                         <a href="https://oauth.yandex.ru/" target="_blank">https://oauth.yandex.ru/</a>
                     </li>
-                    <li>Callback URI: <code><?= self::$endpoint ?></code></li>
+                    <li>Callback URI for Auth: <code><?= self::getUrlToAuth() ?></code></li>
+                    <li>Callback URI for Connect: <code><?= self::getUrlToConnect() ?></code></li>
                     <li>Website: <code><?= site_url() ?></code></li>
                     <li>Domain: <code><?= $_SERVER['SERVER_NAME'] ?></code></li>
                 </ol>
@@ -432,6 +430,7 @@ final class Yandex extends AbstractProvider
         if (! self::is_enabled()) {
             return;
         }
+        
         add_settings_field(
             self::$key.'_id',
             __('Client ID', 'socialify'),
