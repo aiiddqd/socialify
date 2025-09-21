@@ -18,6 +18,8 @@ class TelegramProvider extends AbstractProvider
 
     public static function init(): void
     {
+
+
         // rest route for connect telegram auth
         // example route url http://aappss.ru/wp-json/socialify/v1/telegram-connect
         add_action('rest_api_init', function () {
@@ -34,7 +36,47 @@ class TelegramProvider extends AbstractProvider
 
     }
 
-    //add settings
+
+    //handle connect
+    public static function handleConnect()
+    {
+        $callbackUrl = rest_url('socialify/v1/telegram-connect');
+        $redirect_to = esc_url($_GET['_redirect_to'] ?? null);
+        if ($redirect_to) {
+            $callbackUrl = add_query_arg('_redirect_to', $redirect_to, $callbackUrl);
+        }
+        $nonce = $_GET['nonce'] ?? '';
+        $callbackUrl = add_query_arg('nonce', $nonce, $callbackUrl);
+
+        if(empty($nonce)) {
+            wp_die(__('Invalid or expired nonce.', 'socialify'));
+        }
+
+        $userProfile = self::authAndGetUserProfile($callbackUrl);
+
+        $user_id = get_transient('telegram_otp_'.$nonce);
+        delete_transient('telegram_otp_'.$nonce);
+
+        if(empty($user_id)) {
+            wp_die(__('Invalid or expired nonce.', 'socialify'));
+        }
+        // dd($user_id); exit;
+
+        self::saveDataToUserMeta($user_id, data: $userProfile);
+
+        $redirect_to = $_GET['_redirect_to'] ?? home_url();
+        $redirect_url = esc_url_raw($redirect_to);
+
+        wp_redirect($redirect_url);
+        exit;
+    }
+
+
+    public static function actionAuth()
+    {
+        return self::handleConnect();
+    }
+
     public static function addSettings()
     {
         add_settings_section(
@@ -128,30 +170,6 @@ class TelegramProvider extends AbstractProvider
     }
 
 
-    //handle connect
-    public static function handleConnect()
-    {
-        $callbackUrl = rest_url('socialify/v1/telegram-connect');
-        $nonce = $_GET['nonce'] ?? '';
-        $callbackUrl = add_query_arg('nonce', $nonce, $callbackUrl);
-        $redirect_to = $_GET['_redirect_to'] ?? null;
-        if ($redirect_to) {
-            $callbackUrl = add_query_arg('_redirect_to', $redirect_to, $callbackUrl);
-        }
-    
-        $userProfile = self::authAndGetUserProfile($callbackUrl);
-
-        $user_id = get_transient('telegram_otp_'.$nonce);
-        delete_transient('telegram_otp_'.$nonce);
-        self::saveDataToUserMeta(user_id: $user_id, data: $userProfile);
-
-        $redirect_to = $_GET['_redirect_to'] ?? home_url();
-        $redirect_url = esc_url_raw($redirect_to);
-
-        wp_redirect($redirect_url);
-        exit;
-    }
-
     public static function authAndGetUserProfile($callbackUrl)
     {
         try {
@@ -164,28 +182,25 @@ class TelegramProvider extends AbstractProvider
                 ],
             ];
 
+
             $adapter = new \Hybridauth\Provider\Telegram($config);
 
             //starter step with widget JS
             if (empty($_GET['hash'])) {
                 header('Content-Type: text/html; charset=utf-8');
-                $adapter->authenticate();
-                exit;
+                // exit;
             }
+            $adapter->authenticate();
 
-            return $adapter->getUserProfile();
+
+            $userProfile = $adapter->getUserProfile();
+            
+            return $userProfile;
         } catch (Exception $e) {
             echo 'Authentication failed: '.$e->getMessage();
             return null;
         }
 
-    }
-
-
-    //get meta key for provider
-    public static function getProviderData($user_id): string
-    {
-        return get_user_meta($user_id, 'socialify_telegram', true);
     }
 
     public static function getUrlToLogo(): string

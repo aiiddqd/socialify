@@ -36,6 +36,11 @@ final class Yandex extends AbstractProvider
 
     }
 
+    public static function actionAuth()
+    {
+        return self::getUrlToAuth();
+    }
+
     public static function getUrlToAuth(): string
     {
         return self::$endpoint ?? '';

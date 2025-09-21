@@ -67,6 +67,8 @@ final class Plugin
             require_once $file;
         }
 
+        // self::load_providers();
+
         add_action('wp', [self::class, 'start_auth']);
 
         add_action('init', [self::class, 'add_endpoint']);
@@ -80,12 +82,14 @@ final class Plugin
         self::$providers = apply_filters('socialify_providers', []);
 
 
+        // dd(self::$providers); exit;
         foreach (self::$providers as $provider) {
 
+            
             if (is_callable($provider)) {
                 $provider();
             } else {
-                // $provider::init();
+                $provider::init();
             }
 
             if (is_subclass_of($provider, AbstractProvider::class)) {
@@ -277,12 +281,12 @@ final class Plugin
 
     public static function generate_new_userlogin()
     {
-        $users_ids = get_users('fields=ID&number=3&orderby=registered&order=DESC');
-        $last_id = max($users_ids);
-        $new_id = $last_id + 1;
-        $user_login = 'id'.$new_id;
+        // $users_ids = get_users('fields=ID&number=3&orderby=registered&order=DESC');
+        // $last_id = max($users_ids);
+        // $new_id = $last_id + 1;
+        // $user_login = 'id'.$new_id;
 
-        return $user_login;
+        return false;
     }
 
     public static function auth_user($user)

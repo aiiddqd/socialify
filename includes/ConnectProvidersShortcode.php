@@ -21,6 +21,8 @@ final class ConnectProvidersShortcode
             return __('You must be logged in to connect providers.', 'socialify');
         }
 
+        dd_web(get_user_meta($user_id));
+
         $items = [];
         foreach (Plugin::get_providers() as $provider) {
             if ($provider::is_enabled()) {
@@ -29,6 +31,7 @@ final class ConnectProvidersShortcode
                     'logo_url' => $provider::getUrlToLogo(),
                     'name' => $provider::getProviderName(),
                     'key' => $provider::getProviderKey(),
+                    'meta' => $provider::getProviderDataFromUserMeta($user_id),
                 ];
             }
         }
