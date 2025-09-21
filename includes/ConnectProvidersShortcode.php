@@ -1,0 +1,58 @@
+<?php 
+
+namespace Socialify;
+
+defined('ABSPATH') || die();
+
+ConnectProvidersShortcode::init();
+
+final class ConnectProvidersShortcode
+{
+
+    //init
+    public static function init()
+    {
+        add_shortcode('socialify_connect_providers', [self::class, 'render']);
+
+        add_action('woocommerce_account_dashboard', [self::class, 'add_to_my_account_page_for_woocommerce'], 33);
+    }
+
+    //add shortcode to my account page woo
+    public static function add_to_my_account_page_for_woocommerce()
+    {
+        
+        echo do_shortcode('[socialify_connect_providers]');
+    }
+
+    public static function render($args)
+    {
+        $user_id = get_current_user_id();
+        if (!$user_id) {
+            return __('You must be logged in to connect providers.', 'socialify');
+        }
+
+        $items = [];
+        foreach (Plugin::get_providers() as $provider) {
+            if ($provider::is_enabled()) {
+                $meta = $provider::getProviderDataFromUserMeta($user_id);
+                $isConnected = !empty($meta);
+                $items[$provider::$key] = [
+                    'url' => $provider::getUrlToConnect(),
+                    'logo_url' => $provider::getUrlToLogo(),
+                    'name' => $provider::getProviderName(),
+                    'key' => $provider::getProviderKey(),
+                    'meta' => $provider::getProviderDataFromUserMeta($user_id),
+                    'is_connected' => $isConnected,
+                ];
+            }
+        }
+
+        if (empty($items)) {
+            return '';
+        }
+
+        ob_start();
+        include __DIR__.'/../templates/provider-connector.php';
+        return ob_get_clean();
+    }
+}

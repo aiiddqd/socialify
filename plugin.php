@@ -2,40 +2,23 @@
 /**
  * Plugin Name:  Socialify
  * Description:  Social Login for WordPress based the OAuth2 and HybridAuth
- * Plugin URI:   https://github.com/uptimizt/socialify
- * Author:       uptimizt
- * Author URI:   https://github.com/uptimizt
+ * Plugin URI:   https://github.com/aiiddqd/socialify
+ * Author:       aiiddqd
+ * Author URI:   https://github.com/aiiddqd
  * Text Domain:  socialify
  * Domain Path:  /languages/
- * GitHub Plugin URI: https://github.com/uptimizt/socialify
+ * GitHub Plugin URI: https://github.com/aiiddqd/socialify
  * Requires PHP: 8.0
- * Version:      0.9.241204
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * Version:      0.9.250911
  */
 
 namespace Socialify;
 
 defined('ABSPATH') || die();
 
-require_once __DIR__ . '/vendor/autoload.php';
+Plugin::init();
 
-$files = glob(__DIR__ . '/includes/*.php');
-foreach ($files as $file) {
-    require_once $file;
-}
-
-General::init();
-
-final class General
+final class Plugin
 {
     /**
      * Name of product
@@ -60,6 +43,7 @@ final class General
     public static $plugin_dir_path = '';
     public static $plugin_dir_url = '';
     public static $redirect_to = '';
+    public static $providers = [];
 
     /**
      * @var string - for grouping all settings (by Settings API)
@@ -76,11 +60,49 @@ final class General
         self::$plugin_dir_path = plugin_dir_path(__FILE__);
         self::$plugin_dir_url = plugin_dir_url(__FILE__);
 
-        add_action('wp', [__CLASS__, 'start_auth']);
+        require_once __DIR__.'/vendor/autoload.php';
 
-        add_action('init', [__CLASS__, 'add_endpoint']);
+        $files = glob(__DIR__.'/includes/*.php');
+        foreach ($files as $file) {
+            require_once $file;
+        }
 
-        add_filter("plugin_action_links_" . self::$plugin_basename, [__CLASS__, 'add_settings_url_to_plugins_list']);
+        // self::load_providers();
+
+        add_action('wp', [self::class, 'start_auth']);
+
+        add_action('init', [self::class, 'add_endpoint']);
+        add_action('plugins_loaded', [self::class, 'load_providers']);
+
+        add_filter("plugin_action_links_".self::$plugin_basename, [self::class, 'add_settings_url_to_plugins_list']);
+
+        add_action('wp_enqueue_scripts', [self::class, 'enqueue_styles']);
+    }
+
+    //enque styles
+    public static function enqueue_styles()
+    {
+        $path = 'assets/build.css';
+        $file_mtime = filemtime(self::$plugin_dir_path.$path);
+        $file_url = self::$plugin_dir_url.$path;
+        wp_enqueue_style('socialify-styles', $file_url, [], $file_mtime);
+    }
+
+    public static function load_providers()
+    {
+        self::$providers = apply_filters('socialify_providers', []);
+
+        foreach (self::$providers as $provider) {
+            if (is_a($provider, AbstractProvider::class, true)) {
+                $provider::load();
+            }
+        }
+    }
+
+    //get providers
+    public static function get_providers()
+    {
+        return self::$providers;
     }
 
 
@@ -154,7 +176,7 @@ final class General
             }
             exit;
         } catch (\Exception $e) {
-            error_log('Socialify: Oops, we ran into an issue! ' . $e->getMessage());
+            error_log('Socialify: Oops, we ran into an issue! '.$e->getMessage());
             wp_redirect(site_url());
             exit;
         }
@@ -193,7 +215,7 @@ final class General
             return false;
         }
 
-        $auth_id_meta_key = 'socialify_' . $process_data['provider'] . '_id_' . $user_data->identifier;
+        $auth_id_meta_key = 'socialify_'.$process_data['provider'].'_id_'.$user_data->identifier;
         update_user_meta($user->ID, $auth_id_meta_key, $user_data->identifier);
 
         self::auth_user($user);
@@ -204,7 +226,7 @@ final class General
     public static function get_connected_user($identifier = '', $provider = '')
     {
 
-        $auth_id_meta_key = 'socialify_' . $provider . '_id_' . $identifier;
+        $auth_id_meta_key = 'socialify_'.$provider.'_id_'.$identifier;
         $users = get_users(array(
             'meta_key' => $auth_id_meta_key,
             'meta_value' => $identifier,
@@ -259,20 +281,16 @@ final class General
 
     public static function generate_new_userlogin()
     {
-        $users_ids = get_users('fields=ID&number=3&orderby=registered&order=DESC');
-        $last_id = max($users_ids);
-        $new_id = $last_id + 1;
-        $user_login = 'id' . $new_id;
+        // $users_ids = get_users('fields=ID&number=3&orderby=registered&order=DESC');
+        // $last_id = max($users_ids);
+        // $new_id = $last_id + 1;
+        // $user_login = 'id'.$new_id;
 
-        return $user_login;
+        return false;
     }
 
-    public static function auth_user($user)
+    public static function auth_user(\WP_User $user)
     {
-        if (empty($user->ID)) {
-            return false;
-        }
-
         wp_set_current_user($user->ID);
         wp_set_auth_cookie($user->ID, true);
         do_action('wp_login', $user->user_login, $user);

@@ -1,0 +1,35 @@
+@layer components-socialify;
+@import "tailwindcss/theme.css" layer(components-socialify);
+/* @import "tailwindcss/utilities.css" layer(components-socialify); */
+
+
+@plugin "daisyui" {
+  themes: light;
+  prefix: "socialify-";
+  root: ".socialify-auth-providers";
+  logs: true;
+  /* include: button; */
+}
+
+@source "./templates/**/*.php";
+
+
+@layer components-socialify {
+  .socialify-btn {
+    @apply socialify-btn px-3! bg-white text-black border-gray-300! border-2!;
+  }
+
+  .socialify-connect-providers {
+    @apply bg-white border-base-300 rounded-box max-w-2xl border p-4!;
+  }
+  .socialify-fieldset-legend{
+    @apply socialify-fieldset-legend;
+  }
+
+  .socialify-card {
+    @apply socialify-card flex-row justify-between my-5!;
+  }
+
+}
+
+/* Optional: Add your custom styles using @apply for DaisyUI components */

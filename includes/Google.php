@@ -110,7 +110,7 @@ final class Google
 
         $data['login_items']['google'] = [
             'url' => self::$endpoint,
-            'ico_url' => General::$plugin_dir_url . 'assets/svg/google.svg',
+            'ico_url' => Plugin::$plugin_dir_url . 'assets/svg/google.svg',
         ];
 
         return $data;
@@ -162,7 +162,7 @@ final class Google
     public static function add_setting_id()
     {
         $setting_title = self::$data['setting_title_id'];
-        $setting_id = General::$slug . '_google_id';
+        $setting_id = Plugin::$slug . '_google_id';
         add_settings_field(
             $setting_id,
             $setting_title,
@@ -209,4 +209,4 @@ final class Google
     }
 }
 
-Google::init();
+// Google::init();
