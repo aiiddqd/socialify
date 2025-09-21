@@ -42,6 +42,17 @@ abstract class AbstractProvider
 
     }
 
+    //get user id by otp nonce
+    public static function getUserIdByNonce($nonce): ?int
+    {
+        $user_id = get_transient("socialify_connect_providers_nonce_$nonce");
+        // delete_transient("socialify_connect_providers_nonce_$nonce");
+        if ($user_id) {
+            return (int) $user_id;
+        }
+        return null;
+    }
+
     public static function add_settings()
     {
         add_settings_section(

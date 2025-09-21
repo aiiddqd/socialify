@@ -25,105 +25,55 @@ final class YandexProvider extends AbstractProvider
 
     public static function actionConnect()
     {
-        $appConfig = self::get_config();
+        // $config = self::get_config();
+
+        $config = [
+            'id' => self::getOption('id'),
+            'secret' => self::getOption('secret'),
+        ];
+
+        if (! self::isEnabled()) {
+            wp_die('Yandex provider is not enabled');
+        }
+
+        if (empty($config['id']) || empty($config['secret'])) {
+            wp_die('No config - you need to set Client ID and Secret in plugin settings');
+        }
 
         $nonce = self::getNonceFromUrl();
         if (empty($nonce)) {
             wp_die('Invalid nonce');
         }
 
-        dd($appConfig);
-        exit;
+        $callbackUrl = self::getUrlToConnect();
+        $callbackUrl = add_query_arg('nonce', $nonce, $callbackUrl);
 
-        if (empty($appConfig['id']) || empty($appConfig['secret'])) {
-            return new \WP_Error('no_config', 'No config');
-        }
+        // $redirect_to = esc_url($_GET['_redirect_to'] ?? home_url());
+        // $callbackUrl = add_query_arg('state', $redirect_to, $callbackUrl);
 
         if (empty($_GET['code'])) {
-            self::request_code($appConfig['id']);
+            self::request_code($config['id'], $callbackUrl);
         }
 
-        $code = sanitize_text_field($_GET['code']);
-
-        $url = 'https://oauth.yandex.ru/token';
-
-        $response = wp_remote_request($url, [
-            'method' => 'POST',
-            'body' => [
-                'code' => $code,
-                'grant_type' => 'authorization_code',
-            ],
-            'headers' => [
-                'Content-type' => 'application/x-www-form-urlencoded',
-                'Authorization' => 'Basic '.base64_encode($appConfig['id'].':'.$appConfig['secret']),
-            ],
-
-        ]);
-
-        if (is_wp_error($response)) {
-            return $response;
+        $userProfile = self::getUserProfile();
+        if (empty($userProfile)) {
+            wp_die('Failed to get user profile from Yandex');
         }
-        $redirect_url = site_url();
+
+        $user_id = self::getUserIdByNonce($nonce);
+
+        // $redirect_url = site_url();
         $state = $_GET['state'] ?? '';
         if (isset($state) && filter_var($state, FILTER_VALIDATE_URL)) {
-            $redirect_url = $state;
+            $redirect_to = $state;
         }
 
-        $token_data = json_decode(wp_remote_retrieve_body($response), true);
-
-        $access_token = $token_data['access_token'] ?? null;
-        $refresh_token = $token_data['refresh_token'] ?? null;
-        $expires_in = $token_data['expires_in'] ?? null;
-
-        if (empty($access_token)) {
-            wp_redirect($redirect_url);
-            exit;
-            // return new \WP_Error('no_access_token', 'No access token');
+        if (empty($user_id)) {
+            wp_die('Invalid or expired nonce');
         }
 
-        $userData = self::get_user_data($access_token);
-
-        $email = $userData['default_email'] ?? null;
-        if (empty($email)) {
-            return new \WP_Error('no_email', 'No email');
-        }
-
-        $user = get_user_by('email', $email);
-        if (empty($user)) {
-            $username = wp_generate_uuid4();
-            if (function_exists('wc_create_new_customer')) {
-                $user_id = wc_create_new_customer($email, $username);
-            } else {
-                $user_id = wp_create_user($username, wp_generate_password(), $email);
-            }
-
-            wp_send_new_user_notifications($user_id, 'admin');
-
-            $user = get_user_by('id', $user_id);
-
-            wp_update_user([
-                'ID' => $user_id,
-                'display_name' => $userData['display_name'] ?? $user->display_name,
-                'first_name' => $userData['first_name'] ?? $user->first_name,
-                'last_name' => $userData['last_name'] ?? $user->last_name,
-            ]);
-        }
-
-        $meta = get_user_meta($user->ID, 'socialify', true);
-        if ($meta) {
-            $meta = [];
-        }
-        // $meta['yandex'] = [
-        //     'access_token' => $access_token,
-        //     'refresh_token' => $refresh_token,
-        //     'expires_in' => $expires_in,
-        // ];
-
-        update_user_meta($user->ID, 'socialify', $meta);
-
-        Plugin::auth_user($user);
-
-        wp_redirect($redirect_url);
+        self::saveDataToUserMeta($user_id, data: $userProfile);
+        wp_redirect($redirect_to);
         exit;
     }
 
@@ -194,6 +144,52 @@ final class YandexProvider extends AbstractProvider
         }
     }
 
+    // get user profile
+    public static function getUserProfile()
+    {
+        $code = sanitize_text_field($_GET['code']);
+
+        $url = 'https://oauth.yandex.ru/token';
+
+        $response = wp_remote_request($url, [
+            'method' => 'POST',
+            'body' => [
+                'code' => $code,
+                'grant_type' => 'authorization_code',
+            ],
+            'headers' => [
+                'Content-type' => 'application/x-www-form-urlencoded',
+                'Authorization' => 'Basic '.base64_encode(self::getOption('id').':'.self::getOption('secret')),
+            ],
+
+        ]);
+
+        $token_data = json_decode(wp_remote_retrieve_body($response), true);
+
+        $access_token = $token_data['access_token'] ?? null;
+        if (empty($access_token)) {
+            self::redirectAfterAuth();
+        }
+
+        $userData = self::get_user_data($access_token);
+        if ($userData) {
+            // return $userData;
+            $userProfile = new \Hybridauth\User\Profile();
+
+            $userProfile->email = $userData['default_email'];
+            $userProfile->identifier = $userData['id'];
+            $userProfile->firstName = $userData['first_name'] ?? null;
+            $userProfile->lastName = $userData['last_name'] ?? null;
+            $userProfile->displayName = $userData['display_name'] ?? null;
+            $userProfile->gender = $userData['sex'] ?? null;
+
+            return $userProfile;
+        }
+
+        return null;
+
+    }
+
     public static function authAndGetUserProfile($callbackUrl)
     {
         try {
@@ -249,7 +245,7 @@ final class YandexProvider extends AbstractProvider
     {
         $url = 'https://oauth.yandex.ru/authorize';
 
-        $state = $_GET['redirect'] ?? '';
+        $state = $_GET['_redirect_to'] ?? '';
 
         $args = [
             'response_type' => 'code',
@@ -306,13 +302,8 @@ final class YandexProvider extends AbstractProvider
         <?php
     }
 
-    /**
-     * Add settings
-     */
     public static function additionalSettings()
     {
-
-
         add_settings_field(
             self::$key.'_id',
             __('Client ID', 'socialify'),

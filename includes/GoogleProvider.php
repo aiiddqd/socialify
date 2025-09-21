@@ -144,8 +144,8 @@ class GoogleProvider extends AbstractProvider
 
         $nonce = sanitize_text_field($_GET['nonce']) ?? '';
         // $nonce = $scope;
-        $user_id = get_transient('socialify_connect_providers_nonce_'.$nonce);
-        delete_transient('socialify_connect_providers_nonce_'.$nonce);
+        $user_id = self::getUserIdByNonce($nonce);
+        // delete_transient('socialify_connect_providers_nonce_'.$nonce);
 
         if (empty($user_id)) {
             wp_die('Invalid or expired nonce');

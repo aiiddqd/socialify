@@ -24,6 +24,7 @@ final class ConnectProvidersShortcode
 
     public static function render($args)
     {
+        global $wp;
         $user_id = get_current_user_id();
         if (!$user_id) {
             return __('You must be logged in to connect providers.', 'socialify');
@@ -35,10 +36,13 @@ final class ConnectProvidersShortcode
         $items = [];
         foreach (Plugin::get_providers() as $provider) {
             if ($provider::is_enabled()) {
+                $url = add_query_arg('nonce', $nonce, $provider::getUrlToConnect());
+                $url = add_query_arg('_redirect_to', site_url($wp->request), $url);
+
                 $meta = $provider::getProviderDataFromUserMeta($user_id);
                 $isConnected = !empty($meta);
                 $items[$provider::$key] = [
-                    'url' => add_query_arg('nonce', $nonce, $provider::getUrlToConnect()),
+                    'url' => $url,
                     'logo_url' => $provider::getUrlToLogo(),
                     'name' => $provider::getProviderName(),
                     'key' => $provider::getProviderKey(),
