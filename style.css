@@ -17,7 +17,18 @@
 @layer components-socialify {
   .socialify-btn {
     @apply socialify-btn px-3! bg-white text-black border-gray-300! border-2!;
-  } 
+  }
+
+  .socialify-connect-providers {
+    @apply bg-white border-base-300 rounded-box max-w-2xl border p-4!;
+  }
+  .socialify-fieldset-legend{
+    @apply socialify-fieldset-legend;
+  }
+
+  .socialify-card {
+    @apply socialify-card flex-row justify-between my-5!;
+  }
 
 }
 
