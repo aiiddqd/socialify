@@ -9,9 +9,8 @@
 }
 
 @layer components-socialify {
-  .my-custom-button {
-    @apply btn btn-primary px-6 py-3 rounded-lg;
-    /* Applies DaisyUI btn component styles */
+  .socialify-connect-providers {
+    @apply max-w-md mx-auto;
   }
 
 }

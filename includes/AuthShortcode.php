@@ -4,45 +4,43 @@ namespace Socialify;
 
 defined('ABSPATH') || die();
 
-ConnectProvidersShortcode::init();
+AuthShortcode::init();
 
-final class ConnectProvidersShortcode
+final class AuthShortcode
 {
 
     //init
     public static function init()
     {
-        add_shortcode('socialify_connect_providers', [self::class, 'render']);
+        add_shortcode('socialify_auth', [self::class, 'render']);
     }
     public static function render($args)
     {
         $user_id = get_current_user_id();
-        if (!$user_id) {
-            return __('You must be logged in to connect providers.', 'socialify');
+        if ($user_id) {
+            // return '';
         }
 
         $items = [];
         foreach (Plugin::get_providers() as $provider) {
             if ($provider::is_enabled()) {
-                $meta = $provider::getProviderDataFromUserMeta($user_id);
-                $isConnected = !empty($meta);
                 $items[$provider::$key] = [
-                    'url' => $provider::getUrlToConnect(),
+                    'actionUrl' => $provider::getUrlToAuth(),
                     'logo_url' => $provider::getUrlToLogo(),
                     'name' => $provider::getProviderName(),
                     'key' => $provider::getProviderKey(),
-                    'meta' => $provider::getProviderDataFromUserMeta($user_id),
-                    'is_connected' => $isConnected,
                 ];
             }
         }
+
+        $items = apply_filters('socialify_auth_items', $items);
 
         if (empty($items)) {
             return '';
         }
 
         ob_start();
-        include __DIR__.'/../templates/provider-connector.php';
+        include __DIR__.'/../templates/auth-actions.php';
         return ob_get_clean();
     }
 }

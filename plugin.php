@@ -75,6 +75,17 @@ final class Plugin
         add_action('plugins_loaded', [self::class, 'load_providers']);
 
         add_filter("plugin_action_links_".self::$plugin_basename, [self::class, 'add_settings_url_to_plugins_list']);
+
+        add_action('wp_enqueue_scripts', [self::class, 'enqueue_styles']);
+    }
+
+    //enque styles
+    public static function enqueue_styles()
+    {
+        $path = 'assets/build.css';
+        $file_mtime = filemtime(self::$plugin_dir_path.$path);
+        $file_url = self::$plugin_dir_url.$path;
+        wp_enqueue_style('socialify-styles', $file_url, [], $file_mtime);
     }
 
     public static function load_providers()
@@ -85,7 +96,7 @@ final class Plugin
         // dd(self::$providers); exit;
         foreach (self::$providers as $provider) {
 
-            
+
             if (is_callable($provider)) {
                 $provider();
             } else {

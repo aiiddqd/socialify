@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "css:watch": "npx @tailwindcss/cli -i assets/style.css -o assets/build.css --watch",
-    "css:build": "npx @tailwindcss/cli -i assets/style.css -o assets/build.css --minify"
+    "css:watch": "npx @tailwindcss/cli -i style.css -o assets/build.css --watch",
+    "css:build": "npx @tailwindcss/cli -i style.css -o assets/build.css --minify"
   },
   "dependencies": {
     "daisyui": "^5.1.13",
