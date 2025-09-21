@@ -257,19 +257,6 @@ class TelegramProvider extends AbstractProvider
         return $url;
     }
 
-    public static function getUrlToAuth(): string
-    {
-        global $wp;
-        $url = rest_url('socialify/telegram-auth');
-        $user_id = get_current_user_id();
-
-        $redirect_to = $_GET['_redirect_to'] ?? home_url($wp->request);
-        $url = add_query_arg([
-            '_redirect_to' => $redirect_to,
-        ], $url);
-        return $url;
-    }
-
     public static function is_enabled(): bool
     {
         return get_option(Settings::$option_key)[self::getProviderKey()]['enable'] ? true : false;

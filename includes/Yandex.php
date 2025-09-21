@@ -38,12 +38,108 @@ final class Yandex extends AbstractProvider
 
     public static function actionAuth()
     {
-        return self::getUrlToAuth();
+
+        try {
+            if (! self::is_enabled()) {
+                throw new \Exception('Yandex not enabled');
+            }
+
+            $appConfig = self::get_config();
+
+            if (empty($_GET['code'])) {
+                self::request_code($appConfig['id'], self::getUrlToAuth());
+            }
+
+            $getUserData = function ($appConfig) {
+                $code = sanitize_text_field($_GET['code']);
+
+                $url = 'https://oauth.yandex.ru/token';
+
+                $response = wp_remote_request($url, [
+                    'method' => 'POST',
+                    'body' => [
+                        'code' => $code,
+                        'grant_type' => 'authorization_code',
+                    ],
+                    'headers' => [
+                        'Content-type' => 'application/x-www-form-urlencoded',
+                        'Authorization' => 'Basic '.base64_encode($appConfig['id'].':'.$appConfig['secret']),
+                    ],
+
+                ]);
+
+                $token_data = json_decode(wp_remote_retrieve_body($response), true);
+
+                $access_token = $token_data['access_token'] ?? null;
+
+                $userData = self::get_user_data($access_token);
+                if ($userData) {
+                    // return $userData;
+                    $userProfile = new \Hybridauth\User\Profile();
+
+                    $userProfile->email = $userData['default_email'];
+                    $userProfile->identifier = $userData['id'];
+                    $userProfile->firstName = $userData['first_name'] ?? null;
+                    $userProfile->lastName = $userData['last_name'] ?? null;
+                    $userProfile->displayName = $userData['display_name'] ?? null;
+                    $userProfile->gender = $userData['sex'] ?? null;
+
+                    return $userProfile;
+
+                }
+
+                return null;
+
+            };
+
+            $userProfile = $getUserData($appConfig);
+
+            $user = get_user_by('email', $userProfile->email) ?? null;
+
+            self::saveDataToUserMeta($user->ID, data: $userProfile);
+
+            self::setCurrentUser($user);
+
+            self::redirectAfterAuth();
+
+            dd($userProfile);
+
+        } catch (\Exception $e) {
+            wp_die($e->getMessage());
+        }
     }
 
-    public static function getUrlToAuth(): string
+    public static function authAndGetUserProfile($callbackUrl)
     {
-        return self::$endpoint ?? '';
+        try {
+
+            $config = [
+                'callback' => $callbackUrl,
+                'keys' => [
+                    'id' => self::get_config()['id'] ?? '',
+                    'secret' => self::get_config()['secret'] ?? '',
+                ],
+            ];
+
+
+            $adapter = new \Hybridauth\Provider\Telegram($config);
+
+            //starter step with widget JS
+            if (empty($_GET['hash'])) {
+                header('Content-Type: text/html; charset=utf-8');
+                // exit;
+            }
+            $adapter->authenticate();
+
+
+            $userProfile = $adapter->getUserProfile();
+
+            return $userProfile;
+        } catch (\Exception $e) {
+            echo 'Authentication failed: '.$e->getMessage();
+            return null;
+        }
+
     }
 
     public static function getUrlToLogo(): string
@@ -193,17 +289,27 @@ final class Yandex extends AbstractProvider
     /**
      * @link https://yandex.ru/dev/id/doc/ru/codes/code-url
      */
-    public static function request_code($client_id)
+    public static function request_code($client_id, $callbackUrl = null)
     {
         $url = 'https://oauth.yandex.ru/authorize';
 
         $state = $_GET['redirect'] ?? '';
 
-        $url = add_query_arg([
+        $args = [
             'response_type' => 'code',
             'state' => urlencode($state),
             'client_id' => $client_id,
-        ], $url);
+        ];
+
+        if ($callbackUrl) {
+            $args['redirect_uri'] = $callbackUrl;
+        }
+
+
+
+
+
+        $url = add_query_arg($args, $url);
 
         wp_redirect($url);
         exit;

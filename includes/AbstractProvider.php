@@ -51,7 +51,34 @@ abstract class AbstractProvider
     abstract public static function getUrlToLogo(): string;
     abstract public static function getUrlToConnect(): string;
 
-    abstract public static function getUrlToAuth(): string;
+    public static function redirectAfterAuth() {
+        $redirect_url = site_url();
+        $redirect_to = $_GET['_redirect_to'] ?? '';
+        if (isset($redirect_to) && filter_var($redirect_to, FILTER_VALIDATE_URL)) {
+            $redirect_url = $redirect_to;
+        }
+        wp_redirect($redirect_url);
+        exit;
+    }
+
+    public static function getUrlToAuth(): string
+    {
+        global $wp;
+        $redirect_to = esc_url($_GET['_redirect_to'] ?? home_url($wp->request));
+        $url = rest_url(sprintf('socialify/%s-auth', static::getProviderKey()));
+        $url = add_query_arg([
+            '_redirect_to' => $redirect_to,
+        ], $url);
+        return $url;
+    }
+
+    public static function setCurrentUser( \WP_User $user)
+    {
+        wp_set_current_user($user->ID);
+        wp_set_auth_cookie($user->ID, true);
+        do_action('wp_login', $user->user_login, $user);
+    }
+
     abstract public static function is_enabled(): bool;
 
 
