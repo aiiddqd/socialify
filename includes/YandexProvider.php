@@ -207,7 +207,6 @@ final class YandexProvider extends AbstractProvider
             }
             $adapter->authenticate();
 
-
             $userProfile = $adapter->getUserProfile();
 
             return $userProfile;
