@@ -29,7 +29,6 @@ final class Yandex extends AbstractProvider
         });
 
         add_action('admin_init', [self::class, 'add_settings']);
-        add_action('socialify_shortcode', [self::class, 'display_button']);
 
     }
 
@@ -153,37 +152,7 @@ final class Yandex extends AbstractProvider
         return 'Yandex';
     }
 
-    public static function display_button($args)
-    {
-        if (is_user_logged_in()) {
-            return;
-        }
-        if (! self::is_enabled()) {
-            return;
-        }
-
-        if (empty(get_option(Settings::$option_key)['yandex']['show_button'])) {
-            return;
-        }
-
-        $url = self::$endpoint;
-        if (isset($args['redirect'])) {
-            $url = add_query_arg('redirect', urlencode($args['redirect']), $url);
-        }
-
-        ?>
-        <a class="wp-block-button__link wp-element-button" href="<?= $url ?>">Войти через Яндекс</a>
-        <!-- <div class="wp-block-group is-layout-constrained wp-block-group-is-layout-constrained">
-            <div class="wp-block-buttons is-layout-flex wp-block-buttons-is-layout-flex">
-                <div class="wp-block-button">
-                    
-                </div>
-            </div>
-        </div> -->
-        <?php
-
-        // printf('<a href="%s" class="socialify_yandex">Login with Yandex</a>', $url);
-    }
+    
 
 
     public static function process(\WP_REST_Request $req)
@@ -301,10 +270,6 @@ final class Yandex extends AbstractProvider
             $args['redirect_uri'] = $callbackUrl;
         }
 
-
-
-
-
         $url = add_query_arg($args, $url);
 
         wp_redirect($url);
@@ -364,7 +329,6 @@ final class Yandex extends AbstractProvider
         self::add_setting_enable();
         self::add_setting_id();
         self::add_setting_secret();
-        self::add_setting_show_button();
     }
 
     public static function get_section_id()
@@ -393,29 +357,6 @@ final class Yandex extends AbstractProvider
         );
     }
 
-    public static function add_setting_show_button()
-    {
-        if (! self::is_enabled()) {
-            return;
-        }
-        add_settings_field(
-            self::$key.'_show_button',
-            __('Show button', 'socialify'),
-            function ($args) {
-                printf(
-                    '<input type="checkbox" name="%s" value="1" %s>',
-                    $args['name'],
-                    checked(1, $args['value'], false)
-                );
-            },
-            Settings::$settings_group,
-            self::get_section_id(),
-            [
-                'name' => Settings::$option_key.'[yandex][show_button]',
-                'value' => get_option(Settings::$option_key)['yandex']['show_button'] ?? null,
-            ]
-        );
-    }
 
     public static function is_enabled(): bool
     {
