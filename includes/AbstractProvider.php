@@ -206,7 +206,6 @@ abstract class AbstractProvider
         wp_die(__('Authentication failed.', 'socialify'));
     }
 
-    //tryRegisterUserByProviderProfile
     public static function tryRegisterUserByProviderProfile($providerProfile)
     {
         $email = $providerProfile->email ?? null;
