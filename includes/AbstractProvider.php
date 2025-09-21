@@ -226,6 +226,15 @@ abstract class AbstractProvider
         //update user meta with provider data
         self::saveDataToUserMeta($user_id, data: $providerProfile);
 
+        //update user by $providerProfile
+        wp_update_user([
+            'ID' => $user_id,
+            'first_name' => $providerProfile->firstName ?? '',
+            'last_name' => $providerProfile->lastName ?? '',
+            'display_name' => $providerProfile->displayName ?? '',
+            'user_nicename' => sanitize_title($providerProfile->displayName ?? $username),
+        ]);
+
         //send notification to user with password
         // wp_new_user_notification($user_id, null, 'both');
 

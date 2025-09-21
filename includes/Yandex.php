@@ -72,6 +72,9 @@ final class Yandex extends AbstractProvider
                 $token_data = json_decode(wp_remote_retrieve_body($response), true);
 
                 $access_token = $token_data['access_token'] ?? null;
+                if(empty($access_token)){
+                    self::redirectAfterAuth();
+                }
 
                 $userData = self::get_user_data($access_token);
                 if ($userData) {
@@ -86,7 +89,6 @@ final class Yandex extends AbstractProvider
                     $userProfile->gender = $userData['sex'] ?? null;
 
                     return $userProfile;
-
                 }
 
                 return null;
@@ -95,12 +97,6 @@ final class Yandex extends AbstractProvider
 
             $userProfile = $getUserData($appConfig);
             $user =self::authenticateByProviderProfile($userProfile);
-
-            //  get_user_by('email', $userProfile->email) ?? null;
-
-            // self::saveDataToUserMeta($user->ID, data: $userProfile);
-
-            // self::setCurrentUser($user);
 
             self::redirectAfterAuth();
 
