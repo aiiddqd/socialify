@@ -29,17 +29,11 @@ abstract class AbstractProvider
      */
     public static function load()
     {
-
-        // dd_only_admins(1); exit;
-
         add_action('rest_api_init', [static::class, 'add_routes']);
 
         add_action('admin_init', [static::class, 'add_settings']);
 
-
         static::init();
-
-
     }
 
     //get user id by otp nonce
