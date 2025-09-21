@@ -76,7 +76,40 @@ class GoogleProvider extends AbstractProvider
 
     public static function actionAuth()
     {
-        // TODO: Implement actionAuth() method.
+        $callbackUrl = self::getUrlToAuth();
+
+        $redirect_to = esc_url_raw($_GET['_redirect_to']) ?? home_url();
+
+        $config = [
+            'callback' => $callbackUrl,
+            'keys' => [
+                'id' => self::getOption('id'),
+                'secret' => self::getOption('secret'),
+            ],
+            'scope' => 'https://www.googleapis.com/auth/userinfo.profile',
+            'authorize_url_parameters' => [
+                // 'approval_prompt' => 'force',
+                // 'access_type' => 'offline', // default is 'offline'
+                // 'hd' => '', // set if needed
+                // 'state' => $redirect_to, // set if needed
+                // add other parameters as needed
+            ],
+        ];
+
+        $adapter = new \Hybridauth\Provider\Google($config);
+        $adapter->authenticate();
+
+        $userProfile = $adapter->getUserProfile();
+
+        $user = self::getUserByIdFromProvider($userProfile->identifier);
+
+        if (empty($user)) {
+            wp_die(__('Пользователь не найден. Вам нужно сначала подключить Телеграм к одному из существующих пользователей.', 'socialify'));
+        }
+
+        Plugin::auth_user($user);
+        wp_redirect($redirect_to);
+        exit;
     }
 
     public static function actionConnect()
