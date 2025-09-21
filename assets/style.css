@@ -1,16 +1,19 @@
-.socialify_shortcode_login {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-pack: start;
-  -ms-flex-pack: start;
-  justify-content: flex-start;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  -ms-flex-line-pack: justify;
-  align-content: space-between; }
-  .socialify_shortcode_login .socialify_shortcode_login__item {
-    padding: 3px; }
-    .socialify_shortcode_login .socialify_shortcode_login__item img {
-      width: 33px; }
+@layer components-socialify;
+@import "tailwindcss/theme.css" layer(components-socialify);
+/* @import "tailwindcss/utilities.css" layer(components-socialify); */
+
+
+@plugin "daisyui" {
+  themes: false;
+  include: button, input, select;
+}
+
+@layer components-socialify {
+  .my-custom-button {
+    @apply btn btn-primary px-6 py-3 rounded-lg;
+    /* Applies DaisyUI btn component styles */
+  }
+
+}
+
+/* Optional: Add your custom styles using @apply for DaisyUI components */
