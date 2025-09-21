@@ -17,10 +17,8 @@ final class ConnectProvidersShortcode
         add_action('woocommerce_account_dashboard', [self::class, 'add_to_my_account_page_for_woocommerce'], 33);
     }
 
-    //add shortcode to my account page woo
     public static function add_to_my_account_page_for_woocommerce()
-    {
-        
+    {   
         echo do_shortcode('[socialify_connect_providers]');
     }
 
