@@ -19,7 +19,6 @@ class TelegramProvider extends AbstractProvider
     public static function init(): void
     {
 
-
         // rest route for connect telegram auth
         // example route url http://aappss.ru/wp-json/socialify/v1/telegram-connect
         add_action('rest_api_init', function () {

@@ -29,13 +29,16 @@ final class ConnectProvidersShortcode
             return __('You must be logged in to connect providers.', 'socialify');
         }
 
+        $nonce = wp_create_nonce('socialify_connect_providers');
+        set_transient('socialify_connect_providers_nonce_'.$nonce, $user_id, 15 * MINUTE_IN_SECONDS);
+
         $items = [];
         foreach (Plugin::get_providers() as $provider) {
             if ($provider::is_enabled()) {
                 $meta = $provider::getProviderDataFromUserMeta($user_id);
                 $isConnected = !empty($meta);
                 $items[$provider::$key] = [
-                    'url' => $provider::getUrlToConnect(),
+                    'url' => add_query_arg('nonce', $nonce, $provider::getUrlToConnect()),
                     'logo_url' => $provider::getUrlToLogo(),
                     'name' => $provider::getProviderName(),
                     'key' => $provider::getProviderKey(),

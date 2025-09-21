@@ -34,11 +34,73 @@ abstract class AbstractProvider
 
         add_action('rest_api_init', [static::class, 'add_routes']);
 
+        add_action('admin_init', [static::class, 'add_settings']);
+
+
         static::init();
 
 
     }
 
+    public static function add_settings()
+    {
+        add_settings_section(
+            id: self::getSectionId(),
+            title: static::getProviderName(),
+            callback: function () { ?>
+            <details>
+                <summary>Help</summary>
+                <?php
+                    if (method_exists(static::class, 'getInstructionsHtml')) {
+                        echo static::getInstructionsHtml();
+                    }
+                    ?>
+            </details>
+            <?php
+            },
+            page: Settings::$settings_group
+        );
+
+        self::add_setting_fields();
+    }
+
+    public static function add_setting_fields()
+    {
+        add_settings_field(
+            id: static::getProviderKey().'_enabled',
+            title: __('Enable/Disable', 'socialify'),
+            callback: function ($args) {
+                printf(
+                    '<input type="checkbox" name="%s" value="1" %s>',
+                    $args['name'],
+                    checked(1, $args['value'], false)
+                );
+            },
+            page: Settings::$settings_group,
+            section: self::getSectionId(),
+            args: [
+                'name' => Settings::$option_key.sprintf("[%s][enable]", static::getProviderKey()),
+                'value' => get_option(Settings::$option_key)[static::getProviderKey()]['enable'] ?? null,
+            ]
+        );
+    }
+
+    public static function getSectionId()
+    {
+        return 'socialify_'.static::getProviderKey().'_section';
+    }
+
+    //get option
+    public static function getOption($key){
+        $options = get_option(Settings::$option_key);
+        return $options[static::getProviderKey()][$key] ?? null;
+    }
+    
+    public static function isEnabled(): bool
+    {
+        $options = get_option(Settings::$option_key);
+        return ! empty($options[static::getProviderKey()]['enable']);
+    }
 
     /**
      * Get the logo URL
@@ -51,7 +113,8 @@ abstract class AbstractProvider
 
     abstract public static function getUrlToLogo(): string;
 
-    public static function redirectAfterAuth() {
+    public static function redirectAfterAuth()
+    {
         $redirect_url = site_url();
         $redirect_to = $_GET['_redirect_to'] ?? '';
         if (isset($redirect_to) && filter_var($redirect_to, FILTER_VALIDATE_URL)) {
@@ -61,9 +124,10 @@ abstract class AbstractProvider
         exit;
     }
 
-    public static function getUrlToConnect(): string {
+    public static function getUrlToConnect(): string
+    {
         $url = rest_url(sprintf('socialify/%s-connect', static::getProviderKey()));
-        
+
         return $url;
     }
     public static function getUrlToAuth(): string
@@ -77,20 +141,23 @@ abstract class AbstractProvider
         return $url;
     }
 
-    public static function setCurrentUser( \WP_User $user)
+    public static function setCurrentUser(\WP_User $user)
     {
         wp_set_current_user($user->ID);
         wp_set_auth_cookie($user->ID, true);
         do_action('wp_login', $user->user_login, $user);
     }
 
+    /**
+     * @todo remove - deprecated
+     */
     abstract public static function is_enabled(): bool;
 
 
     public static function add_routes()
     {
         register_rest_route(
-            route_namespace: 'socialify/',
+            'socialify/',
             route: sprintf('%s-auth', static::getProviderKey()),
             args: [
                 'methods' => 'GET',
@@ -98,7 +165,7 @@ abstract class AbstractProvider
                 'permission_callback' => '__return_true',
             ]);
         register_rest_route(
-            route_namespace: 'socialify/',
+            'socialify/',
             route: sprintf('%s-connect', static::getProviderKey()),
             args: [
                 'methods' => 'GET',
