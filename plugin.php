@@ -92,20 +92,9 @@ final class Plugin
     {
         self::$providers = apply_filters('socialify_providers', []);
 
-
-        // dd(self::$providers); exit;
         foreach (self::$providers as $provider) {
-
-
-            if (is_callable($provider)) {
-                $provider();
-            } else {
-                $provider::init();
-            }
-
-            if (is_subclass_of($provider, AbstractProvider::class)) {
-                // dd(self::$providers); exit;
-
+            if (is_a($provider, AbstractProvider::class, true)) {
+                $provider::load();
             }
         }
     }

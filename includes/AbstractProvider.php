@@ -27,31 +27,44 @@ abstract class AbstractProvider
     /**
      * Allow the provider to be invoked as a function.
      */
-    public function __invoke()
+    public static function load()
     {
 
         // dd_only_admins(1); exit;
 
-        // add_action('rest_api_init', [self::class, 'add_routes']);
+        add_action('rest_api_init', [static::class, 'add_routes']);
 
         static::init();
 
 
     }
 
+
+    /**
+     * Get the logo URL
+     */
+    abstract public static function actionAuth();
+    abstract public static function getProviderKey(): string;
+    abstract public static function getProviderName(): string;
+
+
+    abstract public static function getUrlToLogo(): string;
+    abstract public static function getUrlToConnect(): string;
+
+    abstract public static function getUrlToAuth(): string;
+    abstract public static function is_enabled(): bool;
+
+
     public static function add_routes()
     {
-        add_action('rest_api_init', function () {
-
-            register_rest_route(
-                route_namespace: 'socialify/',
-                route: sprintf('%s-auth', static::getProviderKey()),
-                args: [
-                    'methods' => 'GET',
-                    'callback' => [static::class, 'actionAuth'],
-                    'permission_callback' => '__return_true',
-                ]);
-        });
+        register_rest_route(
+            route_namespace: 'socialify/',
+            route: sprintf('%s-auth', static::getProviderKey()),
+            args: [
+                'methods' => 'GET',
+                'callback' => [static::class, 'actionAuth'],
+                'permission_callback' => '__return_true',
+            ]);
     }
 
 
@@ -89,7 +102,7 @@ abstract class AbstractProvider
                     delete_user_meta($user_id, $meta_key);
                 }
             }
-            
+
             return true;
         } catch (Exception $e) {
             return false;
@@ -113,18 +126,4 @@ abstract class AbstractProvider
             return false;
         }
     }
-
-    /**
-     * Get the logo URL
-     */
-    abstract public static function actionAuth();
-    abstract public static function getProviderKey(): string;
-    abstract public static function getProviderName(): string;
-
-
-    abstract public static function getUrlToLogo(): string;
-    abstract public static function getUrlToConnect(): string;
-
-    abstract public static function getUrlToAuth(): string;
-    abstract public static function is_enabled(): bool;
 }

@@ -48,7 +48,7 @@ class TelegramProvider extends AbstractProvider
         $nonce = $_GET['nonce'] ?? '';
         $callbackUrl = add_query_arg('nonce', $nonce, $callbackUrl);
 
-        if(empty($nonce)) {
+        if (empty($nonce)) {
             wp_die(__('Invalid or expired nonce.', 'socialify'));
         }
 
@@ -57,7 +57,7 @@ class TelegramProvider extends AbstractProvider
         $user_id = get_transient('telegram_otp_'.$nonce);
         delete_transient('telegram_otp_'.$nonce);
 
-        if(empty($user_id)) {
+        if (empty($user_id)) {
             wp_die(__('Invalid or expired nonce.', 'socialify'));
         }
         // dd($user_id); exit;
@@ -74,7 +74,28 @@ class TelegramProvider extends AbstractProvider
 
     public static function actionAuth()
     {
-        return self::handleConnect();
+        $callbackUrl = rest_url('socialify/telegram-auth');
+        $redirect_to = esc_url($_GET['_redirect_to'] ?? site_url());
+        if ($redirect_to) {
+            $callbackUrl = add_query_arg('_redirect_to', $redirect_to, $callbackUrl);
+        }
+        $userProfile = self::authAndGetUserProfile($callbackUrl);
+
+        $user_id = self::getUserIdByIdFromProvider($userProfile->identifier);
+
+        //auth user by id
+        if (empty($user_id)) {
+            wp_die(__('Пользователь не найден. Вам нужно сначала подключить Телеграм к одному из существующих пользователей.', 'socialify'));
+        }
+
+        wp_set_current_user($user_id);
+        wp_set_auth_cookie($user_id, true);
+        $user = get_user_by('id', $user_id);
+        do_action('wp_login', $user->user_login, $user);
+        wp_redirect($redirect_to);
+        exit;
+
+        // return self::handleConnect();
     }
 
     public static function addSettings()
@@ -194,7 +215,7 @@ class TelegramProvider extends AbstractProvider
 
 
             $userProfile = $adapter->getUserProfile();
-            
+
             return $userProfile;
         } catch (Exception $e) {
             echo 'Authentication failed: '.$e->getMessage();
@@ -241,8 +262,15 @@ class TelegramProvider extends AbstractProvider
 
     public static function getUrlToAuth(): string
     {
-        // Return the URL to start the authentication process with Telegram
-        return self::getUrlToConnect();
+        global $wp;
+        $url = rest_url('socialify/telegram-auth');
+        $user_id = get_current_user_id();
+
+        $redirect_to = $_GET['_redirect_to'] ?? home_url($wp->request);
+        $url = add_query_arg([
+            '_redirect_to' => $redirect_to,
+        ], $url);
+        return $url;
     }
 
     public static function is_enabled(): bool
