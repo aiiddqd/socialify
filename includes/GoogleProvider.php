@@ -87,9 +87,6 @@ class GoogleProvider extends AbstractProvider
         if (empty($nonce)) {
             wp_die('Invalid nonce');
         }
-        // $callbackUrl = add_query_arg('scop', $nonce, $callbackUrl);
-
-
 
         $config = [
             'callback' => $callbackUrl,
@@ -121,10 +118,6 @@ class GoogleProvider extends AbstractProvider
         if (empty($user_id)) {
             wp_die('Invalid or expired nonce');
         }
-        // var_dump($user_id, $nonce); exit;
-
-        // var_dump($user_id);
-        // exit;
 
         self::saveDataToUserMeta($user_id, data: $userProfile);
         $redirect_to = $_GET['_redirect_to'] ?? home_url();
