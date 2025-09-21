@@ -26,12 +26,15 @@ final class ConnectProvidersShortcode
         $items = [];
         foreach (Plugin::get_providers() as $provider) {
             if ($provider::is_enabled()) {
+                $meta = $provider::getProviderDataFromUserMeta($user_id);
+                $isConnected = !empty($meta);
                 $items[$provider::$key] = [
                     'url' => $provider::getUrlToConnect(),
                     'logo_url' => $provider::getUrlToLogo(),
                     'name' => $provider::getProviderName(),
                     'key' => $provider::getProviderKey(),
                     'meta' => $provider::getProviderDataFromUserMeta($user_id),
+                    'is_connected' => $isConnected,
                 ];
             }
         }

@@ -60,18 +60,40 @@ abstract class AbstractProvider
         return get_user_meta($user_id, 'socialify_'.static::getProviderKey(), true);
     }
 
-    public static function getUserIdByIdFromProvider($provider_user_id){
+    public static function getUserIdByIdFromProvider($provider_user_id)
+    {
         $key = 'socialify_'.static::getProviderKey().'_id_'.$provider_user_id;
-        $user_query = new \WP_User_Query( array(
-            'meta_key'    => $key,
-            'meta_compare'=> 'EXISTS',
-        ) );
+        $user_query = new \WP_User_Query(array(
+            'meta_key' => $key,
+            'meta_compare' => 'EXISTS',
+        ));
         $users = $user_query->get_results();
-        if(empty($users[0]->ID)) {
+        if (empty($users[0]->ID)) {
             return false;
         }
 
         return $users[0]->ID;
+    }
+
+    public static function deleteDataFromUserMeta($user_id)
+    {
+        try {
+            if (empty($user_id) || empty(static::getProviderKey())) {
+                return false;
+            }
+
+            //get all meta keys starts with socialify_{provider_key} and delete them
+            $meta_keys = array_keys(get_user_meta($user_id));
+            foreach ($meta_keys as $meta_key) {
+                if (strpos($meta_key, 'socialify_'.static::getProviderKey()) === 0) {
+                    delete_user_meta($user_id, $meta_key);
+                }
+            }
+            
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
     }
 
     public static function saveDataToUserMeta($user_id, $data)
