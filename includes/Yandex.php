@@ -38,7 +38,6 @@ final class Yandex extends AbstractProvider
 
     public static function actionAuth()
     {
-
         try {
             if (! self::is_enabled()) {
                 throw new \Exception('Yandex not enabled');
@@ -101,8 +100,6 @@ final class Yandex extends AbstractProvider
             self::setCurrentUser($user);
 
             self::redirectAfterAuth();
-
-            dd($userProfile);
 
         } catch (\Exception $e) {
             wp_die($e->getMessage());
