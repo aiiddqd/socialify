@@ -18,7 +18,6 @@ if (empty($items)) {
                             src="<?php echo esc_url($item['logo_url']); ?>" />
                     </figure>
                     <?php if ($item['is_connected']) :
-                        // dd_web($item);
                         ?>
                         <p>Connected as
                             <span><?php echo esc_html($item['meta']['displayName'] ?? $item['meta']['displayName'] ?? $item['meta']['firstName']); ?></span>
