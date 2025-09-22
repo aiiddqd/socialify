@@ -18,12 +18,8 @@ class TelegramProvider extends AbstractProvider
 
     public static function init(): void
     {
-
         add_action('admin_init', [self::class, 'additionalSettings']);
-
     }
-
-
 
     public static function actionConnect()
     {
@@ -47,16 +43,12 @@ class TelegramProvider extends AbstractProvider
         if (empty($user_id)) {
             wp_die(__('Invalid or expired nonce.', 'socialify'));
         }
-        // dd($user_id); exit;
 
         self::saveDataToUserMeta($user_id, data: $userProfile);
 
-        $redirect_to = $_GET['_redirect_to'] ?? home_url();
-        $redirect_url = esc_url_raw($redirect_to);
-
-        wp_redirect($redirect_url);
-        exit;
+        self::redirectAfterAuth();
     }
+
     public static function actionAuth()
     {
         $callbackUrl = rest_url('socialify/telegram-auth');
@@ -73,10 +65,8 @@ class TelegramProvider extends AbstractProvider
             wp_die(__('Пользователь не найден. Вам нужно сначала подключить Телеграм к одному из существующих пользователей.', 'socialify'));
         }
 
-        Plugin::auth_user($user);
-        wp_redirect($redirect_to);
-        exit;
-
+        self::setCurrentUser($user);
+        self::redirectAfterAuth();
     }
 
     public static function additionalSettings()
@@ -139,30 +129,25 @@ class TelegramProvider extends AbstractProvider
             $config = [
                 'callback' => $callbackUrl,
                 'keys' => [
-                    'id' => self::get_config()['id'] ?? '',
-                    'secret' => self::get_config()['secret'] ?? '',
+                    'id' => self::getOption('id') ?? '',
+                    'secret' => self::getOption('secret') ?? '',
                 ],
             ];
-
 
             $adapter = new \Hybridauth\Provider\Telegram($config);
 
             //starter step with widget JS
             if (empty($_GET['hash'])) {
                 header('Content-Type: text/html; charset=utf-8');
-                // exit;
             }
             $adapter->authenticate();
-
 
             $userProfile = $adapter->getUserProfile();
 
             return $userProfile;
         } catch (Exception $e) {
-            echo 'Authentication failed: '.$e->getMessage();
-            return null;
+            wp_die('Authentication failed: '.$e->getMessage());
         }
-
     }
 
     public static function getUrlToLogo(): string
@@ -184,5 +169,4 @@ class TelegramProvider extends AbstractProvider
     {
         return 'Telegram';
     }
-
 }

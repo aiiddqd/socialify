@@ -153,13 +153,6 @@ abstract class AbstractProvider
         return $url;
     }
 
-    public static function setCurrentUser(\WP_User $user)
-    {
-        wp_set_current_user($user->ID);
-        wp_set_auth_cookie($user->ID, true);
-        do_action('wp_login', $user->user_login, $user);
-    }
-
     public static function add_routes()
     {
         register_rest_route(
@@ -199,6 +192,14 @@ abstract class AbstractProvider
 
         wp_die(__('Authentication failed.', 'socialify'));
     }
+
+    public static function setCurrentUser(\WP_User $user)
+    {
+        wp_set_current_user($user->ID);
+        wp_set_auth_cookie($user->ID, true);
+        do_action('wp_login', $user->user_login, $user);
+    }
+
 
     public static function tryRegisterUserByProviderProfile($providerProfile)
     {
@@ -240,9 +241,6 @@ abstract class AbstractProvider
             'display_name' => $providerProfile->displayName ?? '',
             'user_nicename' => sanitize_title($providerProfile->displayName ?? $username),
         ]);
-
-        //send notification to user with password
-        // wp_new_user_notification($user_id, null, 'both');
 
         return get_user_by('id', $user_id);
 

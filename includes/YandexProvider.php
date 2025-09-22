@@ -13,19 +13,13 @@ final class YandexProvider extends AbstractProvider
 {
     public static $key = 'yandex';
 
-
-
     public static function init(): void
     {
-
         add_action('admin_init', [self::class, 'additionalSettings']);
-
     }
-
 
     public static function actionConnect()
     {
-
         $config = [
             'id' => self::getOption('id'),
             'secret' => self::getOption('secret'),
@@ -79,67 +73,23 @@ final class YandexProvider extends AbstractProvider
                 throw new \Exception('Yandex not enabled');
             }
 
-            $appConfig = self::get_config();
-
+            //first step - request code
             if (empty($_GET['code'])) {
-                self::request_code($appConfig['id'], self::getUrlToAuth());
+                self::request_code(self::getOption('id'), self::getUrlToAuth());
             }
 
-            $getUserData = function ($appConfig) {
-                $code = sanitize_text_field($_GET['code']);
-
-                $url = 'https://oauth.yandex.ru/token';
-
-                $response = wp_remote_request($url, [
-                    'method' => 'POST',
-                    'body' => [
-                        'code' => $code,
-                        'grant_type' => 'authorization_code',
-                    ],
-                    'headers' => [
-                        'Content-type' => 'application/x-www-form-urlencoded',
-                        'Authorization' => 'Basic '.base64_encode($appConfig['id'].':'.$appConfig['secret']),
-                    ],
-
-                ]);
-
-                $token_data = json_decode(wp_remote_retrieve_body($response), true);
-
-                $access_token = $token_data['access_token'] ?? null;
-                if (empty($access_token)) {
-                    self::redirectAfterAuth();
-                }
-
-                $userData = self::get_user_data($access_token);
-                if ($userData) {
-                    // return $userData;
-                    $userProfile = new \Hybridauth\User\Profile();
-
-                    $userProfile->email = $userData['default_email'];
-                    $userProfile->identifier = $userData['id'];
-                    $userProfile->firstName = $userData['first_name'] ?? null;
-                    $userProfile->lastName = $userData['last_name'] ?? null;
-                    $userProfile->displayName = $userData['display_name'] ?? null;
-                    $userProfile->gender = $userData['sex'] ?? null;
-
-                    return $userProfile;
-                }
-
-                return null;
-
-            };
-
-            $userProfile = $getUserData($appConfig);
+            //second step - get token and profile
+            $userProfile = self::getUserProfile();
             $user = self::authenticateByProviderProfile($userProfile);
 
             self::redirectAfterAuth();
 
         } catch (\Exception $e) {
+            error_log($e->getMessage());
             wp_die($e->getMessage());
         }
     }
 
-    // get user profile
     public static function getUserProfile()
     {
         $code = sanitize_text_field($_GET['code']);
@@ -185,41 +135,8 @@ final class YandexProvider extends AbstractProvider
 
     }
 
-    public static function authAndGetUserProfile($callbackUrl)
-    {
-        try {
-
-            $config = [
-                'callback' => $callbackUrl,
-                'keys' => [
-                    'id' => self::get_config()['id'] ?? '',
-                    'secret' => self::get_config()['secret'] ?? '',
-                ],
-            ];
-
-
-            $adapter = new \Hybridauth\Provider\Telegram($config);
-
-            //starter step with widget JS
-            if (empty($_GET['hash'])) {
-                header('Content-Type: text/html; charset=utf-8');
-                // exit;
-            }
-            $adapter->authenticate();
-
-            $userProfile = $adapter->getUserProfile();
-
-            return $userProfile;
-        } catch (\Exception $e) {
-            echo 'Authentication failed: '.$e->getMessage();
-            return null;
-        }
-
-    }
-
     public static function getUrlToLogo(): string
     {
-        // Replace with the actual logo URL if available
         return plugins_url('assets/yandex.png', dirname(__FILE__));
     }
 
@@ -227,13 +144,14 @@ final class YandexProvider extends AbstractProvider
     {
         return self::$key;
     }
+
     public static function getProviderName(): string
     {
         return 'Yandex';
     }
 
     /**
-     * @link https://yandex.ru/dev/id/doc/ru/codes/code-url
+     * @doc https://yandex.ru/dev/id/doc/ru/codes/code-url
      */
     public static function request_code($client_id, $callbackUrl = null)
     {
@@ -272,11 +190,6 @@ final class YandexProvider extends AbstractProvider
         ]);
 
         return json_decode(wp_remote_retrieve_body($response), true);
-    }
-
-    public static function get_config()
-    {
-        return get_option(Settings::$option_key)['yandex'] ?? [];
     }
 
     public static function getInstructionsHtml(): void
@@ -333,12 +246,6 @@ final class YandexProvider extends AbstractProvider
                 'value' => get_option(Settings::$option_key)['yandex']['secret'] ?? null,
             ]
         );
-    }
-
-
-    public static function is_enabled(): bool
-    {
-        return self::isEnabled();
     }
 
 }
