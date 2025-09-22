@@ -7,7 +7,7 @@
  * Author URI:   https://github.com/aiiddqd
  * Text Domain:  socialify
  * Domain Path:  /languages/
- * GitHub Plugin URI: https://github.com/aiiddqd/socialify
+ * GitHub Plugin URI: aiiddqd/socialify
  * Requires PHP: 8.0
  * Version:      0.9.250911
  */
