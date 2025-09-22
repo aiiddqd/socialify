@@ -17,27 +17,32 @@ final class ConnectProvidersShortcode
         add_action('woocommerce_account_dashboard', [self::class, 'add_to_my_account_page_for_woocommerce'], 33);
     }
 
-    //add shortcode to my account page woo
     public static function add_to_my_account_page_for_woocommerce()
-    {
-        
+    {   
         echo do_shortcode('[socialify_connect_providers]');
     }
 
     public static function render($args)
     {
+        global $wp;
         $user_id = get_current_user_id();
         if (!$user_id) {
             return __('You must be logged in to connect providers.', 'socialify');
         }
 
+        $nonce = wp_create_nonce('socialify_connect_providers');
+        set_transient('socialify_connect_providers_nonce_'.$nonce, $user_id, 15 * MINUTE_IN_SECONDS);
+
         $items = [];
         foreach (Plugin::get_providers() as $provider) {
-            if ($provider::is_enabled()) {
+            if ($provider::isEnabled()) {
+                $url = add_query_arg('nonce', $nonce, $provider::getUrlToConnect());
+                $url = add_query_arg('_redirect_to', site_url($wp->request), $url);
+
                 $meta = $provider::getProviderDataFromUserMeta($user_id);
                 $isConnected = !empty($meta);
                 $items[$provider::$key] = [
-                    'url' => $provider::getUrlToConnect(),
+                    'url' => $url,
                     'logo_url' => $provider::getUrlToLogo(),
                     'name' => $provider::getProviderName(),
                     'key' => $provider::getProviderKey(),

@@ -2,16 +2,14 @@
 
 defined('ABSPATH') || die();
 
-
 if (empty($items)) {
     return 'No providers are enabled';
 }
 
 ?>
-
 <div class="socialify-auth-providers">
     <div class="socialify-connect-providers">
-        <legend class="socialify-fieldset-legend">Connect providers</legend>
+        <legend class="socialify-fieldset-legend"><?= __('Connecting providers', 'socialify') ?></legend>
         <?php foreach ($items as $key => $item) : ?>
             <div class="socialify-connect-provider-row socialify-card">
                 <div class="wp-block-group is-nowrap is-layout-flex wp-block-group-is-layout-flex">
