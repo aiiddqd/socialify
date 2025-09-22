@@ -8,8 +8,6 @@ AuthShortcode::init();
 
 final class AuthShortcode
 {
-
-    //init
     public static function init()
     {
         add_shortcode('socialify_auth', [self::class, 'render']);
