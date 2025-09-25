@@ -209,7 +209,9 @@ abstract class AbstractProvider
             wp_die(__('Email not provided by provider. Cannot register user without email.', 'socialify'));
         }
         if (email_exists($email)) {
-            return get_user_by('email', $email);
+            $user = get_user_by('email', $email);
+            self::saveDataToUserMeta($user->ID, data: $providerProfile);
+            return $user;
         }
 
         //check is registration allowed

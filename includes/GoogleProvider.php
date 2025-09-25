@@ -99,7 +99,6 @@ class GoogleProvider extends AbstractProvider
         $adapter->authenticate();
 
         $userProfile = $adapter->getUserProfile();
-        // var_dump($userProfile); exit;
 
         $user = self::authenticateByProviderProfile($userProfile);
 
