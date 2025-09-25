@@ -26,7 +26,7 @@ class GoogleProvider extends AbstractProvider
             <li>Go to "Credentials" and click on "Create Credentials" > "OAuth 2.0 Client IDs".</li>
             <li>Select "Web application" as the application type.</li>
             <li>Add the following URL to the "Authorized redirect URIs":
-                <pre>'.esc_html(self::getUrlToAuth()).'</pre>
+                <pre>'<?php echo esc_html(self::getUrlToAuth()); ?>'</pre>
             </li>
             <li>Click "Create" to generate your Client ID and Secret.</li>
             <li>Copy the Client ID and Secret and paste them into the fields below.</li>
