@@ -203,6 +203,7 @@ abstract class AbstractProvider
 
     public static function tryRegisterUserByProviderProfile($providerProfile)
     {
+        // var_dump($providerProfile); exit;
         $email = $providerProfile->email ?? null;
         if (empty($email)) {
             wp_die(__('Email not provided by provider. Cannot register user without email.', 'socialify'));
@@ -212,8 +213,8 @@ abstract class AbstractProvider
         }
 
         //check is registration allowed
-        if (get_option('users_can_register') != 1) {
-            // wp_die(__('User registration is disabled. Please contact the site administrator.', 'socialify'));
+        if (!get_option('users_can_register')) {
+            wp_die(__('User registration is disabled. Please contact the site administrator.', 'socialify'));
         }
 
         $username = sanitize_user($providerProfile->displayName ?? ($providerProfile->firstName ?? 'user'), true);

@@ -85,7 +85,7 @@ class GoogleProvider extends AbstractProvider
                 'id' => self::getOption('id'),
                 'secret' => self::getOption('secret'),
             ],
-            'scope' => 'https://www.googleapis.com/auth/userinfo.profile',
+            'scope' => 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
             'authorize_url_parameters' => [
                 // 'approval_prompt' => 'force',
                 // 'access_type' => 'offline', // default is 'offline'
@@ -99,6 +99,7 @@ class GoogleProvider extends AbstractProvider
         $adapter->authenticate();
 
         $userProfile = $adapter->getUserProfile();
+        // var_dump($userProfile); exit;
 
         $user = self::authenticateByProviderProfile($userProfile);
 
