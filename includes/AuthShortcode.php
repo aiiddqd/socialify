@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Socialify;
 
@@ -16,8 +16,11 @@ final class AuthShortcode
 
     public static function addShortcodeAutomatically()
     {
-        echo do_shortcode('[socialify_auth]');
-        echo "<hr>";
+        $content = do_shortcode('[socialify_auth]');
+        if ($content) {
+            echo $content;
+            echo "<hr>";
+        }
     }
 
     public static function render($args)
