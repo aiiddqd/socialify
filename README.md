@@ -14,7 +14,7 @@
 
 ## Installation
 
-1. Upload the `_socialify` plugin folder to your WordPress `/wp-content/plugins/` directory.
+1. Upload the `socialify` plugin folder to your WordPress `/wp-content/plugins/` directory.
 2. Activate the plugin through the WordPress admin dashboard.
 3. Configure your social providers (Google, Telegram, Yandex) in the plugin settings.
 
