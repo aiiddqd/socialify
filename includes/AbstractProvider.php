@@ -38,6 +38,7 @@ abstract class AbstractProvider
     }
 
     //get user id by otp nonce
+    // to delete
     public static function getUserIdByNonce($nonce): ?int
     {
         $user_id = get_transient("socialify_connect_providers_nonce_$nonce");
@@ -115,6 +116,7 @@ abstract class AbstractProvider
     abstract public static function actionAuth();
     abstract public static function getInstructionsHtml(): void;
     abstract public static function actionConnect();
+
     abstract public static function getProviderKey(): string;
     abstract public static function getProviderName(): string;
 
@@ -132,6 +134,7 @@ abstract class AbstractProvider
     }
 
     //get nonce from url
+    // todo - delete
     public static function getNonceFromUrl(): ?string
     {
         return esc_attr($_GET['nonce']) ?? null;
@@ -150,7 +153,19 @@ abstract class AbstractProvider
 
         return $url;
     }
-    
+
+    public static function actionDisconnect()
+    {
+        $user_id = get_current_user_id();
+
+        if (empty($user_id)) {
+            wp_die('Invalid $user_id');
+        }
+
+        self::deleteDataFromUserMeta($user_id);
+        self::redirectAfterAuth();
+    }
+
     public static function getUrlToAuth(): string
     {
         global $wp;
@@ -164,24 +179,12 @@ abstract class AbstractProvider
 
     public static function addRoutesSocialify($path)
     {
-        if($path == sprintf('%s-connect', static::getProviderKey())) {
+        if ($path == sprintf('%s-connect', static::getProviderKey())) {
             return static::actionConnect();
         }
-        if($path == sprintf('%s-disconnect', static::getProviderKey())) {
-            return static::actionDisconnect();
+        if ($path == sprintf('%s-disconnect', static::getProviderKey())) {
+            return self::actionDisconnect();
         }
-
-                // $url = Endpoints::getUrl(sprintf('%s-disconnect', static::getProviderKey()));
-// 
-
-        // register_rest_route(
-        //     'socialify/',
-        //     route: sprintf('%s-connect', static::getProviderKey()),
-        //     args: [
-        //         'methods' => 'GET',
-        //         'callback' => [static::class, 'actionConnect'],
-        //         'permission_callback' => '__return_true',
-        //     ]);
     }
 
     public static function add_routes()

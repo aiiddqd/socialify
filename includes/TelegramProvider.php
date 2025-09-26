@@ -16,29 +16,29 @@ class TelegramProvider extends AbstractProvider
 {
     public static $key = 'telegram';
 
+
+
     public static function init(): void
     {
         add_action('admin_init', [self::class, 'additionalSettings']);
     }
 
+    // public function actionDisconnect()
+    // {
+        
+    // }
+
     public static function actionConnect()
     {
-        $callbackUrl = rest_url('socialify/v1/telegram-connect');
+        $callbackUrl = self::getUrlToConnect();
         $redirect_to = esc_url($_GET['_redirect_to'] ?? null);
         if ($redirect_to) {
             $callbackUrl = add_query_arg('_redirect_to', $redirect_to, $callbackUrl);
         }
-        $nonce = $_GET['nonce'] ?? '';
-        $callbackUrl = add_query_arg('nonce', $nonce, $callbackUrl);
-
-        if (empty($nonce)) {
-            wp_die(__('Invalid or expired nonce.', 'socialify'));
-        }
 
         $userProfile = self::authAndGetUserProfile($callbackUrl);
 
-        $user_id = get_transient('telegram_otp_'.$nonce);
-        delete_transient('telegram_otp_'.$nonce);
+        $user_id = get_current_user_id();
 
         if (empty($user_id)) {
             wp_die(__('Invalid or expired nonce.', 'socialify'));

@@ -13,6 +13,8 @@ final class YandexProvider extends AbstractProvider
 {
     public static $key = 'yandex';
 
+
+
     public static function init(): void
     {
         add_action('admin_init', [self::class, 'additionalSettings']);

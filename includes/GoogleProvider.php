@@ -111,16 +111,6 @@ class GoogleProvider extends AbstractProvider
         // exit;
     }
 
-    public static function actionDisconnect(){
-        $user_id = get_current_user_id();
-
-        if (empty($user_id)) {
-            wp_die('Invalid $user_id');
-        }
-
-        self::deleteDataFromUserMeta($user_id);
-        self::redirectAfterAuth();
-    }
     public static function actionConnect()
     {
         $callbackUrl = self::getUrlToConnect();
