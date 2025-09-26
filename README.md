@@ -19,7 +19,7 @@
 3. Configure your social providers (Google, Telegram, Yandex) in the plugin settings.
 
 ## Add shortcodes 
-### To Auth `[socialify_auth]]`
+### To Auth `[socialify_auth]`
 - You can add the shortcode `[socialify_auth]` to any page or post where you want to display the social login buttons.
 - As example - My Account page for WooCommerce.
 
