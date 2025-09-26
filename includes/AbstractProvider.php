@@ -30,6 +30,7 @@ abstract class AbstractProvider
     public static function load()
     {
         add_action('rest_api_init', [static::class, 'add_routes']);
+        add_action('socialify/endpoint', [static::class, 'addRoutesSocialify']);
 
         add_action('admin_init', [static::class, 'add_settings']);
 
@@ -138,10 +139,18 @@ abstract class AbstractProvider
 
     public static function getUrlToConnect(): string
     {
-        $url = Endpoints::getUrl(sprintf('/%s-connect', static::getProviderKey()));
+        $url = Endpoints::getUrl(sprintf('%s-connect', static::getProviderKey()));
 
         return $url;
     }
+
+    public static function getUrlToDisconnect(): string
+    {
+        $url = Endpoints::getUrl(sprintf('%s-disconnect', static::getProviderKey()));
+
+        return $url;
+    }
+    
     public static function getUrlToAuth(): string
     {
         global $wp;
@@ -151,6 +160,28 @@ abstract class AbstractProvider
             '_redirect_to' => $redirect_to,
         ], $url);
         return $url;
+    }
+
+    public static function addRoutesSocialify($path)
+    {
+        if($path == sprintf('%s-connect', static::getProviderKey())) {
+            return static::actionConnect();
+        }
+        if($path == sprintf('%s-disconnect', static::getProviderKey())) {
+            return static::actionDisconnect();
+        }
+
+                // $url = Endpoints::getUrl(sprintf('%s-disconnect', static::getProviderKey()));
+// 
+
+        // register_rest_route(
+        //     'socialify/',
+        //     route: sprintf('%s-connect', static::getProviderKey()),
+        //     args: [
+        //         'methods' => 'GET',
+        //         'callback' => [static::class, 'actionConnect'],
+        //         'permission_callback' => '__return_true',
+        //     ]);
     }
 
     public static function add_routes()
@@ -163,14 +194,7 @@ abstract class AbstractProvider
                 'callback' => [static::class, 'actionAuth'],
                 'permission_callback' => '__return_true',
             ]);
-        register_rest_route(
-            'socialify/',
-            route: sprintf('%s-connect', static::getProviderKey()),
-            args: [
-                'methods' => 'GET',
-                'callback' => [static::class, 'actionConnect'],
-                'permission_callback' => '__return_true',
-            ]);
+
     }
 
 
@@ -215,7 +239,7 @@ abstract class AbstractProvider
         }
 
         //check is registration allowed
-        if (!get_option('users_can_register')) {
+        if (! get_option('users_can_register')) {
             wp_die(__('User registration is disabled. Please contact the site administrator.', 'socialify'));
         }
 
@@ -273,6 +297,8 @@ abstract class AbstractProvider
 
             //get all meta keys starts with socialify_{provider_key} and delete them
             $meta_keys = array_keys(get_user_meta($user_id));
+
+            //delete all meta keys starts with socialify_{provider_key}..
             foreach ($meta_keys as $meta_key) {
                 if (strpos($meta_key, 'socialify_'.static::getProviderKey()) === 0) {
                     delete_user_meta($user_id, $meta_key);

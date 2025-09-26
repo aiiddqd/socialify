@@ -111,14 +111,19 @@ class GoogleProvider extends AbstractProvider
         // exit;
     }
 
+    public static function actionDisconnect(){
+        $user_id = get_current_user_id();
+
+        if (empty($user_id)) {
+            wp_die('Invalid $user_id');
+        }
+
+        self::deleteDataFromUserMeta($user_id);
+        self::redirectAfterAuth();
+    }
     public static function actionConnect()
     {
-
         $callbackUrl = self::getUrlToConnect();
-        $nonce = esc_attr($_GET['nonce']) ?? '';
-        if (empty($nonce)) {
-            wp_die('Invalid nonce');
-        }
 
         $config = [
             'callback' => $callbackUrl,
@@ -131,22 +136,20 @@ class GoogleProvider extends AbstractProvider
                 // 'approval_prompt' => 'force',
                 // 'access_type' => 'offline', // default is 'offline'
                 // 'hd' => '', // set if needed
-                'state' => $nonce, // set if needed
+                // 'state' => '', // set if needed
                 // add other parameters as needed
             ],
         ];
-
 
         $adapter = new \Hybridauth\Provider\Google($config);
         $adapter->authenticate();
 
         $userProfile = $adapter->getUserProfile();
 
-        $nonce = sanitize_text_field($_GET['nonce']) ?? '';
-        $user_id = self::getUserIdByNonce($nonce);
+        $user_id = get_current_user_id();
 
         if (empty($user_id)) {
-            wp_die('Invalid or expired nonce');
+            wp_die('Invalid $user_id');
         }
 
         self::saveDataToUserMeta($user_id, data: $userProfile);

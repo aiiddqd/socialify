@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Socialify;
 
@@ -18,25 +18,29 @@ final class ConnectProvidersShortcode
     }
 
     public static function add_to_my_account_page_for_woocommerce()
-    {   
+    {
         echo do_shortcode('[socialify_connect_providers]');
     }
 
     public static function render($args)
     {
         $user_id = get_current_user_id();
-        if (!$user_id) {
+        if (! $user_id) {
             return __('You must be logged in to connect providers.', 'socialify');
         }
 
         $items = [];
         foreach (Plugin::get_providers() as $provider) {
             if ($provider::isEnabled()) {
-                $url = $provider::getUrlToConnect();
+                $meta = $provider::getProviderDataFromUserMeta($user_id);
+                $isConnected = ! empty($meta);
+                if ($isConnected) {
+                    $url = $provider::getUrlToDisconnect();
+                } else {
+                    $url = $provider::getUrlToConnect();
+                }
                 $url = add_query_arg('_redirect_to', Plugin::get_current_url(), $url);
 
-                $meta = $provider::getProviderDataFromUserMeta($user_id);
-                $isConnected = !empty($meta);
                 $items[$provider::$key] = [
                     'url' => $url,
                     'logo_url' => $provider::getUrlToLogo(),
