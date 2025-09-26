@@ -42,7 +42,6 @@ final class Plugin
     public static $plugin_file_path = '';
     public static $plugin_dir_path = '';
     public static $plugin_dir_url = '';
-    public static $redirect_to = '';
     public static $providers = [];
 
     /**
@@ -50,9 +49,6 @@ final class Plugin
      */
     public static $settings_group = 'socialify_login_settings';
 
-    /**
-     * The init
-     */
     public static function init()
     {
         self::$plugin_basename = plugin_basename(__FILE__);
@@ -74,7 +70,6 @@ final class Plugin
         add_action('wp_enqueue_scripts', [self::class, 'enqueue_styles']);
     }
 
-    //enque styles
     public static function enqueue_styles()
     {
         $path = 'assets/build.css';
@@ -94,7 +89,6 @@ final class Plugin
         }
     }
 
-    //get providers
     public static function get_providers()
     {
         return self::$providers;
