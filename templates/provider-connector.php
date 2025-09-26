@@ -18,7 +18,6 @@ if (empty($items)) {
                             src="<?php echo esc_url($item['logo_url']); ?>" />
                     </figure>
                     <?php if ($item['is_connected']) :
-                        // dd_web($item);
                         ?>
                         <p>Connected as
                             <span><?php echo esc_html($item['meta']['displayName'] ?? $item['meta']['displayName'] ?? $item['meta']['firstName']); ?></span>
@@ -30,7 +29,7 @@ if (empty($items)) {
 
                 <div class="socialify-provider-action">
                     <?php if ($item['is_connected']) : ?>
-                        <a href="#" class="socialify-btn socialify-provider-<?php echo esc_attr($key); ?> connected"
+                        <a href="<?php echo esc_url($item['url']); ?>" class="socialify-btn socialify-provider-<?php echo esc_attr($key); ?> connected"
                             aria-disabled="true">
                             <span><?= __('Disconnect', 'socialify') ?></span>
                         </a>

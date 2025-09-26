@@ -18,6 +18,17 @@
 2. Activate the plugin through the WordPress admin dashboard.
 3. Configure your social providers (Google, Telegram, Yandex) in the plugin settings.
 
+## Add shortcodes 
+### To Auth `[socialify_auth]`
+- You can add the shortcode `[socialify_auth]` to any page or post where you want to display the social login buttons.
+- As example - My Account page for WooCommerce.
+
+### To Connect `[socialify_connect_providers]`
+- This shortcode will display the social connection buttons for all connected providers.
+- You can add the shortcode `[socialify_connect_providers]` to any page or post where you want to display the social connection buttons.
+- As example - My Account page for WooCommerce - has been planted automatically.
+
+
 ## Configuration
 
 1. Go to **Settings > Socialify** in your WordPress admin panel.

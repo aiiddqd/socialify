@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Socialify;
 
@@ -8,12 +8,21 @@ AuthShortcode::init();
 
 final class AuthShortcode
 {
-
-    //init
     public static function init()
     {
         add_shortcode('socialify_auth', [self::class, 'render']);
+        add_action('woocommerce_login_form_start', [self::class, 'addShortcodeAutomatically']);
     }
+
+    public static function addShortcodeAutomatically()
+    {
+        $content = do_shortcode('[socialify_auth]');
+        if ($content) {
+            echo $content;
+            echo "<hr>";
+        }
+    }
+
     public static function render($args)
     {
         $user_id = get_current_user_id();

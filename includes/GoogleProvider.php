@@ -26,7 +26,7 @@ class GoogleProvider extends AbstractProvider
             <li>Go to "Credentials" and click on "Create Credentials" > "OAuth 2.0 Client IDs".</li>
             <li>Select "Web application" as the application type.</li>
             <li>Add the following URL to the "Authorized redirect URIs":
-                <pre>'.esc_html(self::getUrlToAuth()).'</pre>
+                <pre><?php echo esc_html(self::getUrlToAuth()); ?></pre>
             </li>
             <li>Click "Create" to generate your Client ID and Secret.</li>
             <li>Copy the Client ID and Secret and paste them into the fields below.</li>
@@ -85,7 +85,7 @@ class GoogleProvider extends AbstractProvider
                 'id' => self::getOption('id'),
                 'secret' => self::getOption('secret'),
             ],
-            'scope' => 'https://www.googleapis.com/auth/userinfo.profile',
+            'scope' => 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
             'authorize_url_parameters' => [
                 // 'approval_prompt' => 'force',
                 // 'access_type' => 'offline', // default is 'offline'
@@ -103,7 +103,7 @@ class GoogleProvider extends AbstractProvider
         $user = self::authenticateByProviderProfile($userProfile);
 
         if (empty($user)) {
-            wp_die(__('Пользователь не найден. Вам нужно сначала подключить Телеграм к одному из существующих пользователей.', 'socialify'));
+            wp_die(__('User not found. You need to connect Google to an existing user first.', 'socialify'));
         }
 
         // Plugin::auth_user($user);
@@ -113,12 +113,7 @@ class GoogleProvider extends AbstractProvider
 
     public static function actionConnect()
     {
-
         $callbackUrl = self::getUrlToConnect();
-        $nonce = esc_attr($_GET['nonce']) ?? '';
-        if (empty($nonce)) {
-            wp_die('Invalid nonce');
-        }
 
         $config = [
             'callback' => $callbackUrl,
@@ -131,29 +126,24 @@ class GoogleProvider extends AbstractProvider
                 // 'approval_prompt' => 'force',
                 // 'access_type' => 'offline', // default is 'offline'
                 // 'hd' => '', // set if needed
-                'state' => $nonce, // set if needed
+                // 'state' => '', // set if needed
                 // add other parameters as needed
             ],
         ];
-
 
         $adapter = new \Hybridauth\Provider\Google($config);
         $adapter->authenticate();
 
         $userProfile = $adapter->getUserProfile();
 
-        $nonce = sanitize_text_field($_GET['nonce']) ?? '';
-        $user_id = self::getUserIdByNonce($nonce);
+        $user_id = get_current_user_id();
 
         if (empty($user_id)) {
-            wp_die('Invalid or expired nonce');
+            wp_die('Invalid $user_id');
         }
 
         self::saveDataToUserMeta($user_id, data: $userProfile);
-        $redirect_to = $_GET['_redirect_to'] ?? home_url();
-        $redirect_url = esc_url_raw($redirect_to);
-        wp_redirect($redirect_url);
-        exit;
+        self::redirectAfterAuth();
     }
 
     public static function getProviderKey(): string

@@ -30,6 +30,7 @@ abstract class AbstractProvider
     public static function load()
     {
         add_action('rest_api_init', [static::class, 'add_routes']);
+        add_action('socialify/endpoint', [static::class, 'addRoutesSocialify']);
 
         add_action('admin_init', [static::class, 'add_settings']);
 
@@ -37,6 +38,7 @@ abstract class AbstractProvider
     }
 
     //get user id by otp nonce
+    // to delete
     public static function getUserIdByNonce($nonce): ?int
     {
         $user_id = get_transient("socialify_connect_providers_nonce_$nonce");
@@ -114,6 +116,7 @@ abstract class AbstractProvider
     abstract public static function actionAuth();
     abstract public static function getInstructionsHtml(): void;
     abstract public static function actionConnect();
+
     abstract public static function getProviderKey(): string;
     abstract public static function getProviderName(): string;
 
@@ -131,6 +134,7 @@ abstract class AbstractProvider
     }
 
     //get nonce from url
+    // todo - delete
     public static function getNonceFromUrl(): ?string
     {
         return esc_attr($_GET['nonce']) ?? null;
@@ -138,10 +142,30 @@ abstract class AbstractProvider
 
     public static function getUrlToConnect(): string
     {
-        $url = rest_url(sprintf('socialify/%s-connect', static::getProviderKey()));
+        $url = Endpoints::getUrl(sprintf('%s-connect', static::getProviderKey()));
 
         return $url;
     }
+
+    public static function getUrlToDisconnect(): string
+    {
+        $url = Endpoints::getUrl(sprintf('%s-disconnect', static::getProviderKey()));
+
+        return $url;
+    }
+
+    public static function actionDisconnect()
+    {
+        $user_id = get_current_user_id();
+
+        if (empty($user_id)) {
+            wp_die('Invalid $user_id');
+        }
+
+        self::deleteDataFromUserMeta($user_id);
+        self::redirectAfterAuth();
+    }
+
     public static function getUrlToAuth(): string
     {
         global $wp;
@@ -151,6 +175,16 @@ abstract class AbstractProvider
             '_redirect_to' => $redirect_to,
         ], $url);
         return $url;
+    }
+
+    public static function addRoutesSocialify($path)
+    {
+        if ($path == sprintf('%s-connect', static::getProviderKey())) {
+            return static::actionConnect();
+        }
+        if ($path == sprintf('%s-disconnect', static::getProviderKey())) {
+            return self::actionDisconnect();
+        }
     }
 
     public static function add_routes()
@@ -163,14 +197,7 @@ abstract class AbstractProvider
                 'callback' => [static::class, 'actionAuth'],
                 'permission_callback' => '__return_true',
             ]);
-        register_rest_route(
-            'socialify/',
-            route: sprintf('%s-connect', static::getProviderKey()),
-            args: [
-                'methods' => 'GET',
-                'callback' => [static::class, 'actionConnect'],
-                'permission_callback' => '__return_true',
-            ]);
+
     }
 
 
@@ -203,17 +230,20 @@ abstract class AbstractProvider
 
     public static function tryRegisterUserByProviderProfile($providerProfile)
     {
+        // var_dump($providerProfile); exit;
         $email = $providerProfile->email ?? null;
         if (empty($email)) {
             wp_die(__('Email not provided by provider. Cannot register user without email.', 'socialify'));
         }
         if (email_exists($email)) {
-            return get_user_by('email', $email);
+            $user = get_user_by('email', $email);
+            self::saveDataToUserMeta($user->ID, data: $providerProfile);
+            return $user;
         }
 
         //check is registration allowed
-        if (get_option('users_can_register') != 1) {
-            // wp_die(__('User registration is disabled. Please contact the site administrator.', 'socialify'));
+        if (! get_option('users_can_register')) {
+            wp_die(__('User registration is disabled. Please contact the site administrator.', 'socialify'));
         }
 
         $username = sanitize_user($providerProfile->displayName ?? ($providerProfile->firstName ?? 'user'), true);
@@ -270,6 +300,8 @@ abstract class AbstractProvider
 
             //get all meta keys starts with socialify_{provider_key} and delete them
             $meta_keys = array_keys(get_user_meta($user_id));
+
+            //delete all meta keys starts with socialify_{provider_key}..
             foreach ($meta_keys as $meta_key) {
                 if (strpos($meta_key, 'socialify_'.static::getProviderKey()) === 0) {
                     delete_user_meta($user_id, $meta_key);
