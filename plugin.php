@@ -9,7 +9,7 @@
  * Domain Path:  /languages/
  * GitHub Plugin URI: aiiddqd/socialify
  * Requires PHP: 8.0
- * Version:      0.9.250911
+ * Version:      0.9.250925
  */
 
 namespace Socialify;
