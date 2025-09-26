@@ -56,7 +56,7 @@ class TelegramProvider extends AbstractProvider
 
         //auth user by id
         if (empty($user)) {
-            wp_die(__('Пользователь не найден. Вам нужно сначала подключить Телеграм к одному из существующих пользователей.', 'socialify'));
+            wp_die(__('User not found. You need to connect Telegram to an existing user first.', 'socialify'));
         }
 
         self::setCurrentUser($user);
