@@ -103,7 +103,7 @@ class GoogleProvider extends AbstractProvider
         $user = self::authenticateByProviderProfile($userProfile);
 
         if (empty($user)) {
-            wp_die(__('User not found. You need to connect Telegram to an existing user first.', 'socialify'));
+            wp_die(__('User not found. You need to connect Google to an existing user first.', 'socialify'));
         }
 
         // Plugin::auth_user($user);
