@@ -44,8 +44,8 @@ After configuration, Socialify will add social login buttons to your WordPress l
 
 ## Requirements
 
-- WordPress 5.0 or higher
-- PHP 7.2 or higher
+- WordPress 6.0 or higher
+- PHP 8.0 or higher
 
 ## Credits
 
