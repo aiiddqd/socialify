@@ -143,10 +143,7 @@ class GoogleProvider extends AbstractProvider
         }
 
         self::saveDataToUserMeta($user_id, data: $userProfile);
-        $redirect_to = $_GET['_redirect_to'] ?? home_url();
-        $redirect_url = esc_url_raw($redirect_to);
-        wp_redirect($redirect_url);
-        exit;
+        self::redirectAfterAuth();
     }
 
     public static function getProviderKey(): string

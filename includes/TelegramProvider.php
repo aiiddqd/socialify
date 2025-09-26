@@ -23,11 +23,6 @@ class TelegramProvider extends AbstractProvider
         add_action('admin_init', [self::class, 'additionalSettings']);
     }
 
-    // public function actionDisconnect()
-    // {
-        
-    // }
-
     public static function actionConnect()
     {
         $callbackUrl = self::getUrlToConnect();
@@ -41,11 +36,10 @@ class TelegramProvider extends AbstractProvider
         $user_id = get_current_user_id();
 
         if (empty($user_id)) {
-            wp_die(__('Invalid or expired nonce.', 'socialify'));
+            wp_die(__('Invalid $user_id.', 'socialify'));
         }
 
         self::saveDataToUserMeta($user_id, data: $userProfile);
-
         self::redirectAfterAuth();
     }
 

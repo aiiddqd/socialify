@@ -22,26 +22,20 @@ final class YandexProvider extends AbstractProvider
 
     public static function actionConnect()
     {
+        if (! self::isEnabled()) {
+            wp_die('Yandex provider is not enabled');
+        }
+
         $config = [
             'id' => self::getOption('id'),
             'secret' => self::getOption('secret'),
         ];
 
-        if (! self::isEnabled()) {
-            wp_die('Yandex provider is not enabled');
-        }
-
         if (empty($config['id']) || empty($config['secret'])) {
             wp_die('No config - you need to set Client ID and Secret in plugin settings');
         }
 
-        $nonce = self::getNonceFromUrl();
-        if (empty($nonce)) {
-            wp_die('Invalid nonce');
-        }
-
         $callbackUrl = self::getUrlToConnect();
-        $callbackUrl = add_query_arg('nonce', $nonce, $callbackUrl);
 
         if (empty($_GET['code'])) {
             self::request_code($config['id'], $callbackUrl);
@@ -52,15 +46,15 @@ final class YandexProvider extends AbstractProvider
             wp_die('Failed to get user profile from Yandex');
         }
 
-        $user_id = self::getUserIdByNonce($nonce);
-
         $state = $_GET['state'] ?? '';
         if (isset($state) && filter_var($state, FILTER_VALIDATE_URL)) {
             $redirect_to = $state;
         }
 
+        $user_id = get_current_user_id();
+
         if (empty($user_id)) {
-            wp_die('Invalid or expired nonce');
+            wp_die('Invalid $user_id');
         }
 
         self::saveDataToUserMeta($user_id, data: $userProfile);
