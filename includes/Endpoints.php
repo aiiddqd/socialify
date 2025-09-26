@@ -29,7 +29,6 @@ class Endpoints
         return home_url(user_trailingslashit(Plugin::$slug) . $path);
     }
 
-    //getHook
     public static function getHook($path){
         return "socialify/endpoint/$path";
     }

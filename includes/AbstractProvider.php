@@ -138,7 +138,7 @@ abstract class AbstractProvider
 
     public static function getUrlToConnect(): string
     {
-        $url = rest_url(sprintf('socialify/%s-connect', static::getProviderKey()));
+        $url = Endpoints::getUrl(sprintf('/%s-connect', static::getProviderKey()));
 
         return $url;
     }
