@@ -246,7 +246,8 @@ abstract class AbstractProvider
             wp_die(__('User registration is disabled. Please contact the site administrator.', 'socialify'));
         }
 
-        $username = sanitize_user($providerProfile->displayName ?? ($providerProfile->firstName ?? 'user'), true);
+        $username = wp_generate_uuid4();
+        $username = sanitize_user($username, true);
         if (username_exists($username)) {
             $username .= rand(1000, 9999);
         }
