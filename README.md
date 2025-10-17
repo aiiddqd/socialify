@@ -14,7 +14,7 @@
 
 ## Installation
 
-1. Upload the `_socialify` plugin folder to your WordPress `/wp-content/plugins/` directory.
+1. Upload the `socialify` plugin folder to your WordPress `/wp-content/plugins/` directory.
 2. Activate the plugin through the WordPress admin dashboard.
 3. Configure your social providers (Google, Telegram, Yandex) in the plugin settings.
 
@@ -44,8 +44,8 @@ After configuration, Socialify will add social login buttons to your WordPress l
 
 ## Requirements
 
-- WordPress 5.0 or higher
-- PHP 7.2 or higher
+- WordPress 6.0 or higher
+- PHP 8.0 or higher
 
 ## Credits
 
