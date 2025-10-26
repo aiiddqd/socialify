@@ -190,8 +190,8 @@ abstract class AbstractProvider
     public static function add_routes()
     {
         register_rest_route(
-            'socialify/',
-            route: sprintf('%s-auth', static::getProviderKey()),
+            'socialify',
+            route: sprintf('/%s-auth', static::getProviderKey()),
             args: [
                 'methods' => 'GET',
                 'callback' => [static::class, 'actionAuth'],
