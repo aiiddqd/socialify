@@ -1,11 +1,7 @@
 <?php
 
 
-// function htmxer_url($route)
-// {
-//     $route = sanitize_text_field($route);
-//     return home_url(user_trailingslashit('htmxer/'.ltrim($route, '/')));
-// }
+
 
 // function htmxer_hook($route)
 // {
@@ -26,7 +22,7 @@ class Endpoints
     }
 
     public static function getUrl($path){
-        return home_url(user_trailingslashit(Plugin::$slug) . $path);
+        return home_url(trailingslashit(Plugin::$slug) . $path);
     }
 
     public static function getHook($path){

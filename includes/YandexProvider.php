@@ -13,8 +13,6 @@ final class YandexProvider extends AbstractProvider
 {
     public static $key = 'yandex';
 
-
-
     public static function init(): void
     {
         add_action('admin_init', [self::class, 'additionalSettings']);
@@ -76,6 +74,7 @@ final class YandexProvider extends AbstractProvider
 
             //second step - get token and profile
             $userProfile = self::getUserProfile();
+
             $user = self::authenticateByProviderProfile($userProfile);
 
             self::redirectAfterAuth();
