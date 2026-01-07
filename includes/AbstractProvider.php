@@ -209,9 +209,11 @@ abstract class AbstractProvider
     public static function authenticateByProviderProfile($providerProfile)
     {
         $user = self::getUserByIdFromProvider($providerProfile->identifier);
+
         if (empty($user)) {
             $user = self::tryRegisterUserByProviderProfile($providerProfile);
         }
+        
         if ($user) {
             self::setCurrentUser($user);
             return $user;
