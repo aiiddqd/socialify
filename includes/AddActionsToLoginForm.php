@@ -32,7 +32,8 @@ final class AddActionsToLoginForm
 
       add_shortcode('!socialify_login', function ($args) {
         $data = [];
-        if (! empty ($args['email'])) {
+        $options = get_option(self::$option_name);
+        if (! empty($options['email_show'])) {
           $data['login_items'] = [
             'email_standard' => [
               'url' => wp_login_url(home_url()),
@@ -95,6 +96,23 @@ final class AddActionsToLoginForm
       $args = [
         'name' => self::$option_name . '[login_page_show]',
         'value' => get_option(self::$option_name)['login_page_show'] ?? null,
+      ]
+    );
+
+    add_settings_field(
+      $setting_id = self::$option_name . '_email_show',
+      $setting_title = 'Показывать кнопку входа по email',
+      $callback = function ($args) {
+        printf(
+          '<input type="checkbox" name="%s" value="1" %s>',
+          $args['name'], checked(1, $args['value'], false)
+        );
+      },
+      Settings::get_settings_group(),
+      $section = self::$option_name . '_section',
+      $args = [
+        'name' => self::$option_name . '[email_show]',
+        'value' => get_option(self::$option_name)['email_show'] ?? null,
       ]
     );
   }
